@@ -647,13 +647,16 @@ class Component extends DCLogic {
       'https://yutfzippzrnohfsobpcx.supabase.co',
       'sb_publishable_AYyUlmTU8DS1OQLonzCU2A_eC5figBW'
     );
+    // A password-reset link lands here with a recovery token — never auto-enter the app in that case.
+    this._recovery = /type=recovery/.test(window.location.hash + ' ' + window.location.search);
     this._sb.auth.onAuthStateChange(async (event, session) => {
       if (event === 'PASSWORD_RECOVERY') {
+        this._recovery = true;
         this.setState({ appState: 'auth', authMode: 'reset', authNotice: 'Set a new password below.', authError: null, authPassword: '', authPassword2: '' });
         return;
       }
       if ((event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') && session) {
-        if (this.state.authMode === 'reset') return;
+        if (this._recovery || this.state.authMode === 'reset') return;
         if (this.state.appState !== 'ready') {
           this.setState({ session, appState: 'loading' });
           await this._awaitCatalogue();
@@ -667,6 +670,7 @@ class Component extends DCLogic {
       }
     });
     const { data: { session } } = await this._sb.auth.getSession();
+    if (this._recovery) { this.setState({ appState: 'auth', authMode: 'reset', authNotice: 'Set a new password below.' }); return; }
     if (!session) { this.setState({ appState: 'auth' }); return; }
     this.setState({ session, appState: 'loading' });
     await this._awaitCatalogue();
@@ -741,6 +745,8 @@ class Component extends DCLogic {
       this.setState({ authLoading: true, authError: null });
       const { error } = await this._sb.auth.updateUser({ password });
       if (error) { this.setState({ authLoading: false, authError: error.message }); return; }
+      this._recovery = false;
+      await this._sb.auth.signOut();
       this.setState({ authLoading: false, authMode: 'signin', authPassword: '', authPassword2: '', authNotice: 'Password updated. Sign in with your new password.' });
       return;
     }
