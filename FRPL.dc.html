@@ -36,10 +36,12 @@
 
   /* ── Real-device / installed-PWA mode: drop the mockup frame, fill the screen ── */
   @media (display-mode: standalone), (display-mode: fullscreen) {
-    html, body { margin: 0; background: #fff; }
-    .frpl-stage { padding: 0 !important; min-height: 100dvh !important; background: #fff !important; display: block !important; }
-    .frpl-bezel { padding: 0 !important; background: none !important; border-radius: 0 !important; box-shadow: none !important; }
-    .frpl-screen { width: 100vw !important; height: 100dvh !important; border-radius: 0 !important; }
+    html, body { margin: 0 !important; padding: 0 !important; width: 100% !important; height: 100% !important; overflow: hidden !important; position: fixed !important; top: 0; left: 0; right: 0; bottom: 0; overscroll-behavior: none !important; background: #fff !important; }
+    .frpl-stage { padding: 0 !important; margin: 0 !important; width: 100vw !important; height: 100dvh !important; min-height: 0 !important; background: #fff !important; display: block !important; overflow: hidden !important; }
+    .frpl-bezel { padding: 0 !important; margin: 0 !important; background: none !important; border-radius: 0 !important; box-shadow: none !important; width: 100% !important; height: 100% !important; }
+    .frpl-screen { width: 100% !important; height: 100% !important; max-width: 100% !important; border-radius: 0 !important; overflow: hidden !important; }
+    /* Only the inner content column scrolls — vertically, never the page */
+    .appscroll { overscroll-behavior: contain !important; -webkit-overflow-scrolling: touch; }
     /* The OS draws the real status bar + notch — hide the fake ones, pad for the safe area */
     .frpl-island { display: none !important; }
     .frpl-statusbar { height: env(safe-area-inset-top, 0px) !important; padding: 0 !important; }
@@ -171,9 +173,9 @@
               <div style="padding:0 20px; display:grid; grid-template-columns:1fr 1fr; gap:13px;">
                 <sc-for list="{{ activeCards }}" as="card" hint-placeholder-count="4">
                   <button onClick="{{ card.onOpen }}" style="text-align:left; border:1px solid #ECEAF2; background:#fff; border-radius:18px; overflow:hidden; padding:0; cursor:pointer; box-shadow:0 1px 2px rgba(28,27,34,0.04), 0 7px 18px -6px rgba(28,27,34,0.10); display:flex; flex-direction:column; font-family:inherit;">
-                    <div style="height:96px; display:flex; align-items:center; justify-content:center; background-image:{{ card.coverCss }};">
+                    <div style="height:96px; display:flex; align-items:center; justify-content:center; background:{{ card.thumbBg }}; border-bottom:1px solid #F1EFF6;">
                       <sc-if value="{{ card.bottleImg }}" hint-placeholder-val="">{{ card.bottleEl }}</sc-if>
-                      <sc-if value="{{ card.empty }}" hint-placeholder-val=""><span class="ms" style="font-size:28px; color:rgba(255,255,255,0.80);">add_photo_alternate</span></sc-if>
+                      <sc-if value="{{ card.empty }}" hint-placeholder-val=""><span class="ms" style="font-size:28px; color:var(--accent-light);">add_photo_alternate</span></sc-if>
                     </div>
                     <div style="padding:11px 13px 13px;">
                       <div style="font-size:14.5px; font-weight:600; color:#1C1B22; line-height:1.25;">{{ card.name }}</div>
@@ -562,7 +564,7 @@
           <div style="padding:8px 20px 0;">
             <div style="display:flex; align-items:flex-start; gap:11px; margin-bottom:16px; padding:12px; background:#F7F6FB; border-radius:12px;">
               <span class="ms" style="font-size:20px; color:var(--accent); flex:0 0 auto; margin-top:1px;">label</span>
-              <span style="font-size:13px; color:#6A6775; line-height:1.5;">Creates a new tab alongside Owned, To Try and Favourite Notes.</span>
+              <span style="font-size:13px; color:#6A6775; line-height:1.5;">Creates a new tab alongside To Try, Owned and Notes.</span>
             </div>
             <div style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; color:#9C99A8; margin-bottom:7px;">Category name</div>
             <input class="frpl-in" value="{{ newCatName }}" onChange="{{ onNewCatName }}" placeholder="e.g. Gift ideas, Vintage, Travel" style="width:100%; border:1px solid #ECEAF2; border-radius:12px; padding:12px 14px; font-size:15px; color:#1C1B22; background:#fff;" />
@@ -602,6 +604,30 @@
         </div>
       </sc-if>
 
+      <!-- RENAME LIST -->
+      <sc-if value="{{ showRenameList }}" hint-placeholder-val="">
+        <div onClick="{{ closeSheet }}" style="position:absolute; inset:0; background:rgba(20,16,32,0.42); z-index:48; animation:fadeIn 180ms ease;"></div>
+        <div style="position:absolute; left:0; right:0; bottom:0; background:#fff; border-radius:26px 26px 0 0; z-index:49; animation:sheetUp 280ms cubic-bezier(.2,.7,.2,1); box-shadow:0 -14px 44px rgba(20,16,32,0.24); padding:0 22px 26px;">
+          <div style="display:flex; justify-content:center; padding:9px 0 14px;"><div style="width:38px; height:5px; border-radius:99px; background:#E2DEEC;"></div></div>
+          <div style="font-size:18px; font-weight:700; color:#1C1B22; margin-bottom:14px;">Rename list</div>
+          <input class="frpl-in" value="{{ renameValue }}" onChange="{{ onRenameValue }}" placeholder="List name" style="width:100%; border:1.5px solid #ECEAF2; border-radius:13px; padding:14px 16px; font-size:16px; color:#1C1B22; background:#fff;" />
+          <button onClick="{{ saveRename }}" style="width:100%; height:50px; border-radius:13px; background:var(--accent); border:none; color:#fff; font-size:15px; font-weight:700; cursor:pointer; font-family:inherit; margin-top:14px;">Save</button>
+        </div>
+      </sc-if>
+
+      <!-- DELETE LIST CONFIRM -->
+      <sc-if value="{{ showDeleteList }}" hint-placeholder-val="">
+        <div onClick="{{ closeSheet }}" style="position:absolute; inset:0; background:rgba(20,16,32,0.42); z-index:48; animation:fadeIn 180ms ease;"></div>
+        <div style="position:absolute; left:0; right:0; bottom:0; background:#fff; border-radius:26px 26px 0 0; z-index:49; animation:sheetUp 280ms cubic-bezier(.2,.7,.2,1); box-shadow:0 -14px 44px rgba(20,16,32,0.24); padding:0 22px 26px;">
+          <div style="display:flex; justify-content:center; padding:9px 0 16px;"><div style="width:38px; height:5px; border-radius:99px; background:#E2DEEC;"></div></div>
+          <div style="width:54px; height:54px; border-radius:50%; background:#FDECEC; display:flex; align-items:center; justify-content:center; margin:0 auto 14px;"><span class="ms" style="font-size:27px; color:#C0353A;">delete</span></div>
+          <div style="font-size:18px; font-weight:700; color:#1C1B22; text-align:center; margin-bottom:7px;">Delete “{{ deleteListName }}”?</div>
+          <div style="font-size:13.5px; color:#9C99A8; text-align:center; line-height:1.55; margin-bottom:22px;">{{ deleteListWarning }}</div>
+          <button onClick="{{ confirmDelete }}" style="width:100%; height:50px; border-radius:13px; background:#C0353A; border:none; color:#fff; font-size:15px; font-weight:700; cursor:pointer; font-family:inherit;">Delete list</button>
+          <button onClick="{{ closeSheet }}" style="width:100%; height:50px; border-radius:13px; background:none; border:none; color:#6A6775; font-size:15px; font-weight:600; cursor:pointer; font-family:inherit; margin-top:6px;">Cancel</button>
+        </div>
+      </sc-if>
+
       <!-- TOAST -->
       <sc-if value="{{ toastVisible }}" hint-placeholder-val="">
         <div style="position:absolute; left:50%; bottom:40px; transform:translateX(-50%); background:#1C1B22; color:#fff; padding:11px 18px; border-radius:999px; font-size:13.5px; font-weight:500; z-index:60; display:flex; align-items:center; gap:8px; animation:toastIn 220ms ease; box-shadow:0 10px 28px rgba(0,0,0,0.28); white-space:nowrap;"><span class="ms" style="font-size:18px; color:#88E0A6;">check_circle</span>{{ toast }}</div>
@@ -621,17 +647,17 @@ class Component extends DCLogic {
     catalogue: [], catById: {},
     lists: {},
     sections: [
-      { id: 'owned', name: 'Owned', sub: 'in your possession' },
       { id: 'totry', name: 'To Try', sub: 'wishlist & discovery' },
-      { id: 'favnotes', name: 'Favourite Notes', sub: 'by accord & ingredient' },
+      { id: 'owned', name: 'Owned', sub: 'in your possession' },
+      { id: 'favnotes', name: 'Notes', sub: 'by accord & ingredient' },
     ],
     userData: {},
-    view: 'home', activeSection: 'owned', activeListId: null,
+    view: 'home', activeSection: 'totry', activeListId: null,
     drawerPerfumeId: null, drawerListId: null,
     sheet: null, addTargetListId: null,
     sort: 'added', addQuery: '', libQuery: '',
     newName: '', newCover: 0, newParent: null,
-    manualName: '', newCatName: '', toast: null,
+    manualName: '', newCatName: '', renameValue: '', toast: null,
   };
 
   async componentDidMount() {
@@ -700,7 +726,7 @@ class Component extends DCLogic {
       .catch(e => this.setState({ loadError: 'Could not load catalogue: ' + e.message }));
   }
   _awaitCatalogue() { if (this._catReady) return Promise.resolve(); return new Promise(r => this._catResolvers.push(r)); }
-  _fixedSections() { return [{ id:'owned',name:'Owned',sub:'in your possession' },{ id:'totry',name:'To Try',sub:'wishlist & discovery' },{ id:'favnotes',name:'Favourite Notes',sub:'by accord & ingredient' }]; }
+  _fixedSections() { return [{ id:'totry',name:'To Try',sub:'wishlist & discovery' },{ id:'owned',name:'Owned',sub:'in your possession' },{ id:'favnotes',name:'Notes',sub:'by accord & ingredient' }]; }
 
   async loadUserData() {
     const sb = this._sb;
@@ -720,7 +746,7 @@ class Component extends DCLogic {
     for (const n of (notesRes.data||[])) userData[n.perfume_id] = { note:n.note, remindsOf:n.reminds_of, pricePaid:n.price_paid, priceTarget:n.price_target };
     const customCats = (catsRes.data||[]).map(c => ({ id:c.id, name:c.name, sub:'your category', custom:true }));
     const sections = [...this._fixedSections(), ...customCats];
-    const activeSection = sections.find(s => s.id === this.state.activeSection) ? this.state.activeSection : 'owned';
+    const activeSection = sections.find(s => s.id === this.state.activeSection) ? this.state.activeSection : 'totry';
     this.setState({ lists, userData, sections, catById, catalogue: this._catalogue||[], activeSection });
   }
 
@@ -932,6 +958,36 @@ class Component extends DCLogic {
     }
     this.toast('"'+nm+'" created');
   }
+  openRename() { const al=this.state.lists[this.state.activeListId]; this.setState({sheet:'renamelist',renameValue:al?al.name:''}); }
+  onRenameValue(e) { this.setState({renameValue:e.target.value}); }
+  async saveRename() {
+    const s=this.state, al=s.lists[s.activeListId], nm=(s.renameValue||'').trim();
+    if (!al) { this.setState({sheet:null}); return; }
+    if (!nm) { this.toast('Name can\u2019t be empty'); return; }
+    al.name=nm; this.setState({sheet:null}); this.forceUpdate();
+    if (this._sb&&s.session&&!String(al.id).startsWith('tmp')) {
+      const {error}=await this._sb.from('lists').update({name:nm}).eq('id',al.id);
+      if (error) { this.toast('Error: '+error.message); return; }
+    }
+    this.toast('List renamed');
+  }
+  openDeleteConfirm() { this.setState({sheet:'deletelist'}); }
+  async confirmDelete() {
+    const s=this.state, al=s.lists[s.activeListId];
+    if (!al) { this.setState({sheet:null}); return; }
+    const id=al.id, parent=al.parentId, name=al.name;
+    // remove the list and any sub-lists locally
+    const kids=Object.values(s.lists).filter(x=>x.parentId===id).map(x=>x.id);
+    [id,...kids].forEach(k=>{delete s.lists[k];});
+    this.setState({sheet:null, view:'list', activeListId:parent||null});
+    if (!parent) this.setState({view:'home'});
+    this.resetScroll(); this.forceUpdate();
+    if (this._sb&&s.session&&!String(id).startsWith('tmp')) {
+      const {error}=await this._sb.from('lists').delete().eq('id',id);
+      if (error) { this.toast('Error: '+error.message); return; }
+    }
+    this.toast('“'+name+'” deleted');
+  }
   async createCat() {
     const s=this.state, nm=(s.newCatName||'').trim();
     if (!nm) { this.toast('Name your category first'); return; }
@@ -971,7 +1027,7 @@ class Component extends DCLogic {
     const palettes={iris:{a:'#785EAF',d:'#5A4691',l:'#9B82C9',t:'#F1ECF9'},lavender:{a:'#7A6AD8',d:'#574BB0',l:'#A99BEF',t:'#EFEDFB'},plum:{a:'#8E5AA8',d:'#6E4283',l:'#B98ECD',t:'#F4ECF8'},periwinkle:{a:'#6573C9',d:'#4A57A8',l:'#98A4E6',t:'#EDEFFB'}};
     const pal=palettes[this.props.accent]||palettes.iris;
     const accentVarsCss='--accent:'+pal.a+';--accent-deep:'+pal.d+';--accent-light:'+pal.l+';--accent-tint:'+pal.t+';';
-    const blank={accentVarsCss,scrollRef:(el)=>{this._scroll=el;},showInitializing:s.appState==='initializing'||s.appState==='loading',showAuth:s.appState==='auth',showHome:false,showList:false,showSearch:false,showSettings:false,showFab:false,drawerOpen:false,showAddSheet:false,showManual:false,showNewList:false,showNewCat:false,showSort:false,showListMenu:false,toastVisible:false,loadError:s.loadError||'',...this._authVals(),homeTabs:[],activeCards:[],activeSecSub:'',activeSecCount:'',activeSectionEmpty:false,activeSectionHasCards:false,activeEmptyMsg:'',listModel:{d:{},accords:[],top:[],heart:[],base:[],similar:[]},addResults:[],searchResults:[],searchChips:[],newCovers:[],sortOptions:[],newName:'',newCatName:'',newContext:'',newTitle:'',addQuery:'',libQuery:'',addTitle:'',addNoResults:false,searchEmpty:true,searchHasResults:false,searchNoResults:false,searchCountLabel:'',catalogueCount:'',userEmail:'',userInitial:'',signOut:()=>this.signOut(),goHome:()=>this.goHome(),openSearch:()=>this.openSearch(),openSettings:()=>this.openSettings(),openNewCat:()=>this.openNewCat(),openNewListTop:()=>this.openNewList(null)};
+    const blank={accentVarsCss,scrollRef:(el)=>{this._scroll=el;},showInitializing:s.appState==='initializing'||s.appState==='loading',showAuth:s.appState==='auth',showHome:false,showList:false,showSearch:false,showSettings:false,showFab:false,drawerOpen:false,showAddSheet:false,showManual:false,showNewList:false,showNewCat:false,showSort:false,showListMenu:false,showRenameList:false,showDeleteList:false,renameValue:'',deleteListName:'',deleteListWarning:'',toastVisible:false,loadError:s.loadError||'',...this._authVals(),homeTabs:[],activeCards:[],activeSecSub:'',activeSecCount:'',activeSectionEmpty:false,activeSectionHasCards:false,activeEmptyMsg:'',listModel:{d:{},accords:[],top:[],heart:[],base:[],similar:[]},addResults:[],searchResults:[],searchChips:[],newCovers:[],sortOptions:[],newName:'',newCatName:'',newContext:'',newTitle:'',addQuery:'',libQuery:'',addTitle:'',addNoResults:false,searchEmpty:true,searchHasResults:false,searchNoResults:false,searchCountLabel:'',catalogueCount:'',userEmail:'',userInitial:'',signOut:()=>this.signOut(),goHome:()=>this.goHome(),openSearch:()=>this.openSearch(),openSettings:()=>this.openSettings(),openNewCat:()=>this.openNewCat(),openNewListTop:()=>this.openNewList(null)};
     if (s.appState!=='ready') return blank;
 
     const allLists=Object.values(lists), topLists=allLists.filter(l=>!l.parentId);
@@ -984,7 +1040,7 @@ class Component extends DCLogic {
     const homeTabs=s.sections.map(sec=>{const active=sec.id===s.activeSection;return{name:sec.name,active,style:'flex:0 0 auto;padding:9px 16px;border-radius:999px;font-size:13.5px;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap;'+(active?'background:var(--accent);border:1px solid var(--accent);color:#fff;':'background:#F2F1F6;border:1px solid #F2F1F6;color:#6A6775;'),onSelect:()=>this.selectSection(sec.id)};});
     const activeSec=s.sections.find(x=>x.id===s.activeSection)||s.sections[0];
     const activeTop=topLists.filter(l=>l.sectionId===activeSec.id);
-    const activeCards=activeTop.map(l=>{const sc=allLists.filter(x=>x.parentId===l.id).length,fp=l.entries.length?pidOf(l.entries[0]):null,fi=fp?fp.thumb:'';let cl=l.entries.length+(l.entries.length===1?' perfume':' perfumes');if(sc)cl+=' · '+sc+(sc===1?' sub-list':' sub-lists');return{name:l.name,countLabel:cl,coverCss:this.coverCss(l.cover),bottleEl:mkImg(fi,ST.card),bottleImg:fi,empty:l.entries.length===0,onOpen:()=>this.openList(l.id)};});
+    const activeCards=activeTop.map(l=>{const sc=allLists.filter(x=>x.parentId===l.id).length,fp=l.entries.length?pidOf(l.entries[0]):null,fi=fp?fp.thumb:'';let cl=l.entries.length+(l.entries.length===1?' perfume':' perfumes');if(sc)cl+=' · '+sc+(sc===1?' sub-list':' sub-lists');return{name:l.name,countLabel:cl,coverCss:this.coverCss(l.cover),thumbBg:l.entries.length===0?'var(--accent-tint)':'#fff',bottleEl:mkImg(fi,ST.card),bottleImg:fi,empty:l.entries.length===0,onOpen:()=>this.openList(l.id)};});
     const secPerf=activeTop.reduce((n,l)=>n+l.entries.length,0);
     const activeSecCount=activeTop.length+(activeTop.length===1?' list · ':' lists · ')+secPerf+(secPerf===1?' perfume':' perfumes');
     const emptyMsgs={owned:'Start by creating a list for your owned fragrances.',totry:'Save fragrances you want to discover or buy.',favnotes:'Group perfumes by ingredients you love.'};
@@ -1069,6 +1125,10 @@ class Component extends DCLogic {
       showNewCat:s.sheet==='newcat', newCatName:s.newCatName,
       showSort:s.sheet==='sort', sortOptions,
       showListMenu:s.sheet==='listmenu',
+      showRenameList:s.sheet==='renamelist', renameValue:s.renameValue, onRenameValue:(e)=>this.onRenameValue(e), saveRename:()=>this.saveRename(),
+      showDeleteList:s.sheet==='deletelist', confirmDelete:()=>this.confirmDelete(),
+      deleteListName:(lists[s.activeListId]&&lists[s.activeListId].name)||'this list',
+      deleteListWarning:(()=>{const al=lists[s.activeListId];if(!al)return'';const subs=allLists.filter(x=>x.parentId===al.id).length;const n=al.entries.length;const parts=[];if(n)parts.push(n+(n===1?' perfume':' perfumes'));if(subs)parts.push(subs+(subs===1?' sub-list':' sub-lists'));return parts.length?('This removes the list and its '+parts.join(' and ')+'. This can\u2019t be undone.'):'This can\u2019t be undone.';})(),
       searchEmpty:!lq, searchHasResults:!!lq&&searchResults.length>0, searchNoResults:!!lq&&searchResults.length===0,
       searchResults, searchChips, searchCountLabel:this.fmtInt(searchTotal)+(searchTotal===1?' result':' results')+(searchTotal>searchResults.length?' · showing top 60':''), libQuery:s.libQuery,
       toastVisible:!!s.toast, toast:s.toast,
@@ -1083,8 +1143,8 @@ class Component extends DCLogic {
       openNewListTop:()=>this.openNewList(null), addSubList:()=>this.addSubList(), onNewName:(e)=>this.onNewName(e), createList:()=>this.createList(),
       onManualName:(e)=>this.onManualName(e), manualSave:()=>this.manualSave(),
       ...this._authVals(),
-      menuRename:()=>{this.setState({sheet:null});this.toast('Rename — coming soon');},
-      menuDelete:()=>{this.setState({sheet:null});this.toast('Delete — coming soon');},
+      menuRename:()=>this.openRename(),
+      menuDelete:()=>this.openDeleteConfirm(),
     };
   }
 }
