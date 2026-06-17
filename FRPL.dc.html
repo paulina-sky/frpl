@@ -85,26 +85,19 @@
             <img src="assets/frpl-logo.png" alt="FRPL" style="height:32px; width:auto; margin-bottom:10px;" />
             <div style="font-size:10.5px; font-weight:600; letter-spacing:0.14em; text-transform:uppercase; color:var(--accent); margin-bottom:52px;">your fragrance journal</div>
 
-            <sc-if value="{{ authSent }}" hint-placeholder-val="">
-              <div style="text-align:center; width:100%;">
-                <div style="width:64px; height:64px; border-radius:50%; background:var(--accent-tint); display:flex; align-items:center; justify-content:center; margin:0 auto 18px;"><span class="ms" style="font-size:32px; color:var(--accent);">mark_email_read</span></div>
-                <div style="font-size:19px; font-weight:700; color:#1C1B22; margin-bottom:9px;">Check your inbox</div>
-                <div style="font-size:14px; color:#9C99A8; line-height:1.65; margin-bottom:28px;">We sent a sign-in link to<br/><strong style="color:#3A3845;">{{ authEmail }}</strong></div>
-                <button onClick="{{ resendLink }}" style="background:none; border:none; color:var(--accent); font-size:14px; font-weight:600; cursor:pointer; font-family:inherit;">Try a different email</button>
+            <div style="width:100%;">
+              <div style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; color:#9C99A8; margin-bottom:8px;">{{ authHeading }}</div>
+              <input class="frpl-in" value="{{ authEmail }}" onChange="{{ onAuthEmail }}" placeholder="your@email.com" type="email" autocomplete="email" style="width:100%; border:1.5px solid #ECEAF2; border-radius:13px; padding:14px 16px; font-size:16px; color:#1C1B22; background:#fff;" />
+              <input class="frpl-in" value="{{ authPassword }}" onChange="{{ onAuthPassword }}" placeholder="Password" type="password" autocomplete="{{ authPwAutocomplete }}" style="width:100%; border:1.5px solid #ECEAF2; border-radius:13px; padding:14px 16px; font-size:16px; color:#1C1B22; background:#fff; margin-top:10px;" />
+              <button onClick="{{ submitAuth }}" style="width:100%; height:52px; border-radius:13px; background:var(--accent); border:none; color:#fff; font-size:15px; font-weight:700; cursor:pointer; font-family:inherit; margin-top:12px; box-shadow:0 8px 22px rgba(120,94,175,0.35);">{{ authBtnLabel }}</button>
+              <sc-if value="{{ authError }}" hint-placeholder-val="">
+                <div style="font-size:12.5px; color:#C0353A; margin-top:10px; text-align:center;">{{ authError }}</div>
+              </sc-if>
+              <div style="text-align:center; margin-top:22px; font-size:13px; color:#9C99A8;">
+                {{ authTogglePrompt }}
+                <button onClick="{{ toggleAuthMode }}" style="background:none; border:none; color:var(--accent); font-size:13px; font-weight:700; cursor:pointer; font-family:inherit; padding:0; margin-left:3px;">{{ authToggleAction }}</button>
               </div>
-            </sc-if>
-
-            <sc-if value="{{ authNotSent }}" hint-placeholder-val="{{ true }}">
-              <div style="width:100%;">
-                <div style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; color:#9C99A8; margin-bottom:8px;">Sign in with email</div>
-                <input class="frpl-in" value="{{ authEmail }}" onChange="{{ onAuthEmail }}" placeholder="your@email.com" type="email" style="width:100%; border:1.5px solid #ECEAF2; border-radius:13px; padding:14px 16px; font-size:16px; color:#1C1B22; background:#fff;" />
-                <button onClick="{{ sendMagicLink }}" style="width:100%; height:52px; border-radius:13px; background:var(--accent); border:none; color:#fff; font-size:15px; font-weight:700; cursor:pointer; font-family:inherit; margin-top:12px; box-shadow:0 8px 22px rgba(120,94,175,0.35);">{{ authBtnLabel }}</button>
-                <sc-if value="{{ authError }}" hint-placeholder-val="">
-                  <div style="font-size:12.5px; color:#C0353A; margin-top:10px; text-align:center;">{{ authError }}</div>
-                </sc-if>
-                <div style="font-size:12px; color:#B4B1C0; text-align:center; margin-top:20px; line-height:1.5;">We'll email you a magic link.<br/>No password needed.</div>
-              </div>
-            </sc-if>
+            </div>
           </div>
         </sc-if>
 
@@ -589,7 +582,7 @@ class Component extends DCLogic {
   state = {
     appState: 'initializing',
     session: null,
-    authEmail: '', authSent: false, authLoading: false, authError: null,
+    authEmail: '', authPassword: '', authMode: 'signin', authLoading: false, authError: null,
     loadError: null,
     catalogue: [], catById: {},
     lists: {},
@@ -690,15 +683,26 @@ class Component extends DCLogic {
 
   // ── auth ──
   onAuthEmail(e) { this.setState({ authEmail: e.target.value, authError: null }); }
-  async sendMagicLink() {
+  onAuthPassword(e) { this.setState({ authPassword: e.target.value, authError: null }); }
+  toggleAuthMode() { this.setState({ authMode: this.state.authMode === 'signup' ? 'signin' : 'signup', authError: null }); }
+  async submitAuth() {
     const email = (this.state.authEmail||'').trim();
-    if (!email) { this.setState({ authError: 'Enter your email first.' }); return; }
+    const password = (this.state.authPassword||'');
+    if (!email) { this.setState({ authError: 'Enter your email.' }); return; }
+    if (password.length < 6) { this.setState({ authError: 'Password must be at least 6 characters.' }); return; }
     this.setState({ authLoading: true, authError: null });
-    const { error } = await this._sb.auth.signInWithOtp({ email, options: { emailRedirectTo: window.location.href.split('#')[0] } });
-    if (error) { this.setState({ authLoading: false, authError: error.message }); return; }
-    this.setState({ authLoading: false, authSent: true });
+    if (this.state.authMode === 'signup') {
+      const { data, error } = await this._sb.auth.signUp({ email, password });
+      if (error) { this.setState({ authLoading: false, authError: error.message }); return; }
+      if (!data.session) { this.setState({ authLoading: false, authError: 'Account created. Now tap Sign in.', authMode: 'signin' }); return; }
+      this.setState({ authLoading: false });
+    } else {
+      const { error } = await this._sb.auth.signInWithPassword({ email, password });
+      if (error) { this.setState({ authLoading: false, authError: 'Wrong email or password. New here? Tap Create account.' }); return; }
+      this.setState({ authLoading: false });
+    }
+    // onAuthStateChange handles the SIGNED_IN transition
   }
-  resendLink() { this.setState({ authSent: false, authEmail: '' }); }
   async signOut() { await this._sb.auth.signOut(); }
 
   // ── helpers ──
@@ -847,7 +851,7 @@ class Component extends DCLogic {
     const palettes={iris:{a:'#785EAF',d:'#5A4691',l:'#9B82C9',t:'#F1ECF9'},lavender:{a:'#7A6AD8',d:'#574BB0',l:'#A99BEF',t:'#EFEDFB'},plum:{a:'#8E5AA8',d:'#6E4283',l:'#B98ECD',t:'#F4ECF8'},periwinkle:{a:'#6573C9',d:'#4A57A8',l:'#98A4E6',t:'#EDEFFB'}};
     const pal=palettes[this.props.accent]||palettes.iris;
     const accentVarsCss='--accent:'+pal.a+';--accent-deep:'+pal.d+';--accent-light:'+pal.l+';--accent-tint:'+pal.t+';';
-    const blank={accentVarsCss,scrollRef:(el)=>{this._scroll=el;},showInitializing:s.appState==='initializing'||s.appState==='loading',showAuth:s.appState==='auth',showHome:false,showList:false,showSearch:false,showSettings:false,showFab:false,drawerOpen:false,showAddSheet:false,showManual:false,showNewList:false,showNewCat:false,showSort:false,showListMenu:false,toastVisible:false,loadError:s.loadError||'',authEmail:s.authEmail,authSent:s.authSent,authNotSent:!s.authSent,authLoading:s.authLoading,authError:s.authError||'',authBtnLabel:s.authLoading?'Sending…':'Send magic link',onAuthEmail:(e)=>this.onAuthEmail(e),sendMagicLink:()=>this.sendMagicLink(),resendLink:()=>this.resendLink(),homeTabs:[],activeCards:[],activeSecSub:'',activeSecCount:'',activeSectionEmpty:false,activeSectionHasCards:false,activeEmptyMsg:'',listModel:{d:{},accords:[],top:[],heart:[],base:[],similar:[]},addResults:[],searchResults:[],searchChips:[],newCovers:[],sortOptions:[],newName:'',newCatName:'',newContext:'',newTitle:'',addQuery:'',libQuery:'',addTitle:'',addNoResults:false,searchEmpty:true,searchHasResults:false,searchNoResults:false,searchCountLabel:'',catalogueCount:'',userEmail:'',userInitial:'',signOut:()=>this.signOut(),goHome:()=>this.goHome(),openSearch:()=>this.openSearch(),openSettings:()=>this.openSettings(),openNewCat:()=>this.openNewCat(),openNewListTop:()=>this.openNewList(null)};
+    const blank={accentVarsCss,scrollRef:(el)=>{this._scroll=el;},showInitializing:s.appState==='initializing'||s.appState==='loading',showAuth:s.appState==='auth',showHome:false,showList:false,showSearch:false,showSettings:false,showFab:false,drawerOpen:false,showAddSheet:false,showManual:false,showNewList:false,showNewCat:false,showSort:false,showListMenu:false,toastVisible:false,loadError:s.loadError||'',authEmail:s.authEmail,authPassword:s.authPassword,authError:s.authError||'',authHeading:s.authMode==='signup'?'Create your account':'Sign in with email',authBtnLabel:s.authLoading?'Please wait…':(s.authMode==='signup'?'Create account':'Sign in'),authTogglePrompt:s.authMode==='signup'?'Already have an account?':'First time here?',authToggleAction:s.authMode==='signup'?'Sign in':'Create account',authPwAutocomplete:s.authMode==='signup'?'new-password':'current-password',onAuthEmail:(e)=>this.onAuthEmail(e),onAuthPassword:(e)=>this.onAuthPassword(e),submitAuth:()=>this.submitAuth(),toggleAuthMode:()=>this.toggleAuthMode(),homeTabs:[],activeCards:[],activeSecSub:'',activeSecCount:'',activeSectionEmpty:false,activeSectionHasCards:false,activeEmptyMsg:'',listModel:{d:{},accords:[],top:[],heart:[],base:[],similar:[]},addResults:[],searchResults:[],searchChips:[],newCovers:[],sortOptions:[],newName:'',newCatName:'',newContext:'',newTitle:'',addQuery:'',libQuery:'',addTitle:'',addNoResults:false,searchEmpty:true,searchHasResults:false,searchNoResults:false,searchCountLabel:'',catalogueCount:'',userEmail:'',userInitial:'',signOut:()=>this.signOut(),goHome:()=>this.goHome(),openSearch:()=>this.openSearch(),openSettings:()=>this.openSettings(),openNewCat:()=>this.openNewCat(),openNewListTop:()=>this.openNewList(null)};
     if (s.appState!=='ready') return blank;
 
     const allLists=Object.values(lists), topLists=allLists.filter(l=>!l.parentId);
@@ -958,8 +962,8 @@ class Component extends DCLogic {
       openSort:()=>this.openSort(), openListMenu:()=>this.openListMenu(), shareCurrent:()=>this.shareCurrent(),
       openNewListTop:()=>this.openNewList(null), addSubList:()=>this.addSubList(), onNewName:(e)=>this.onNewName(e), createList:()=>this.createList(),
       onManualName:(e)=>this.onManualName(e), manualSave:()=>this.manualSave(),
-      authEmail:s.authEmail, authSent:s.authSent, authNotSent:!s.authSent, authLoading:s.authLoading, authError:s.authError||'', authBtnLabel:s.authLoading?'Sending…':'Send magic link',
-      onAuthEmail:(e)=>this.onAuthEmail(e), sendMagicLink:()=>this.sendMagicLink(), resendLink:()=>this.resendLink(),
+      authEmail:s.authEmail, authPassword:s.authPassword, authError:s.authError||'', authHeading:s.authMode==='signup'?'Create your account':'Sign in with email', authBtnLabel:s.authLoading?'Please wait…':(s.authMode==='signup'?'Create account':'Sign in'), authTogglePrompt:s.authMode==='signup'?'Already have an account?':'First time here?', authToggleAction:s.authMode==='signup'?'Sign in':'Create account', authPwAutocomplete:s.authMode==='signup'?'new-password':'current-password',
+      onAuthEmail:(e)=>this.onAuthEmail(e), onAuthPassword:(e)=>this.onAuthPassword(e), submitAuth:()=>this.submitAuth(), toggleAuthMode:()=>this.toggleAuthMode(),
       menuRename:()=>{this.setState({sheet:null});this.toast('Rename — coming soon');},
       menuDelete:()=>{this.setState({sheet:null});this.toast('Delete — coming soon');},
     };
