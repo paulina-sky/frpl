@@ -1,0 +1,955 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,300,0,0">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<link rel="manifest" href="manifest.json">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="FRPL">
+<meta name="theme-color" content="#785EAF">
+<style>
+  * { box-sizing: border-box; }
+  .ms { font-family: 'Material Symbols Rounded'; font-weight: normal; font-style: normal; line-height: 1; letter-spacing: normal; text-transform: none; display: inline-block; white-space: nowrap; -webkit-font-feature-settings: 'liga'; -webkit-font-smoothing: antialiased; }
+  .fill1 { font-variation-settings: 'FILL' 1; }
+  .appscroll::-webkit-scrollbar { display: none; }
+  .appscroll { -ms-overflow-style: none; scrollbar-width: none; }
+  .frpl-in { border: none; background: none; outline: none; font-family: 'Inter', sans-serif; }
+  .frpl-in::placeholder { color: #B4B1C0; }
+  @keyframes sheetUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes toastIn { from { opacity: 0; transform: translateX(-50%) translateY(10px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
+  @keyframes frplspin { to { transform: rotate(360deg); } }
+</style>
+</helmet>
+
+<div style="width:100%; min-height:100vh; display:flex; align-items:center; justify-content:center; background:#E9E8EE; padding:20px; font-family:'Inter',-apple-system,sans-serif; --accent:#785EAF; --accent-deep:#5A4691; --accent-light:#9B82C9; --accent-tint:#F1ECF9;">
+  <div style="position:relative; padding:11px; background:#0E0E12; border-radius:56px; box-shadow:0 50px 100px -20px rgba(28,22,46,0.55), 0 0 0 2px rgba(255,255,255,0.04) inset;">
+    <div style="position:relative; width:393px; height:852px; background:#FFFFFF; border-radius:46px; overflow:hidden; display:flex; flex-direction:column; {{ accentVarsCss }}">
+
+      <!-- dynamic island -->
+      <div style="position:absolute; top:11px; left:50%; transform:translateX(-50%); width:118px; height:33px; background:#0E0E12; border-radius:999px; z-index:70;"></div>
+
+      <!-- status bar -->
+      <div style="flex:0 0 auto; height:52px; display:flex; align-items:flex-end; justify-content:space-between; padding:0 28px 7px; z-index:5;">
+        <span style="font-size:15px; font-weight:600; color:#1C1B22; letter-spacing:-0.02em;">9:41</span>
+        <div style="display:flex; align-items:center; gap:6px; color:#1C1B22;">
+          <span class="ms fill1" style="font-size:17px;">signal_cellular_alt</span>
+          <span class="ms" style="font-size:17px;">wifi</span>
+          <span class="ms fill1" style="font-size:20px;">battery_full</span>
+        </div>
+      </div>
+
+      <!-- scroll body -->
+      <div ref="{{ scrollRef }}" class="appscroll" style="flex:1; overflow-y:auto; overflow-x:hidden; position:relative;">
+
+        <!-- ============ INITIALIZING / LOADING ============ -->
+        <sc-if value="{{ showInitializing }}" hint-placeholder-val="{{ true }}">
+          <div style="position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:20px; background:#fff;">
+            <img src="assets/frpl-logo.png" alt="FRPL" style="height:28px; width:auto;" />
+            <div style="width:28px; height:28px; border-radius:50%; border:2.5px solid var(--accent-tint); border-top-color:var(--accent); animation:frplspin 0.8s linear infinite;"></div>
+            <sc-if value="{{ loadError }}" hint-placeholder-val="">
+              <div style="font-size:13px; color:#C0353A; text-align:center; padding:0 32px; max-width:320px;">{{ loadError }}</div>
+            </sc-if>
+          </div>
+        </sc-if>
+
+        <!-- ============ AUTH ============ -->
+        <sc-if value="{{ showAuth }}" hint-placeholder-val="">
+          <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; padding:80px 32px 80px; min-height:100%;">
+            <img src="assets/frpl-logo.png" alt="FRPL" style="height:32px; width:auto; margin-bottom:10px;" />
+            <div style="font-size:10.5px; font-weight:600; letter-spacing:0.14em; text-transform:uppercase; color:var(--accent); margin-bottom:52px;">your fragrance journal</div>
+
+            <sc-if value="{{ authSent }}" hint-placeholder-val="">
+              <div style="text-align:center; width:100%;">
+                <div style="width:64px; height:64px; border-radius:50%; background:var(--accent-tint); display:flex; align-items:center; justify-content:center; margin:0 auto 18px;"><span class="ms" style="font-size:32px; color:var(--accent);">mark_email_read</span></div>
+                <div style="font-size:19px; font-weight:700; color:#1C1B22; margin-bottom:9px;">Check your inbox</div>
+                <div style="font-size:14px; color:#9C99A8; line-height:1.65; margin-bottom:28px;">We sent a sign-in link to<br/><strong style="color:#3A3845;">{{ authEmail }}</strong></div>
+                <button onClick="{{ resendLink }}" style="background:none; border:none; color:var(--accent); font-size:14px; font-weight:600; cursor:pointer; font-family:inherit;">Try a different email</button>
+              </div>
+            </sc-if>
+
+            <sc-if value="{{ authNotSent }}" hint-placeholder-val="{{ true }}">
+              <div style="width:100%;">
+                <div style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; color:#9C99A8; margin-bottom:8px;">Sign in with email</div>
+                <input class="frpl-in" value="{{ authEmail }}" onChange="{{ onAuthEmail }}" placeholder="your@email.com" type="email" style="width:100%; border:1.5px solid #ECEAF2; border-radius:13px; padding:14px 16px; font-size:16px; color:#1C1B22; background:#fff;" />
+                <button onClick="{{ sendMagicLink }}" style="width:100%; height:52px; border-radius:13px; background:var(--accent); border:none; color:#fff; font-size:15px; font-weight:700; cursor:pointer; font-family:inherit; margin-top:12px; box-shadow:0 8px 22px rgba(120,94,175,0.35);">{{ authBtnLabel }}</button>
+                <sc-if value="{{ authError }}" hint-placeholder-val="">
+                  <div style="font-size:12.5px; color:#C0353A; margin-top:10px; text-align:center;">{{ authError }}</div>
+                </sc-if>
+                <div style="font-size:12px; color:#B4B1C0; text-align:center; margin-top:20px; line-height:1.5;">We'll email you a magic link.<br/>No password needed.</div>
+              </div>
+            </sc-if>
+          </div>
+        </sc-if>
+
+        <!-- ============ HOME ============ -->
+        <sc-if value="{{ showHome }}" hint-placeholder-val="">
+          <div style="padding:0 0 40px;">
+            <div style="display:flex; align-items:center; justify-content:space-between; padding:6px 20px 0;">
+              <img src="assets/frpl-logo.png" alt="FRPL" style="height:21px; width:auto; display:block;" />
+              <div style="display:flex; gap:9px;">
+                <button onClick="{{ openSearch }}" aria-label="Search" style="width:38px; height:38px; border-radius:50%; border:1px solid #ECEAF2; background:#fff; color:#5A5766; display:flex; align-items:center; justify-content:center; cursor:pointer;"><span class="ms" style="font-size:22px;">search</span></button>
+                <button onClick="{{ openSettings }}" aria-label="Settings" style="width:38px; height:38px; border-radius:50%; border:1px solid #ECEAF2; background:#fff; color:#5A5766; display:flex; align-items:center; justify-content:center; cursor:pointer;"><span class="ms" style="font-size:21px;">settings</span></button>
+              </div>
+            </div>
+
+            <div class="appscroll" style="display:flex; align-items:center; gap:8px; overflow-x:auto; padding:20px 20px 2px;">
+              <sc-for list="{{ homeTabs }}" as="t" hint-placeholder-count="3">
+                <button onClick="{{ t.onSelect }}" style="{{ t.style }}">{{ t.name }}</button>
+              </sc-for>
+              <button onClick="{{ openNewCat }}" aria-label="New category" style="flex:0 0 auto; width:36px; height:36px; border-radius:50%; border:1.5px dashed #D5D0E2; background:#fff; color:var(--accent); display:flex; align-items:center; justify-content:center; cursor:pointer;"><span class="ms" style="font-size:20px;">add</span></button>
+            </div>
+
+            <div style="display:flex; align-items:flex-end; justify-content:space-between; padding:14px 20px 12px;">
+              <div style="font-size:13px; color:#9C99A8;">{{ activeSecSub }}</div>
+              <div style="font-size:12px; color:var(--accent); font-weight:600;">{{ activeSecCount }}</div>
+            </div>
+
+            <sc-if value="{{ activeSectionEmpty }}" hint-placeholder-val="">
+              <div style="padding:32px 20px 0; display:flex; flex-direction:column; align-items:center; gap:12px; text-align:center;">
+                <div style="width:60px; height:60px; border-radius:18px; background:var(--accent-tint); display:flex; align-items:center; justify-content:center;"><span class="ms" style="font-size:28px; color:var(--accent);">list_alt</span></div>
+                <div style="font-size:16px; font-weight:700; color:#1C1B22;">No lists yet</div>
+                <div style="font-size:13px; color:#9C99A8; line-height:1.55; max-width:220px;">{{ activeEmptyMsg }}</div>
+                <button onClick="{{ openNewListTop }}" style="height:42px; padding:0 20px; border-radius:12px; background:var(--accent); border:none; color:#fff; font-size:14px; font-weight:600; cursor:pointer; font-family:inherit; box-shadow:0 6px 16px rgba(120,94,175,0.28);">Create a list</button>
+              </div>
+            </sc-if>
+
+            <sc-if value="{{ activeSectionHasCards }}" hint-placeholder-val="{{ true }}">
+              <div style="padding:0 20px; display:grid; grid-template-columns:1fr 1fr; gap:13px;">
+                <sc-for list="{{ activeCards }}" as="card" hint-placeholder-count="4">
+                  <button onClick="{{ card.onOpen }}" style="text-align:left; border:1px solid #ECEAF2; background:#fff; border-radius:18px; overflow:hidden; padding:0; cursor:pointer; box-shadow:0 1px 2px rgba(28,27,34,0.04), 0 7px 18px -6px rgba(28,27,34,0.10); display:flex; flex-direction:column; font-family:inherit;">
+                    <div style="height:96px; display:flex; align-items:center; justify-content:center; background-image:{{ card.coverCss }};">
+                      <sc-if value="{{ card.bottleImg }}" hint-placeholder-val="">{{ card.bottleEl }}</sc-if>
+                      <sc-if value="{{ card.empty }}" hint-placeholder-val=""><span class="ms" style="font-size:28px; color:rgba(255,255,255,0.80);">add_photo_alternate</span></sc-if>
+                    </div>
+                    <div style="padding:11px 13px 13px;">
+                      <div style="font-size:14.5px; font-weight:600; color:#1C1B22; line-height:1.25;">{{ card.name }}</div>
+                      <div style="font-size:11.5px; color:#9C99A8; margin-top:3px;">{{ card.countLabel }}</div>
+                    </div>
+                  </button>
+                </sc-for>
+                <button onClick="{{ openNewListTop }}" style="min-height:152px; border:1.5px dashed #D8D4E4; background:#FAF9FC; border-radius:18px; cursor:pointer; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; color:var(--accent); font-family:inherit;">
+                  <span class="ms" style="font-size:24px;">add</span>
+                  <span style="font-size:12.5px; font-weight:600;">New list</span>
+                </button>
+              </div>
+            </sc-if>
+          </div>
+        </sc-if>
+
+        <!-- ============ LIST VIEW ============ -->
+        <sc-if value="{{ showList }}" hint-placeholder-val="">
+          <div style="padding:0 0 120px;">
+            <div style="position:relative; min-height:156px; background-image:{{ listModel.coverCss }}; padding:0 16px; display:flex; flex-direction:column;">
+              <div style="display:flex; align-items:center; justify-content:space-between; padding-top:8px;">
+                <button onClick="{{ back }}" style="width:36px; height:36px; border-radius:50%; background:rgba(255,255,255,0.24); backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); border:none; color:#fff; display:flex; align-items:center; justify-content:center; cursor:pointer;"><span class="ms" style="font-size:21px;">arrow_back_ios_new</span></button>
+                <div style="display:flex; gap:8px;">
+                  <button onClick="{{ shareCurrent }}" style="width:36px; height:36px; border-radius:50%; background:rgba(255,255,255,0.24); backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); border:none; color:#fff; display:flex; align-items:center; justify-content:center; cursor:pointer;"><span class="ms" style="font-size:19px;">ios_share</span></button>
+                  <button onClick="{{ openListMenu }}" style="width:36px; height:36px; border-radius:50%; background:rgba(255,255,255,0.24); backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); border:none; color:#fff; display:flex; align-items:center; justify-content:center; cursor:pointer;"><span class="ms" style="font-size:21px;">more_horiz</span></button>
+                </div>
+              </div>
+              <div style="margin-top:auto; padding-bottom:17px;">
+                <div style="font-size:11px; font-weight:600; letter-spacing:0.07em; text-transform:uppercase; color:rgba(255,255,255,0.85);">{{ listModel.sectionName }}</div>
+                <div style="font-size:25px; font-weight:700; color:#fff; margin-top:5px; letter-spacing:-0.02em;">{{ listModel.name }}</div>
+                <div style="font-size:13px; color:rgba(255,255,255,0.92); margin-top:3px;">{{ listModel.countLabel }}</div>
+              </div>
+            </div>
+
+            <sc-if value="{{ listModel.hasSub }}" hint-placeholder-val="">
+              <div style="padding:15px 20px 0;">
+                <div style="font-size:11px; font-weight:700; letter-spacing:0.06em; text-transform:uppercase; color:#9C99A8; margin-bottom:10px;">Sub-lists</div>
+                <div class="appscroll" style="display:flex; gap:10px; overflow-x:auto; padding-bottom:2px;">
+                  <sc-for list="{{ listModel.subLists }}" as="sl" hint-placeholder-count="2">
+                    <button onClick="{{ sl.onOpen }}" style="flex:0 0 auto; display:flex; align-items:center; gap:10px; background:#F7F6FB; border:1px solid #ECEAF2; border-radius:14px; padding:8px 14px 8px 8px; cursor:pointer; font-family:inherit;">
+                      <span style="width:32px; height:32px; border-radius:9px; background-image:{{ sl.coverCss }}; display:block; flex:0 0 auto;"></span>
+                      <span style="text-align:left;">
+                        <span style="display:block; font-size:13px; font-weight:600; color:#1C1B22;">{{ sl.name }}</span>
+                        <span style="display:block; font-size:11px; color:#9C99A8; margin-top:1px;">{{ sl.countLabel }}</span>
+                      </span>
+                    </button>
+                  </sc-for>
+                  <button onClick="{{ addSubList }}" style="flex:0 0 auto; display:flex; align-items:center; gap:6px; background:#fff; border:1.5px dashed #D8D4E4; border-radius:14px; padding:0 15px; min-height:50px; cursor:pointer; color:var(--accent); font-size:12.5px; font-weight:600; font-family:inherit;"><span class="ms" style="font-size:18px;">add</span>Sub-list</button>
+                </div>
+              </div>
+            </sc-if>
+
+            <sc-if value="{{ listModel.empty }}" hint-placeholder-val="">
+              <div style="padding:56px 36px; text-align:center; display:flex; flex-direction:column; align-items:center; gap:15px;">
+                <div style="width:66px; height:66px; border-radius:20px; background:var(--accent-tint); display:flex; align-items:center; justify-content:center;"><span class="ms" style="font-size:31px; color:var(--accent);">format_list_bulleted</span></div>
+                <div style="font-size:18px; font-weight:700; color:#1C1B22;">Nothing here yet</div>
+                <div style="font-size:13.5px; color:#9C99A8; line-height:1.55; max-width:230px;">Add your first perfume to start tracking it here.</div>
+                <button onClick="{{ openAdd }}" style="height:44px; padding:0 22px; border-radius:13px; background:var(--accent); border:none; color:#fff; font-size:14.5px; font-weight:600; cursor:pointer; font-family:inherit; box-shadow:0 6px 16px rgba(120,94,175,0.30);">Add a perfume</button>
+              </div>
+            </sc-if>
+
+            <sc-if value="{{ listModel.hasRows }}" hint-placeholder-val="{{ true }}">
+              <div style="display:flex; align-items:center; justify-content:space-between; padding:18px 20px 6px;">
+                <span style="font-size:13px; color:#6A6775; font-weight:500;">{{ listModel.countLabel }}</span>
+                <button onClick="{{ openSort }}" style="display:flex; align-items:center; gap:4px; background:none; border:none; color:var(--accent); font-size:13px; font-weight:600; cursor:pointer; font-family:inherit;"><span class="ms" style="font-size:18px;">swap_vert</span>{{ listModel.sortLabel }}</button>
+              </div>
+              <div style="padding:0 16px;">
+                <sc-for list="{{ listModel.rows }}" as="row" hint-placeholder-count="4">
+                  <button onClick="{{ row.onOpen }}" style="{{ row.wrapStyle }}">
+                    <span class="ms" style="font-size:20px; color:#CBC8D6; flex:0 0 auto;">drag_indicator</span>
+                    <span style="width:50px; height:50px; border-radius:13px; background:{{ row.thumbBg }}; display:flex; align-items:center; justify-content:center; flex:0 0 auto; overflow:hidden;">
+                      <sc-if value="{{ row.img }}" hint-placeholder-val="">{{ row.imgEl }}</sc-if>
+                      <sc-if value="{{ row.noImg }}" hint-placeholder-val=""><span class="ms" style="font-size:22px; color:var(--accent-light);">water_drop</span></sc-if>
+                    </span>
+                    <span style="flex:1; min-width:0; text-align:left;">
+                      <span style="display:flex; align-items:center; gap:7px;">
+                        <span style="font-size:15.5px; font-weight:600; color:#1C1B22; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ row.name }}</span>
+                      </span>
+                      <span style="display:block; font-size:12.5px; color:#9C99A8; margin-top:2px;">{{ row.house }}</span>
+                      <sc-if value="{{ row.tag }}" hint-placeholder-val="">
+                        <span style="{{ row.tagStyle }}"><span style="width:6px; height:6px; border-radius:50%; background:{{ row.tagDot }}; display:block;"></span>{{ row.tagLabel }}</span>
+                      </sc-if>
+                    </span>
+                    <span class="ms" style="font-size:21px; color:#CBC8D6; flex:0 0 auto;">chevron_right</span>
+                  </button>
+                </sc-for>
+              </div>
+            </sc-if>
+          </div>
+        </sc-if>
+
+        <!-- ============ SEARCH ============ -->
+        <sc-if value="{{ showSearch }}" hint-placeholder-val="">
+          <div style="padding:6px 0 40px;">
+            <div style="display:flex; align-items:center; gap:12px; padding:0 20px;">
+              <button onClick="{{ goHome }}" style="width:38px; height:38px; flex:0 0 auto; border-radius:50%; border:1px solid #ECEAF2; background:#fff; color:#5A5766; display:flex; align-items:center; justify-content:center; cursor:pointer;"><span class="ms" style="font-size:21px;">arrow_back_ios_new</span></button>
+              <div style="flex:1; display:flex; align-items:center; gap:10px; background:#F2F1F6; border-radius:14px; padding:12px 14px;">
+                <span class="ms" style="font-size:21px; color:#9C99A8;">search</span>
+                <input class="frpl-in" value="{{ libQuery }}" onChange="{{ onLibQuery }}" placeholder="Search 24,000+ perfumes…" style="flex:1; font-size:15px; color:#1C1B22;" />
+              </div>
+            </div>
+
+            <sc-if value="{{ searchEmpty }}" hint-placeholder-val="{{ true }}">
+              <div style="padding:24px 20px 0;">
+                <div style="font-size:11px; font-weight:700; letter-spacing:0.06em; text-transform:uppercase; color:#9C99A8; margin-bottom:12px;">Browse by note</div>
+                <div style="display:flex; flex-wrap:wrap; gap:9px;">
+                  <sc-for list="{{ searchChips }}" as="chip" hint-placeholder-count="5">
+                    <button onClick="{{ chip.onPick }}" style="display:flex; align-items:center; gap:7px; background:#fff; border:1px solid #ECEAF2; border-radius:999px; padding:9px 15px; cursor:pointer; font-family:inherit; font-size:13.5px; font-weight:500; color:#3A3845;">
+                      <span style="width:9px; height:9px; border-radius:50%; background:{{ chip.color }}; display:block;"></span>{{ chip.label }}
+                    </button>
+                  </sc-for>
+                </div>
+                <div style="margin-top:34px; text-align:center; color:#B4B1C0; font-size:13px; line-height:1.6;">
+                  <span class="ms" style="font-size:34px; color:#DAD6E6; display:block; margin-bottom:8px;">travel_explore</span>
+                  24,063 perfumes across every family.<br/>Search by name, house, or note.
+                </div>
+              </div>
+            </sc-if>
+
+            <sc-if value="{{ searchHasResults }}" hint-placeholder-val="">
+              <div style="padding:16px 20px 4px; font-size:12.5px; color:#9C99A8;">{{ searchCountLabel }}</div>
+              <div style="padding:0 16px;">
+                <sc-for list="{{ searchResults }}" as="r" hint-placeholder-count="5">
+                  <button onClick="{{ r.onOpen }}" style="display:flex; align-items:center; gap:12px; padding:11px 8px; background:none; border:none; border-bottom:1px solid #F2F1F6; width:100%; cursor:pointer; font-family:inherit; text-align:left;">
+                    <span style="width:48px; height:48px; border-radius:12px; background:#F4F1FA; display:flex; align-items:center; justify-content:center; flex:0 0 auto; overflow:hidden;"><sc-if value="{{ r.img }}" hint-placeholder-val="">{{ r.imgEl }}</sc-if></span>
+                    <span style="flex:1; min-width:0;">
+                      <span style="display:block; font-size:15px; font-weight:600; color:#1C1B22;">{{ r.name }}</span>
+                      <span style="display:block; font-size:12.5px; color:#9C99A8; margin-top:2px;">{{ r.sub }}</span>
+                    </span>
+                    <span class="ms" style="font-size:21px; color:#CBC8D6;">chevron_right</span>
+                  </button>
+                </sc-for>
+              </div>
+            </sc-if>
+
+            <sc-if value="{{ searchNoResults }}" hint-placeholder-val="">
+              <div style="padding:48px 36px; text-align:center; color:#9C99A8;">
+                <span class="ms" style="font-size:34px; color:#DAD6E6; display:block; margin-bottom:10px;">search_off</span>
+                <div style="font-size:15px; font-weight:600; color:#1C1B22;">No matches</div>
+                <div style="font-size:13px; margin-top:5px;">Nothing for "{{ libQuery }}".</div>
+              </div>
+            </sc-if>
+          </div>
+        </sc-if>
+
+        <!-- ============ SETTINGS ============ -->
+        <sc-if value="{{ showSettings }}" hint-placeholder-val="">
+          <div style="padding:6px 20px 40px;">
+            <div style="display:flex; align-items:center; gap:13px; margin-bottom:4px;">
+              <button onClick="{{ goHome }}" style="width:38px; height:38px; flex:0 0 auto; border-radius:50%; border:1px solid #ECEAF2; background:#fff; color:#5A5766; display:flex; align-items:center; justify-content:center; cursor:pointer;"><span class="ms" style="font-size:21px;">arrow_back_ios_new</span></button>
+              <div style="font-size:23px; font-weight:700; color:#1C1B22; letter-spacing:-0.02em;">Settings</div>
+            </div>
+
+            <div style="display:flex; align-items:center; gap:14px; margin-top:18px; padding:16px; background:#fff; border:1px solid #ECEAF2; border-radius:18px; box-shadow:0 1px 2px rgba(28,27,34,0.04), 0 7px 18px -8px rgba(28,27,34,0.10);">
+              <div style="width:52px; height:52px; border-radius:50%; background:var(--accent-tint); color:var(--accent-deep); display:flex; align-items:center; justify-content:center; font-size:22px; font-weight:700; flex:0 0 auto;">{{ userInitial }}</div>
+              <div style="flex:1; min-width:0;">
+                <div style="font-size:16px; font-weight:700; color:#1C1B22; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ userEmail }}</div>
+                <div style="font-size:12.5px; color:#9C99A8; margin-top:2px;">Personal account</div>
+              </div>
+            </div>
+
+            <div style="font-size:11px; font-weight:700; letter-spacing:0.06em; text-transform:uppercase; color:#9C99A8; margin:24px 4px 9px;">Sync &amp; backup</div>
+            <div style="background:#fff; border:1px solid #ECEAF2; border-radius:16px; overflow:hidden;">
+              <div style="display:flex; align-items:center; gap:13px; padding:14px 16px; border-bottom:1px solid #F2F1F6;">
+                <span class="ms" style="font-size:21px; color:var(--accent);">cloud_done</span>
+                <span style="flex:1; font-size:14.5px; color:#1C1B22; font-weight:500;">Supabase sync</span>
+                <span style="display:flex; align-items:center; gap:6px; font-size:12.5px; color:#4F9D6B; font-weight:600;"><span style="width:7px; height:7px; border-radius:50%; background:#54B27A; display:block;"></span>Active</span>
+              </div>
+            </div>
+
+            <div style="font-size:11px; font-weight:700; letter-spacing:0.06em; text-transform:uppercase; color:#9C99A8; margin:24px 4px 9px;">Catalogue</div>
+            <div style="background:#fff; border:1px solid #ECEAF2; border-radius:16px; overflow:hidden;">
+              <div style="display:flex; align-items:center; gap:13px; padding:14px 16px;">
+                <span class="ms" style="font-size:21px; color:var(--accent);">local_library</span>
+                <span style="flex:1; font-size:14.5px; color:#1C1B22; font-weight:500;">Fragrance catalogue</span>
+                <span style="font-size:13px; color:#9C99A8;">{{ catalogueCount }}</span>
+              </div>
+            </div>
+
+            <div style="font-size:11px; font-weight:700; letter-spacing:0.06em; text-transform:uppercase; color:#9C99A8; margin:24px 4px 9px;">Preferences</div>
+            <div style="background:#fff; border:1px solid #ECEAF2; border-radius:16px; overflow:hidden;">
+              <button style="display:flex; align-items:center; gap:13px; padding:14px 16px; width:100%; background:none; border:none; border-bottom:1px solid #F2F1F6; cursor:pointer; font-family:inherit; text-align:left;"><span class="ms" style="font-size:21px; color:var(--accent);">palette</span><span style="flex:1; font-size:14.5px; color:#1C1B22; font-weight:500;">Appearance</span><span style="font-size:13px; color:#9C99A8;">Light</span><span class="ms" style="font-size:20px; color:#CBC8D6;">chevron_right</span></button>
+              <button style="display:flex; align-items:center; gap:13px; padding:14px 16px; width:100%; background:none; border:none; cursor:pointer; font-family:inherit; text-align:left;"><span class="ms" style="font-size:21px; color:var(--accent);">payments</span><span style="flex:1; font-size:14.5px; color:#1C1B22; font-weight:500;">Default currency</span><span style="font-size:13px; color:#9C99A8;">EUR €</span><span class="ms" style="font-size:20px; color:#CBC8D6;">chevron_right</span></button>
+            </div>
+
+            <button onClick="{{ signOut }}" style="width:100%; margin-top:28px; padding:15px; background:#fff; border:1px solid #ECEAF2; border-radius:16px; color:#C0353A; font-size:14.5px; font-weight:600; cursor:pointer; font-family:inherit;">Sign out</button>
+            <div style="text-align:center; font-size:11.5px; color:#B4B1C0; margin-top:16px;">FRPL · version 1.0</div>
+          </div>
+        </sc-if>
+
+      </div>
+
+      <!-- FAB -->
+      <sc-if value="{{ showFab }}" hint-placeholder-val="">
+        <button onClick="{{ openAdd }}" style="position:absolute; right:20px; bottom:28px; width:56px; height:56px; border-radius:50%; background:var(--accent); border:none; color:#fff; display:flex; align-items:center; justify-content:center; cursor:pointer; z-index:30; box-shadow:0 10px 24px -4px rgba(120,94,175,0.5), 0 4px 8px rgba(28,27,34,0.12);"><span class="ms" style="font-size:28px;">add</span></button>
+      </sc-if>
+
+      <!-- DETAIL DRAWER -->
+      <sc-if value="{{ drawerOpen }}" hint-placeholder-val="">
+        <div onClick="{{ closeDrawer }}" style="position:absolute; inset:0; background:rgba(20,16,32,0.42); z-index:40; animation:fadeIn 180ms ease;"></div>
+        <div style="position:absolute; left:0; right:0; bottom:0; max-height:91%; background:#fff; border-radius:26px 26px 0 0; z-index:41; display:flex; flex-direction:column; animation:sheetUp 300ms cubic-bezier(.2,.7,.2,1); box-shadow:0 -14px 44px rgba(20,16,32,0.24); overflow:hidden;">
+          <div style="flex:0 0 auto; display:flex; justify-content:center; padding:9px 0 3px;"><div style="width:38px; height:5px; border-radius:99px; background:#E2DEEC;"></div></div>
+          <div class="appscroll" style="overflow-y:auto; flex:1;">
+            <div style="position:relative; padding:16px 20px 18px; background:var(--accent-tint); display:flex; align-items:center; gap:16px;">
+              <div style="width:92px; height:110px; display:flex; align-items:center; justify-content:center; flex:0 0 auto;">
+                <sc-if value="{{ d.img }}" hint-placeholder-val="">{{ d.imgEl }}</sc-if>
+                <sc-if value="{{ d.noImg }}" hint-placeholder-val=""><span class="ms" style="font-size:54px; color:var(--accent-light);">water_drop</span></sc-if>
+              </div>
+              <div style="flex:1; min-width:0;">
+                <div style="font-size:11px; font-weight:700; letter-spacing:0.05em; text-transform:uppercase; color:var(--accent-deep);">{{ d.house }}</div>
+                <div style="font-size:22px; font-weight:700; color:#1C1B22; margin-top:4px; line-height:1.15;">{{ d.name }}</div>
+                <div style="font-size:12.5px; color:#6A6775; margin-top:7px; line-height:1.5;">{{ d.metaLine }}</div>
+              </div>
+              <button onClick="{{ closeDrawer }}" style="position:absolute; top:14px; right:16px; width:32px; height:32px; border-radius:50%; background:rgba(255,255,255,0.7); border:none; color:#6A6775; display:flex; align-items:center; justify-content:center; cursor:pointer;"><span class="ms" style="font-size:20px;">close</span></button>
+            </div>
+
+            <sc-if value="{{ d.inList }}" hint-placeholder-val="">
+              <div style="display:flex; gap:10px; padding:16px 20px 2px;">
+                <button onClick="{{ d.toggleToGet }}" style="{{ d.togetBtnStyle }}"><span class="ms" style="font-size:18px;">flag</span>To get</button>
+                <button onClick="{{ d.toggleTravel }}" style="{{ d.travelBtnStyle }}"><span class="ms" style="font-size:18px;">flight</span>Travel size</button>
+              </div>
+            </sc-if>
+
+            <sc-if value="{{ d.hasAccords }}" hint-placeholder-val="">
+              <div style="padding:16px 20px 4px;">
+                <div style="font-size:11px; font-weight:700; letter-spacing:0.06em; text-transform:uppercase; color:#9C99A8;">Accords</div>
+                <div style="display:flex; flex-wrap:wrap; gap:8px; margin-top:11px;">
+                  <sc-for list="{{ d.accords }}" as="a" hint-placeholder-count="3"><span style="font-size:12.5px; font-weight:500; color:var(--accent-deep); background:var(--accent-tint); padding:6px 13px; border-radius:999px;">{{ a }}</span></sc-for>
+                </div>
+              </div>
+            </sc-if>
+
+            <div style="padding:18px 20px 4px;">
+              <div style="font-size:11px; font-weight:700; letter-spacing:0.06em; text-transform:uppercase; color:#9C99A8;">Notes pyramid</div>
+              <div style="display:flex; flex-direction:column; gap:13px; margin-top:13px;">
+                <div style="display:flex; gap:13px; align-items:flex-start;">
+                  <span style="width:46px; flex:0 0 auto; font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:0.04em; color:#A7A4B4; padding-top:6px;">Top</span>
+                  <div style="display:flex; flex-wrap:wrap; gap:7px; flex:1;"><sc-for list="{{ d.top }}" as="n" hint-placeholder-count="2"><span style="font-size:12.5px; color:#3A3845; background:#F4F1FA; border:1px solid #ECEAF2; padding:5px 11px; border-radius:9px;">{{ n }}</span></sc-for></div>
+                </div>
+                <div style="display:flex; gap:13px; align-items:flex-start;">
+                  <span style="width:46px; flex:0 0 auto; font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:0.04em; color:#A7A4B4; padding-top:6px;">Heart</span>
+                  <div style="display:flex; flex-wrap:wrap; gap:7px; flex:1;"><sc-for list="{{ d.heart }}" as="n" hint-placeholder-count="2"><span style="font-size:12.5px; color:#3A3845; background:#F4F1FA; border:1px solid #ECEAF2; padding:5px 11px; border-radius:9px;">{{ n }}</span></sc-for></div>
+                </div>
+                <div style="display:flex; gap:13px; align-items:flex-start;">
+                  <span style="width:46px; flex:0 0 auto; font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:0.04em; color:#A7A4B4; padding-top:6px;">Base</span>
+                  <div style="display:flex; flex-wrap:wrap; gap:7px; flex:1;"><sc-for list="{{ d.base }}" as="n" hint-placeholder-count="2"><span style="font-size:12.5px; color:#3A3845; background:#F4F1FA; border:1px solid #ECEAF2; padding:5px 11px; border-radius:9px;">{{ n }}</span></sc-for></div>
+                </div>
+              </div>
+            </div>
+
+            <div style="padding:18px 20px 4px; display:flex; gap:12px;">
+              <div style="flex:1; background:#F7F6FB; border:1px solid #ECEAF2; border-radius:14px; padding:12px 14px;">
+                <div style="font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:0.04em; color:#A7A4B4;">Price paid</div>
+                <div style="font-size:17px; font-weight:700; color:#1C1B22; margin-top:5px;">{{ d.pricePaid }}</div>
+              </div>
+              <div style="flex:1; background:#F7F6FB; border:1px solid #ECEAF2; border-radius:14px; padding:12px 14px;">
+                <div style="font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:0.04em; color:#A7A4B4;">Price target</div>
+                <div style="font-size:17px; font-weight:700; color:#1C1B22; margin-top:5px;">{{ d.priceTarget }}</div>
+              </div>
+            </div>
+
+            <div style="padding:18px 20px 4px;">
+              <div style="font-size:11px; font-weight:700; letter-spacing:0.06em; text-transform:uppercase; color:#9C99A8;">Your notes</div>
+              <div style="margin-top:10px; background:#F7F6FB; border:1px solid #ECEAF2; border-radius:14px; padding:13px 15px; font-size:14px; line-height:1.55; color:{{ d.noteColor }};">{{ d.noteText }}</div>
+            </div>
+
+            <sc-if value="{{ d.hasSimilar }}" hint-placeholder-val="">
+              <div style="padding:18px 20px 4px;">
+                <div style="font-size:11px; font-weight:700; letter-spacing:0.06em; text-transform:uppercase; color:#9C99A8;">Similar scents</div>
+                <div class="appscroll" style="display:flex; gap:11px; overflow-x:auto; margin-top:12px; padding-bottom:2px;">
+                  <sc-for list="{{ d.similar }}" as="sim" hint-placeholder-count="2">
+                    <button onClick="{{ sim.onOpen }}" style="flex:0 0 auto; width:138px; text-align:left; background:#fff; border:1px solid #ECEAF2; border-radius:14px; padding:12px; cursor:pointer; font-family:inherit;">
+                      <div style="height:54px; display:flex; align-items:center; justify-content:center;"><sc-if value="{{ sim.img }}" hint-placeholder-val="">{{ sim.imgEl }}</sc-if></div>
+                      <div style="font-size:13.5px; font-weight:600; color:#1C1B22; margin-top:9px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ sim.name }}</div>
+                      <div style="font-size:11.5px; color:#9C99A8; margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ sim.house }}</div>
+                    </button>
+                  </sc-for>
+                </div>
+              </div>
+            </sc-if>
+
+            <div style="padding:22px 20px 28px; display:flex; gap:11px;">
+              <button style="flex:1; height:46px; border-radius:13px; background:var(--accent); border:none; color:#fff; font-size:14.5px; font-weight:600; cursor:pointer; font-family:inherit; display:flex; align-items:center; justify-content:center; gap:7px;"><span class="ms" style="font-size:19px;">edit</span>Edit details</button>
+              <sc-if value="{{ d.inList }}" hint-placeholder-val="">
+                <button onClick="{{ d.removeFromList }}" style="width:46px; height:46px; border-radius:13px; background:#fff; border:1px solid #ECEAF2; color:#C0353A; display:flex; align-items:center; justify-content:center; cursor:pointer;"><span class="ms" style="font-size:21px;">delete</span></button>
+              </sc-if>
+            </div>
+          </div>
+        </div>
+      </sc-if>
+
+      <!-- ADD SHEET -->
+      <sc-if value="{{ showAddSheet }}" hint-placeholder-val="">
+        <div onClick="{{ closeSheet }}" style="position:absolute; inset:0; background:rgba(20,16,32,0.42); z-index:42; animation:fadeIn 180ms ease;"></div>
+        <div style="position:absolute; left:0; right:0; bottom:0; height:80%; background:#fff; border-radius:26px 26px 0 0; z-index:43; display:flex; flex-direction:column; animation:sheetUp 300ms cubic-bezier(.2,.7,.2,1); box-shadow:0 -14px 44px rgba(20,16,32,0.24); overflow:hidden;">
+          <div style="flex:0 0 auto; display:flex; justify-content:center; padding:9px 0 3px;"><div style="width:38px; height:5px; border-radius:99px; background:#E2DEEC;"></div></div>
+          <div style="flex:0 0 auto; display:flex; align-items:center; justify-content:space-between; padding:6px 20px 12px;">
+            <div style="font-size:18px; font-weight:700; color:#1C1B22;">{{ addTitle }}</div>
+            <button onClick="{{ closeSheet }}" style="width:32px; height:32px; border-radius:50%; background:#F2F1F6; border:none; color:#6A6775; display:flex; align-items:center; justify-content:center; cursor:pointer;"><span class="ms" style="font-size:20px;">close</span></button>
+          </div>
+          <div style="flex:0 0 auto; margin:0 20px 8px; display:flex; align-items:center; gap:10px; background:#F2F1F6; border-radius:14px; padding:13px 14px;">
+            <span class="ms" style="font-size:21px; color:#9C99A8;">search</span>
+            <input class="frpl-in" value="{{ addQuery }}" onChange="{{ onAddQuery }}" placeholder="Search the catalogue…" style="flex:1; font-size:15px; color:#1C1B22;" />
+          </div>
+          <div class="appscroll" style="flex:1; overflow-y:auto; padding:0 16px;">
+            <sc-for list="{{ addResults }}" as="r" hint-placeholder-count="5">
+              <div style="display:flex; align-items:center; gap:12px; padding:11px 8px; border-bottom:1px solid #F2F1F6;">
+                <span style="width:46px; height:46px; border-radius:12px; background:#F4F1FA; display:flex; align-items:center; justify-content:center; flex:0 0 auto; overflow:hidden;"><sc-if value="{{ r.img }}" hint-placeholder-val="">{{ r.imgEl }}</sc-if></span>
+                <span style="flex:1; min-width:0;">
+                  <span style="display:block; font-size:14.5px; font-weight:600; color:#1C1B22;">{{ r.name }}</span>
+                  <span style="display:block; font-size:12px; color:#9C99A8; margin-top:2px;">{{ r.sub }}</span>
+                </span>
+                <button onClick="{{ r.onAdd }}" style="{{ r.btnStyle }}"><span class="ms" style="font-size:20px;">{{ r.btnIcon }}</span></button>
+              </div>
+            </sc-for>
+            <sc-if value="{{ addNoResults }}" hint-placeholder-val="">
+              <div style="padding:36px 20px 12px; text-align:center; color:#9C99A8; font-size:13.5px;">No catalogue match for "{{ addQuery }}".<br/>Add it manually below.</div>
+            </sc-if>
+          </div>
+          <div style="flex:0 0 auto; padding:12px 20px 26px; border-top:1px solid #F2F1F6;">
+            <button onClick="{{ openManual }}" style="width:100%; height:48px; border-radius:14px; background:#fff; border:1.5px dashed #D8D4E4; color:var(--accent); font-size:14.5px; font-weight:600; cursor:pointer; font-family:inherit; display:flex; align-items:center; justify-content:center; gap:8px;"><span class="ms" style="font-size:20px;">edit_note</span>Add manually</button>
+          </div>
+        </div>
+      </sc-if>
+
+      <!-- MANUAL ENTRY -->
+      <sc-if value="{{ showManual }}" hint-placeholder-val="">
+        <div onClick="{{ closeSheet }}" style="position:absolute; inset:0; background:rgba(20,16,32,0.42); z-index:44; animation:fadeIn 180ms ease;"></div>
+        <div style="position:absolute; left:0; right:0; bottom:0; height:86%; background:#fff; border-radius:26px 26px 0 0; z-index:45; display:flex; flex-direction:column; animation:sheetUp 300ms cubic-bezier(.2,.7,.2,1); box-shadow:0 -14px 44px rgba(20,16,32,0.24); overflow:hidden;">
+          <div style="flex:0 0 auto; display:flex; justify-content:center; padding:9px 0 3px;"><div style="width:38px; height:5px; border-radius:99px; background:#E2DEEC;"></div></div>
+          <div style="flex:0 0 auto; display:flex; align-items:center; gap:10px; padding:6px 20px 12px;">
+            <button onClick="{{ openAdd }}" style="width:32px; height:32px; border-radius:50%; background:#F2F1F6; border:none; color:#6A6775; display:flex; align-items:center; justify-content:center; cursor:pointer;"><span class="ms" style="font-size:20px;">arrow_back_ios_new</span></button>
+            <div style="font-size:18px; font-weight:700; color:#1C1B22;">Add manually</div>
+          </div>
+          <div class="appscroll" style="flex:1; overflow-y:auto; padding:4px 20px 0;">
+            <div style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; color:#9C99A8; margin-bottom:6px;">Name <span style="color:#C0353A;">*</span></div>
+            <input class="frpl-in" value="{{ manualName }}" onChange="{{ onManualName }}" placeholder="e.g. Vetiver Extraordinaire" style="width:100%; border:1px solid #ECEAF2; border-radius:11px; padding:11px 13px; font-size:14.5px; color:#1C1B22; background:#fff; margin-bottom:6px;" />
+            <div style="font-size:11.5px; color:#B4B1C0; margin-bottom:18px; line-height:1.4;">Only the name is required. You can add more detail later.</div>
+            <div style="display:flex; flex-direction:column; gap:14px;">
+              <div><div style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; color:#9C99A8; margin-bottom:6px;">House / Brand</div><input class="frpl-in" placeholder="House" style="width:100%; border:1px solid #ECEAF2; border-radius:11px; padding:11px 13px; font-size:14.5px; color:#1C1B22; background:#fff;" /></div>
+              <div><div style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; color:#9C99A8; margin-bottom:6px;">Year</div><input class="frpl-in" placeholder="2026" style="width:100%; border:1px solid #ECEAF2; border-radius:11px; padding:11px 13px; font-size:14.5px; color:#1C1B22; background:#fff;" /></div>
+              <div><div style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; color:#9C99A8; margin-bottom:6px;">Your notes</div><textarea class="frpl-in" placeholder="First impressions, longevity, where you wore it…" rows="3" style="width:100%; border:1px solid #ECEAF2; border-radius:11px; padding:11px 13px; font-size:14.5px; color:#1C1B22; background:#fff; resize:none;"></textarea></div>
+            </div>
+          </div>
+          <div style="flex:0 0 auto; padding:12px 20px 26px; border-top:1px solid #F2F1F6;">
+            <button onClick="{{ manualSave }}" style="width:100%; height:48px; border-radius:14px; background:var(--accent); border:none; color:#fff; font-size:15px; font-weight:600; cursor:pointer; font-family:inherit; box-shadow:0 6px 16px rgba(120,94,175,0.30);">Save perfume</button>
+          </div>
+        </div>
+      </sc-if>
+
+      <!-- NEW LIST -->
+      <sc-if value="{{ showNewList }}" hint-placeholder-val="">
+        <div onClick="{{ closeSheet }}" style="position:absolute; inset:0; background:rgba(20,16,32,0.42); z-index:46; animation:fadeIn 180ms ease;"></div>
+        <div style="position:absolute; left:0; right:0; bottom:0; background:#fff; border-radius:26px 26px 0 0; z-index:47; display:flex; flex-direction:column; animation:sheetUp 300ms cubic-bezier(.2,.7,.2,1); box-shadow:0 -14px 44px rgba(20,16,32,0.24); overflow:hidden;">
+          <div style="display:flex; justify-content:center; padding:9px 0 3px;"><div style="width:38px; height:5px; border-radius:99px; background:#E2DEEC;"></div></div>
+          <div style="display:flex; align-items:center; justify-content:space-between; padding:6px 20px 14px;">
+            <div style="font-size:18px; font-weight:700; color:#1C1B22;">{{ newTitle }}</div>
+            <button onClick="{{ closeSheet }}" style="width:32px; height:32px; border-radius:50%; background:#F2F1F6; border:none; color:#6A6775; display:flex; align-items:center; justify-content:center; cursor:pointer;"><span class="ms" style="font-size:20px;">close</span></button>
+          </div>
+          <div style="padding:0 20px;">
+            <div style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; color:#9C99A8; margin-bottom:7px;">List name</div>
+            <input class="frpl-in" value="{{ newName }}" onChange="{{ onNewName }}" placeholder="e.g. Vintage finds" style="width:100%; border:1px solid #ECEAF2; border-radius:12px; padding:12px 14px; font-size:15px; color:#1C1B22; background:#fff;" />
+            <div style="font-size:11.5px; color:#B4B1C0; margin-top:8px;">{{ newContext }}</div>
+            <div style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; color:#9C99A8; margin:18px 0 9px;">Cover</div>
+            <div style="display:flex; gap:10px;">
+              <sc-for list="{{ newCovers }}" as="cov" hint-placeholder-count="6">
+                <button onClick="{{ cov.onPick }}" style="{{ cov.style }}"></button>
+              </sc-for>
+            </div>
+          </div>
+          <div style="padding:20px 20px 26px;">
+            <button onClick="{{ createList }}" style="width:100%; height:48px; border-radius:14px; background:var(--accent); border:none; color:#fff; font-size:15px; font-weight:600; cursor:pointer; font-family:inherit; box-shadow:0 6px 16px rgba(120,94,175,0.30);">Create list</button>
+          </div>
+        </div>
+      </sc-if>
+
+      <!-- NEW CATEGORY -->
+      <sc-if value="{{ showNewCat }}" hint-placeholder-val="">
+        <div onClick="{{ closeSheet }}" style="position:absolute; inset:0; background:rgba(20,16,32,0.42); z-index:46; animation:fadeIn 180ms ease;"></div>
+        <div style="position:absolute; left:0; right:0; bottom:0; background:#fff; border-radius:26px 26px 0 0; z-index:47; display:flex; flex-direction:column; animation:sheetUp 300ms cubic-bezier(.2,.7,.2,1); box-shadow:0 -14px 44px rgba(20,16,32,0.24); overflow:hidden;">
+          <div style="display:flex; justify-content:center; padding:9px 0 3px;"><div style="width:38px; height:5px; border-radius:99px; background:#E2DEEC;"></div></div>
+          <div style="display:flex; align-items:center; justify-content:space-between; padding:6px 20px 6px;">
+            <div style="font-size:18px; font-weight:700; color:#1C1B22;">New category</div>
+            <button onClick="{{ closeSheet }}" style="width:32px; height:32px; border-radius:50%; background:#F2F1F6; border:none; color:#6A6775; display:flex; align-items:center; justify-content:center; cursor:pointer;"><span class="ms" style="font-size:20px;">close</span></button>
+          </div>
+          <div style="padding:8px 20px 0;">
+            <div style="display:flex; align-items:flex-start; gap:11px; margin-bottom:16px; padding:12px; background:#F7F6FB; border-radius:12px;">
+              <span class="ms" style="font-size:20px; color:var(--accent); flex:0 0 auto; margin-top:1px;">label</span>
+              <span style="font-size:13px; color:#6A6775; line-height:1.5;">Creates a new tab alongside Owned, To Try and Favourite Notes.</span>
+            </div>
+            <div style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; color:#9C99A8; margin-bottom:7px;">Category name</div>
+            <input class="frpl-in" value="{{ newCatName }}" onChange="{{ onNewCatName }}" placeholder="e.g. Gift ideas, Vintage, Travel" style="width:100%; border:1px solid #ECEAF2; border-radius:12px; padding:12px 14px; font-size:15px; color:#1C1B22; background:#fff;" />
+          </div>
+          <div style="padding:20px 20px 26px;">
+            <button onClick="{{ createCat }}" style="width:100%; height:48px; border-radius:14px; background:var(--accent); border:none; color:#fff; font-size:15px; font-weight:600; cursor:pointer; font-family:inherit; box-shadow:0 6px 16px rgba(120,94,175,0.30);">Create category</button>
+          </div>
+        </div>
+      </sc-if>
+
+      <!-- SORT -->
+      <sc-if value="{{ showSort }}" hint-placeholder-val="">
+        <div onClick="{{ closeSheet }}" style="position:absolute; inset:0; background:rgba(20,16,32,0.42); z-index:48; animation:fadeIn 180ms ease;"></div>
+        <div style="position:absolute; left:0; right:0; bottom:0; background:#fff; border-radius:26px 26px 0 0; z-index:49; animation:sheetUp 280ms cubic-bezier(.2,.7,.2,1); box-shadow:0 -14px 44px rgba(20,16,32,0.24); padding-bottom:26px;">
+          <div style="display:flex; justify-content:center; padding:9px 0 3px;"><div style="width:38px; height:5px; border-radius:99px; background:#E2DEEC;"></div></div>
+          <div style="font-size:18px; font-weight:700; color:#1C1B22; padding:6px 20px 12px;">Sort by</div>
+          <sc-for list="{{ sortOptions }}" as="opt" hint-placeholder-count="4">
+            <button onClick="{{ opt.onPick }}" style="display:flex; align-items:center; justify-content:space-between; width:100%; padding:14px 20px; background:none; border:none; border-top:1px solid #F2F1F6; cursor:pointer; font-family:inherit;">
+              <span style="font-size:15px; font-weight:500; color:{{ opt.color }};">{{ opt.label }}</span>
+              <sc-if value="{{ opt.active }}" hint-placeholder-val=""><span class="ms" style="font-size:21px; color:var(--accent);">check</span></sc-if>
+            </button>
+          </sc-for>
+        </div>
+      </sc-if>
+
+      <!-- LIST MENU -->
+      <sc-if value="{{ showListMenu }}" hint-placeholder-val="">
+        <div onClick="{{ closeSheet }}" style="position:absolute; inset:0; background:rgba(20,16,32,0.42); z-index:48; animation:fadeIn 180ms ease;"></div>
+        <div style="position:absolute; left:0; right:0; bottom:0; background:#fff; border-radius:26px 26px 0 0; z-index:49; animation:sheetUp 280ms cubic-bezier(.2,.7,.2,1); box-shadow:0 -14px 44px rgba(20,16,32,0.24); padding-bottom:26px;">
+          <div style="display:flex; justify-content:center; padding:9px 0 3px;"><div style="width:38px; height:5px; border-radius:99px; background:#E2DEEC;"></div></div>
+          <div style="padding:8px 8px 0;">
+            <button onClick="{{ menuRename }}" style="display:flex; align-items:center; gap:14px; width:100%; padding:15px 16px; background:none; border:none; cursor:pointer; font-family:inherit; text-align:left;"><span class="ms" style="font-size:22px; color:var(--accent);">edit</span><span style="font-size:15px; color:#1C1B22; font-weight:500;">Rename list</span></button>
+            <button onClick="{{ shareCurrent }}" style="display:flex; align-items:center; gap:14px; width:100%; padding:15px 16px; background:none; border:none; cursor:pointer; font-family:inherit; text-align:left;"><span class="ms" style="font-size:22px; color:var(--accent);">link</span><span style="font-size:15px; color:#1C1B22; font-weight:500;">Copy share link</span></button>
+            <button onClick="{{ addSubList }}" style="display:flex; align-items:center; gap:14px; width:100%; padding:15px 16px; background:none; border:none; cursor:pointer; font-family:inherit; text-align:left;"><span class="ms" style="font-size:22px; color:var(--accent);">create_new_folder</span><span style="font-size:15px; color:#1C1B22; font-weight:500;">Add a sub-list</span></button>
+            <button onClick="{{ menuDelete }}" style="display:flex; align-items:center; gap:14px; width:100%; padding:15px 16px; background:none; border:none; border-top:1px solid #F2F1F6; cursor:pointer; font-family:inherit; text-align:left;"><span class="ms" style="font-size:22px; color:#C0353A;">delete</span><span style="font-size:15px; color:#C0353A; font-weight:500;">Delete list</span></button>
+          </div>
+        </div>
+      </sc-if>
+
+      <!-- TOAST -->
+      <sc-if value="{{ toastVisible }}" hint-placeholder-val="">
+        <div style="position:absolute; left:50%; bottom:40px; transform:translateX(-50%); background:#1C1B22; color:#fff; padding:11px 18px; border-radius:999px; font-size:13.5px; font-weight:500; z-index:60; display:flex; align-items:center; gap:8px; animation:toastIn 220ms ease; box-shadow:0 10px 28px rgba(0,0,0,0.28); white-space:nowrap;"><span class="ms" style="font-size:18px; color:#88E0A6;">check_circle</span>{{ toast }}</div>
+      </sc-if>
+
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:480,&quot;height&quot;:920},&quot;accent&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;default&quot;:&quot;iris&quot;,&quot;options&quot;:[&quot;iris&quot;,&quot;lavender&quot;,&quot;plum&quot;,&quot;periwinkle&quot;],&quot;tsType&quot;:&quot;string&quot;}}">
+class Component extends DCLogic {
+  state = {
+    appState: 'initializing',
+    session: null,
+    authEmail: '', authSent: false, authLoading: false, authError: null,
+    loadError: null,
+    catalogue: [], catById: {},
+    lists: {},
+    sections: [
+      { id: 'owned', name: 'Owned', sub: 'in your possession' },
+      { id: 'totry', name: 'To Try', sub: 'wishlist & discovery' },
+      { id: 'favnotes', name: 'Favourite Notes', sub: 'by accord & ingredient' },
+    ],
+    userData: {},
+    view: 'home', activeSection: 'owned', activeListId: null,
+    drawerPerfumeId: null, drawerListId: null,
+    sheet: null, addTargetListId: null,
+    sort: 'added', addQuery: '', libQuery: '',
+    newName: '', newCover: 0, newParent: null,
+    manualName: '', newCatName: '', toast: null,
+  };
+
+  async componentDidMount() {
+    this._loadCatalogue();
+    // Wait for supabase-js CDN script to finish loading (dynamic injection is async)
+    let _t = 0;
+    while (!window.supabase && _t++ < 60) await new Promise(r => setTimeout(r, 100));
+    if (!window.supabase) {
+      this.setState({ appState: 'auth', loadError: 'Could not load auth library. Please refresh.' });
+      return;
+    }
+    this._sb = window.supabase.createClient(
+      'https://yutfzippzrnohfsobpcx.supabase.co',
+      'sb_publishable_AYyUlmTU8DS1OQLonzCU2A_eC5figBW'
+    );
+    this._sb.auth.onAuthStateChange(async (event, session) => {
+      if ((event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') && session) {
+        if (this.state.appState !== 'ready') {
+          this.setState({ session, appState: 'loading' });
+          await this._awaitCatalogue();
+          await this.loadUserData();
+          this.setState({ appState: 'ready' });
+        } else {
+          this.setState({ session });
+        }
+      } else if (event === 'SIGNED_OUT') {
+        this.setState({ session: null, appState: 'auth', lists: {}, userData: {}, sections: this._fixedSections(), view: 'home' });
+      }
+    });
+    const { data: { session } } = await this._sb.auth.getSession();
+    if (!session) { this.setState({ appState: 'auth' }); return; }
+    this.setState({ session, appState: 'loading' });
+    await this._awaitCatalogue();
+    await this.loadUserData();
+    this.setState({ appState: 'ready' });
+  }
+
+  _loadCatalogue() {
+    this._catReady = false; this._catResolvers = [];
+    fetch('data/catalogue-manifest.json')
+      .then(r => r.json())
+      .then(mf => {
+        const n = (mf && mf.shards) || 8;
+        return Promise.all(Array.from({ length: n }, (_, i) => fetch('data/perfumes.' + i + '.json').then(r => r.json())));
+      })
+      .then(chunks => {
+        const arr = chunks.flat();
+        const catById = {}, nameIdx = {};
+        const norm = s => (s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/\s+/g,' ').trim();
+        arr.forEach(p => { if (!p.thumb) p.thumb = 'https://fimgs.net/mdimg/perfume/m.' + p.id + '.jpg'; catById[p.id] = p; nameIdx[norm(p.name+' '+p.brand)] = p.id; });
+        this._nameIdx = nameIdx; this._norm = norm;
+        this._catalogue = arr; this._catById = { ...catById };
+        this._catReady = true; this._catResolvers.forEach(r => r());
+        if (this.state.appState === 'ready') this.setState({ catalogue: arr, catById });
+        else { this.state.catalogue = arr; this.state.catById = catById; }
+      })
+      .catch(e => this.setState({ loadError: 'Could not load catalogue: ' + e.message }));
+  }
+  _awaitCatalogue() { if (this._catReady) return Promise.resolve(); return new Promise(r => this._catResolvers.push(r)); }
+  _fixedSections() { return [{ id:'owned',name:'Owned',sub:'in your possession' },{ id:'totry',name:'To Try',sub:'wishlist & discovery' },{ id:'favnotes',name:'Favourite Notes',sub:'by accord & ingredient' }]; }
+
+  async loadUserData() {
+    const sb = this._sb;
+    const [listsRes, entriesRes, catsRes, notesRes, customRes] = await Promise.all([
+      sb.from('lists').select('*').order('created_at'),
+      sb.from('list_entries').select('*').order('position'),
+      sb.from('categories').select('*').order('sort_order'),
+      sb.from('user_perfume_notes').select('*'),
+      sb.from('custom_perfumes').select('*'),
+    ]);
+    const lists = {};
+    for (const l of (listsRes.data||[])) lists[l.id] = { id:l.id, name:l.name, sectionId:l.section_id, parentId:l.parent_id||null, cover:[l.cover_start,l.cover_end], entries:[] };
+    for (const e of (entriesRes.data||[])) { if (lists[e.list_id]) lists[e.list_id].entries.push({ perfumeId:e.perfume_id, tag:e.tag||null }); }
+    const catById = { ...(this._catById||{}) };
+    for (const cp of (customRes.data||[])) catById[cp.id] = { id:cp.id, name:cp.name, brand:cp.brand||'Added manually', year:cp.year, rating:null, ratingCount:null, gender:'', thumb:'', url:'', notes:{top:[],mid:[],base:[]}, reminds:[], manual:true };
+    const userData = {};
+    for (const n of (notesRes.data||[])) userData[n.perfume_id] = { note:n.note, remindsOf:n.reminds_of, pricePaid:n.price_paid, priceTarget:n.price_target };
+    const customCats = (catsRes.data||[]).map(c => ({ id:c.id, name:c.name, sub:'your category', custom:true }));
+    const sections = [...this._fixedSections(), ...customCats];
+    const activeSection = sections.find(s => s.id === this.state.activeSection) ? this.state.activeSection : 'owned';
+    this.setState({ lists, userData, sections, catById, catalogue: this._catalogue||[], activeSection });
+  }
+
+  // ── auth ──
+  onAuthEmail(e) { this.setState({ authEmail: e.target.value, authError: null }); }
+  async sendMagicLink() {
+    const email = (this.state.authEmail||'').trim();
+    if (!email) { this.setState({ authError: 'Enter your email first.' }); return; }
+    this.setState({ authLoading: true, authError: null });
+    const { error } = await this._sb.auth.signInWithOtp({ email, options: { emailRedirectTo: window.location.href.split('#')[0] } });
+    if (error) { this.setState({ authLoading: false, authError: error.message }); return; }
+    this.setState({ authLoading: false, authSent: true });
+  }
+  resendLink() { this.setState({ authSent: false, authEmail: '' }); }
+  async signOut() { await this._sb.auth.signOut(); }
+
+  // ── helpers ──
+  covers() { return [['#8E73C0','#C9B8E6'],['#5E4A93','#9B82C9'],['#7C5EAF','#B9A4DE'],['#9B6FB0','#D7BEE3'],['#6573C9','#98A4E6'],['#8A6BB5','#E3D4F0']]; }
+  coverCss(c) { return 'linear-gradient(135deg,'+c[0]+' 0%,'+c[1]+' 100%)'; }
+  tagInfo(tag) {
+    if (tag==='toget') return {label:'To get',text:'#BE343A',dot:'#E5484D',bg:'#FDECEC',border:'#F3CBCB',glow:'rgba(229,72,77,0.10)'};
+    if (tag==='travel') return {label:'Travel size',text:'#2560C0',dot:'#2F73E0',bg:'#EAF1FD',border:'#CFE0FB',glow:'rgba(47,115,224,0.10)'};
+    return null;
+  }
+  sortedEntries(l) {
+    const cat=this.state.catById, arr=l.entries.filter(e=>cat[e.perfumeId]), k=this.state.sort;
+    if (k==='name') arr.sort((a,b)=>cat[a.perfumeId].name.localeCompare(cat[b.perfumeId].name));
+    else if (k==='brand') arr.sort((a,b)=>(cat[a.perfumeId].brand||'').localeCompare(cat[b.perfumeId].brand||''));
+    else if (k==='release') arr.sort((a,b)=>(cat[b.perfumeId].year||0)-(cat[a.perfumeId].year||0));
+    return arr;
+  }
+  fmtInt(n) { return n==null?'':Number(n).toLocaleString('en-US'); }
+  resolveReminds(reminds) {
+    const cat=this.state.catById, idx=this._nameIdx||{}, norm=this._norm||(s=>s);
+    return (reminds||[]).map(it => {
+      const id=idx[norm(it.name)], p=id?cat[id]:null;
+      if (p) return {name:p.name,house:p.brand,img:p.thumb,id:p.id,resolved:true};
+      const total=(it.up||0)+(it.down||0),pct=total?Math.round((it.up||0)/total*100):0;
+      return {name:it.name,house:total?(pct+'% match'):'',img:'',id:null,resolved:false};
+    }).slice(0,10);
+  }
+
+  // ── navigation ──
+  resetScroll() { if (this._scroll) this._scroll.scrollTop=0; }
+  goHome() { this.setState({view:'home'}); this.resetScroll(); }
+  openSearch() { this.setState({view:'search',libQuery:''}); this.resetScroll(); }
+  openSettings() { this.setState({view:'settings'}); this.resetScroll(); }
+  selectSection(id) { this.setState({activeSection:id}); this.resetScroll(); }
+  openList(id) { this.setState({view:'list',activeListId:id}); this.resetScroll(); }
+  back() {
+    const al=this.state.lists[this.state.activeListId];
+    if (al&&al.parentId) this.setState({activeListId:al.parentId});
+    else this.setState({view:'home',activeListId:null});
+    this.resetScroll();
+  }
+  openDrawer(pid,lid) { this.setState({drawerPerfumeId:pid,drawerListId:lid||null}); }
+  closeDrawer() { this.setState({drawerPerfumeId:null,drawerListId:null}); }
+  closeSheet() { this.setState({sheet:null}); }
+  openAdd() { this.setState({sheet:'add',addTargetListId:this.state.activeListId,addQuery:''}); }
+  openManual() { this.setState({sheet:'manual',manualName:''}); }
+  openSort() { this.setState({sheet:'sort'}); }
+  openListMenu() { this.setState({sheet:'listmenu'}); }
+  openNewList(parent) { this.setState({sheet:'newlist',newParent:parent||null,newName:'',newCover:0}); }
+  addSubList() { this.openNewList(this.state.activeListId); }
+  openNewCat() { this.setState({sheet:'newcat',newCatName:''}); }
+  onAddQuery(e) { this.setState({addQuery:e.target.value}); }
+  onLibQuery(e) { this.setState({libQuery:e.target.value}); }
+  pickChip(v) { this.setState({libQuery:v}); }
+  setSort(v) { this.setState({sort:v,sheet:null}); }
+  onNewName(e) { this.setState({newName:e.target.value}); }
+  setNewCover(i) { this.setState({newCover:i}); }
+  onNewCatName(e) { this.setState({newCatName:e.target.value}); }
+  onManualName(e) { this.setState({manualName:e.target.value}); }
+  shareCurrent() { this.setState({sheet:null}); this.toast('Link copied'); }
+  toast(m) { this.setState({toast:m}); clearTimeout(this._tt); this._tt=setTimeout(()=>this.setState({toast:null}),1900); }
+
+  // ── mutations (all write through to Supabase) ──
+  async toggleTag(pid, lid, tag) {
+    const l=this.state.lists[lid]; if (!l) return;
+    const en=l.entries.find(e=>e.perfumeId===pid); if (!en) return;
+    const newTag=en.tag===tag?null:tag;
+    en.tag=newTag; this.forceUpdate();
+    if (this._sb) { await this._sb.from('list_entries').update({tag:newTag}).eq('list_id',lid).eq('perfume_id',pid); }
+  }
+  async addToList(pid) {
+    const s=this.state, l=s.lists[s.addTargetListId]; if (!l) return;
+    if (l.entries.some(e=>e.perfumeId===pid)) { this.setState({sheet:null}); return; }
+    this.setState({sheet:null});
+    l.entries.push({perfumeId:pid,tag:null}); this.forceUpdate();
+    this.toast('Added to '+l.name);
+    if (this._sb&&s.session) {
+      const {error}=await this._sb.from('list_entries').insert({list_id:l.id,user_id:s.session.user.id,perfume_id:pid,position:l.entries.length});
+      if (error) { l.entries=l.entries.filter(e=>e.perfumeId!==pid); this.forceUpdate(); this.toast('Sync error'); }
+    }
+  }
+  async removeFromList() {
+    const s=this.state, l=s.lists[s.drawerListId]; if (!l) return;
+    const pid=s.drawerPerfumeId;
+    const prev=l.entries.slice();
+    l.entries=l.entries.filter(e=>e.perfumeId!==pid);
+    this.setState({drawerPerfumeId:null,drawerListId:null});
+    this.toast('Removed from list');
+    if (this._sb) {
+      const {error}=await this._sb.from('list_entries').delete().eq('list_id',s.drawerListId).eq('perfume_id',pid);
+      if (error) { l.entries=prev; this.forceUpdate(); this.toast('Sync error'); }
+    }
+  }
+  async createList() {
+    const s=this.state, nm=(s.newName||'').trim();
+    if (!nm) { this.toast('Name your list first'); return; }
+    const parent=s.newParent, section=parent?s.lists[parent].sectionId:s.activeSection;
+    const cover=this.covers()[s.newCover];
+    this.setState({sheet:null});
+    if (this._sb&&s.session) {
+      const {data,error}=await this._sb.from('lists').insert({user_id:s.session.user.id,name:nm,section_id:section,parent_id:parent||null,cover_start:cover[0],cover_end:cover[1],sort_order:Object.keys(s.lists).length}).select().single();
+      if (error) { this.toast('Error: '+error.message); return; }
+      s.lists[data.id]={id:data.id,name:nm,sectionId:section,parentId:parent||null,cover,entries:[]};
+      this.forceUpdate();
+    } else {
+      const id='tmp'+Date.now(); s.lists[id]={id,name:nm,sectionId:section,parentId:parent||null,cover,entries:[]}; this.forceUpdate();
+    }
+    this.toast('"'+nm+'" created');
+  }
+  async createCat() {
+    const s=this.state, nm=(s.newCatName||'').trim();
+    if (!nm) { this.toast('Name your category first'); return; }
+    this.setState({sheet:null});
+    if (this._sb&&s.session) {
+      const {data,error}=await this._sb.from('categories').insert({user_id:s.session.user.id,name:nm,sort_order:s.sections.filter(x=>x.custom).length}).select().single();
+      if (error) { this.toast('Error: '+error.message); return; }
+      const ns={id:data.id,name:nm,sub:'your category',custom:true};
+      this.setState(prev=>({sections:[...prev.sections,ns],activeSection:data.id}));
+    } else {
+      const id='tmp'+Date.now(), ns={id,name:nm,sub:'your category',custom:true};
+      this.setState(prev=>({sections:[...prev.sections,ns],activeSection:id}));
+    }
+    this.toast('"'+nm+'" added');
+  }
+  async manualSave() {
+    const s=this.state, nm=(s.manualName||'').trim();
+    if (!nm) { this.toast('Name is required'); return; }
+    this.setState({sheet:null});
+    if (this._sb&&s.session) {
+      const {data,error}=await this._sb.from('custom_perfumes').insert({user_id:s.session.user.id,name:nm}).select().single();
+      if (error) { this.toast('Error: '+error.message); return; }
+      s.catById[data.id]={id:data.id,name:nm,brand:'Added manually',year:null,rating:null,ratingCount:null,gender:'',thumb:'',url:'',notes:{top:[],mid:[],base:[]},reminds:[],manual:true};
+      const l=s.lists[s.addTargetListId];
+      if (l) { await this._sb.from('list_entries').insert({list_id:l.id,user_id:s.session.user.id,perfume_id:data.id,position:l.entries.length}); l.entries.push({perfumeId:data.id,tag:null}); }
+      this.forceUpdate();
+    } else {
+      const id='m'+Date.now(); s.catById[id]={id,name:nm,brand:'Added manually',year:null,rating:null,ratingCount:null,gender:'',thumb:'',url:'',notes:{top:[],mid:[],base:[]},reminds:[],manual:true};
+      const l=s.lists[s.addTargetListId]; if (l) l.entries.push({perfumeId:id,tag:null}); this.forceUpdate();
+    }
+    this.toast('"'+nm+'" added');
+  }
+
+  // ── renderVals ──
+  renderVals() {
+    const s=this.state, cat=s.catById, lists=s.lists;
+    const palettes={iris:{a:'#785EAF',d:'#5A4691',l:'#9B82C9',t:'#F1ECF9'},lavender:{a:'#7A6AD8',d:'#574BB0',l:'#A99BEF',t:'#EFEDFB'},plum:{a:'#8E5AA8',d:'#6E4283',l:'#B98ECD',t:'#F4ECF8'},periwinkle:{a:'#6573C9',d:'#4A57A8',l:'#98A4E6',t:'#EDEFFB'}};
+    const pal=palettes[this.props.accent]||palettes.iris;
+    const accentVarsCss='--accent:'+pal.a+';--accent-deep:'+pal.d+';--accent-light:'+pal.l+';--accent-tint:'+pal.t+';';
+    const blank={accentVarsCss,scrollRef:(el)=>{this._scroll=el;},showInitializing:s.appState==='initializing'||s.appState==='loading',showAuth:s.appState==='auth',showHome:false,showList:false,showSearch:false,showSettings:false,showFab:false,drawerOpen:false,showAddSheet:false,showManual:false,showNewList:false,showNewCat:false,showSort:false,showListMenu:false,toastVisible:false,loadError:s.loadError||'',authEmail:s.authEmail,authSent:s.authSent,authNotSent:!s.authSent,authLoading:s.authLoading,authError:s.authError||'',authBtnLabel:s.authLoading?'Sending…':'Send magic link',onAuthEmail:(e)=>this.onAuthEmail(e),sendMagicLink:()=>this.sendMagicLink(),resendLink:()=>this.resendLink(),homeTabs:[],activeCards:[],activeSecSub:'',activeSecCount:'',activeSectionEmpty:false,activeSectionHasCards:false,activeEmptyMsg:'',listModel:{d:{},accords:[],top:[],heart:[],base:[],similar:[]},addResults:[],searchResults:[],searchChips:[],newCovers:[],sortOptions:[],newName:'',newCatName:'',newContext:'',newTitle:'',addQuery:'',libQuery:'',addTitle:'',addNoResults:false,searchEmpty:true,searchHasResults:false,searchNoResults:false,searchCountLabel:'',catalogueCount:'',userEmail:'',userInitial:'',signOut:()=>this.signOut(),goHome:()=>this.goHome(),openSearch:()=>this.openSearch(),openSettings:()=>this.openSettings(),openNewCat:()=>this.openNewCat(),openNewListTop:()=>this.openNewList(null)};
+    if (s.appState!=='ready') return blank;
+
+    const allLists=Object.values(lists), topLists=allLists.filter(l=>!l.parentId);
+    const ud=(id)=>s.userData[id]||{};
+    const pidOf=(e)=>cat[e.perfumeId];
+    const mkImg=(src,sty)=>src?React.createElement('img',{src,alt:'',style:sty,onError:(e)=>{e.target.style.visibility='hidden';}}):null;
+    const ST={card:{height:76,width:'auto',maxWidth:64,objectFit:'contain',filter:'drop-shadow(0 7px 9px rgba(0,0,0,0.20))'},row:{maxHeight:42,maxWidth:38,objectFit:'contain'},search:{maxHeight:40,maxWidth:36,objectFit:'contain'},add:{maxHeight:38,maxWidth:34,objectFit:'contain'},drawer:{maxHeight:108,maxWidth:80,objectFit:'contain',filter:'drop-shadow(0 10px 14px rgba(0,0,0,0.18))'},sim:{maxHeight:54,maxWidth:44,objectFit:'contain'}};
+
+    // home
+    const homeTabs=s.sections.map(sec=>{const active=sec.id===s.activeSection;return{name:sec.name,active,style:'flex:0 0 auto;padding:9px 16px;border-radius:999px;font-size:13.5px;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap;'+(active?'background:var(--accent);border:1px solid var(--accent);color:#fff;':'background:#F2F1F6;border:1px solid #F2F1F6;color:#6A6775;'),onSelect:()=>this.selectSection(sec.id)};});
+    const activeSec=s.sections.find(x=>x.id===s.activeSection)||s.sections[0];
+    const activeTop=topLists.filter(l=>l.sectionId===activeSec.id);
+    const activeCards=activeTop.map(l=>{const sc=allLists.filter(x=>x.parentId===l.id).length,fp=l.entries.length?pidOf(l.entries[0]):null,fi=fp?fp.thumb:'';let cl=l.entries.length+(l.entries.length===1?' perfume':' perfumes');if(sc)cl+=' · '+sc+(sc===1?' sub-list':' sub-lists');return{name:l.name,countLabel:cl,coverCss:this.coverCss(l.cover),bottleEl:mkImg(fi,ST.card),bottleImg:fi,empty:l.entries.length===0,onOpen:()=>this.openList(l.id)};});
+    const secPerf=activeTop.reduce((n,l)=>n+l.entries.length,0);
+    const activeSecCount=activeTop.length+(activeTop.length===1?' list · ':' lists · ')+secPerf+(secPerf===1?' perfume':' perfumes');
+    const emptyMsgs={owned:'Start by creating a list for your owned fragrances.',totry:'Save fragrances you want to discover or buy.',favnotes:'Group perfumes by ingredients you love.'};
+    const activeSectionEmpty=activeTop.length===0;
+    const activeEmptyMsg=emptyMsgs[activeSec.id]||'Create your first list in this category.';
+
+    // list view
+    let listModel={hasSub:false,subLists:[],empty:false,hasRows:false,rows:[],sortLabel:'Date added',coverCss:'',name:'',sectionName:'',countLabel:''};
+    const showList=s.view==='list'&&s.activeListId;
+    if (showList) {
+      const al=lists[s.activeListId]; if (!al) return {...blank,showHome:true};
+      const sec=s.sections.find(x=>x.id===al.sectionId)||{name:''};
+      const subLists=allLists.filter(x=>x.parentId===al.id).map(x=>({name:x.name,countLabel:x.entries.length+(x.entries.length===1?' perfume':' perfumes'),coverCss:this.coverCss(x.cover),onOpen:()=>this.openList(x.id)}));
+      const sortLabels={added:'Date added',name:'Name',brand:'Brand',release:'Release'};
+      const rows=this.sortedEntries(al).map(e=>{
+        const p=pidOf(e),ti=this.tagInfo(e.tag);
+        const flat='display:flex;align-items:center;gap:12px;padding:13px 8px;background:none;border:none;border-bottom:1px solid #F2F1F6;width:100%;cursor:pointer;font-family:inherit;';
+        const tagged=ti?('display:flex;align-items:center;gap:12px;padding:14px 12px;margin:8px 0;background:'+ti.bg+';border:1px solid '+ti.border+';border-radius:16px;width:100%;cursor:pointer;font-family:inherit;box-shadow:0 5px 14px -4px '+ti.glow+';'):'';
+        const tagStyle=ti?('display:inline-flex;align-items:center;gap:5px;margin-top:7px;font-size:10.5px;font-weight:700;color:'+ti.text+';background:#fff;border:1px solid '+ti.border+';padding:3px 9px;border-radius:999px;'):'';
+        return{name:p.name,house:p.brand||'—',img:p.thumb,imgEl:mkImg(p.thumb,ST.row),noImg:!p.thumb,thumbBg:ti?'#FFFFFF':'#F4F1FA',tag:e.tag||'',tagLabel:ti?ti.label:'',tagDot:ti?ti.dot:'',tagStyle,wrapStyle:ti?tagged:flat,onOpen:()=>this.openDrawer(p.id,al.id)};
+      });
+      listModel={name:al.name,sectionName:sec.name,coverCss:this.coverCss(al.cover),countLabel:al.entries.length+(al.entries.length===1?' perfume':' perfumes'),hasSub:subLists.length>0,subLists,empty:al.entries.length===0,hasRows:al.entries.length>0,rows,sortLabel:sortLabels[s.sort]};
+    }
+
+    // drawer
+    const p=s.drawerPerfumeId?cat[s.drawerPerfumeId]:null;
+    const drawerOpen=!!p;
+    let d={img:'',imgEl:null,noImg:true,name:'',house:'',metaLine:'',inList:false,accords:[],hasAccords:false,top:['—'],heart:['—'],base:['—'],pricePaid:'—',priceTarget:'—',noteText:'',noteColor:'#B4B1C0',togetBtnStyle:'',travelBtnStyle:'',hasSimilar:false,similar:[],removeFromList:()=>{}};
+    if (drawerOpen) {
+      const inList=!!s.drawerListId;
+      let curTag=null;
+      if (inList&&lists[s.drawerListId]){const en=lists[s.drawerListId].entries.find(e=>e.perfumeId===p.id);curTag=en?en.tag:null;}
+      const meta=ud(p.id);
+      const metaLine=[(p.perfumers&&p.perfumers.length?p.perfumers.slice(0,2).join(', '):null),p.year||null,p.rating?('★ '+p.rating):null,p.ratingCount?(this.fmtInt(p.ratingCount)+' ratings'):null].filter(Boolean).join('  ·  ');
+      const bs='display:flex;align-items:center;justify-content:center;gap:7px;flex:1;height:44px;border-radius:13px;font-size:13.5px;font-weight:600;cursor:pointer;font-family:inherit;';
+      const similar=this.resolveReminds(p.reminds).map(r=>({name:r.name,house:r.house,img:r.img,imgEl:mkImg(r.img,ST.sim),onOpen:r.id?(()=>this.openDrawer(r.id,s.drawerListId)):(()=>{})}));
+      const fb=a=>(a&&a.length?a:['—']);
+      d={name:p.name,house:p.brand||'—',metaLine,img:p.thumb,imgEl:mkImg(p.thumb,ST.drawer),noImg:!p.thumb,inList,accords:p.accords||[],hasAccords:!!(p.accords&&p.accords.length),top:fb(p.notes.top),heart:fb(p.notes.mid),base:fb(p.notes.base),pricePaid:meta.pricePaid||'—',priceTarget:meta.priceTarget||'—',noteText:meta.note||'No personal notes yet. Tap edit to add.',noteColor:meta.note?'#3A3845':'#B4B1C0',togetBtnStyle:bs+(curTag==='toget'?'border:1.5px solid #E5484D;background:#FDECEC;color:#BE343A;':'border:1.5px solid #ECEAF2;background:#fff;color:#6A6775;'),travelBtnStyle:bs+(curTag==='travel'?'border:1.5px solid #2F73E0;background:#EAF1FD;color:#2560C0;':'border:1.5px solid #ECEAF2;background:#fff;color:#6A6775;'),toggleToGet:()=>this.toggleTag(p.id,s.drawerListId,'toget'),toggleTravel:()=>this.toggleTag(p.id,s.drawerListId,'travel'),hasSimilar:similar.length>0,similar,removeFromList:()=>this.removeFromList()};
+    }
+
+    // add sheet
+    let addTitle='Add a perfume',addResults=[],addNoResults=false;
+    if (s.sheet==='add') {
+      const al=lists[s.addTargetListId];
+      addTitle=al?('Add to '+al.name):'Add a perfume';
+      const q=(s.addQuery||'').toLowerCase().trim();
+      const matched=s.catalogue.filter(p=>!q||p.name.toLowerCase().includes(q)||(p.brand||'').toLowerCase().includes(q));
+      addResults=matched.slice(0,50).map(p=>{const already=al&&al.entries.some(e=>e.perfumeId===p.id);return{name:p.name,sub:(p.brand||'—')+'  ·  '+(p.year||'—'),img:p.thumb,imgEl:mkImg(p.thumb,ST.add),btnIcon:already?'check':'add',btnStyle:'width:34px;height:34px;border-radius:50%;border:none;flex:0 0 auto;display:flex;align-items:center;justify-content:center;cursor:pointer;'+(already?'background:#EAF6EE;color:#4F9D6B;':'background:var(--accent);color:#fff;'),onAdd:()=>this.addToList(p.id)};});
+      addNoResults=!!(q&&matched.length===0);
+    }
+
+    // search
+    const lq=(s.libQuery||'').toLowerCase().trim();
+    let searchResults=[],searchTotal=0;
+    if (lq) {
+      const noteHit=p=>p.notes&&(p.notes.top.concat(p.notes.mid,p.notes.base)).some(n=>n.toLowerCase().includes(lq));
+      const matched=s.catalogue.filter(p=>p.name.toLowerCase().includes(lq)||(p.brand||'').toLowerCase().includes(lq)||noteHit(p));
+      searchTotal=matched.length;
+      searchResults=matched.slice(0,60).map(p=>({name:p.name,sub:(p.brand||'—')+'  ·  '+(p.year||'—')+(p.rating?('  ·  ★ '+p.rating):''),img:p.thumb,imgEl:mkImg(p.thumb,ST.search),onOpen:()=>this.openDrawer(p.id,null)}));
+    }
+    const searchChips=[{label:'Iris',color:'#D89EC4',onPick:()=>this.pickChip('iris')},{label:'Woody',color:'#6E523A',onPick:()=>this.pickChip('woody')},{label:'Amber',color:'#BA763E',onPick:()=>this.pickChip('amber')},{label:'Vanilla',color:'#E0C9A6',onPick:()=>this.pickChip('vanilla')},{label:'Citrus',color:'#E2C53A',onPick:()=>this.pickChip('citrus')},{label:'Rose',color:'#D98AA0',onPick:()=>this.pickChip('rose')},{label:'Oud',color:'#7A5A3A',onPick:()=>this.pickChip('oud')},{label:'Musk',color:'#9B82C9',onPick:()=>this.pickChip('musk')},{label:'Vetiver',color:'#72A67C',onPick:()=>this.pickChip('vetiver')}];
+
+    // new list
+    const newIsSub=!!s.newParent;
+    const newContext=newIsSub?('Sub-list of '+(lists[s.newParent]?lists[s.newParent].name:'')):(activeSec?('Added to '+activeSec.name):'');
+    const newCovers=this.covers().map((c,i)=>({onPick:()=>this.setNewCover(i),style:'width:46px;height:46px;border-radius:13px;cursor:pointer;background-image:'+this.coverCss(c)+';'+(s.newCover===i?'border:2.5px solid var(--accent-deep);box-shadow:0 0 0 2px #fff inset;':'border:2.5px solid transparent;')}));
+    const sortDefs=[{id:'added',label:'Date added'},{id:'name',label:'Name (A–Z)'},{id:'brand',label:'Brand name'},{id:'release',label:'Release year'}];
+    const sortOptions=sortDefs.map(o=>({label:o.label,active:s.sort===o.id,color:s.sort===o.id?'#1C1B22':'#3A3845',onPick:()=>this.setSort(o.id)}));
+
+    const userEmail=s.session?s.session.user.email:'';
+    const userInitial=userEmail?userEmail[0].toUpperCase():'?';
+
+    return {
+      accentVarsCss, scrollRef:(el)=>{this._scroll=el;},
+      showInitializing:false, showAuth:false, loadError:'',
+      showHome:s.view==='home', showList, showSearch:s.view==='search', showSettings:s.view==='settings', showFab:!!showList,
+      homeTabs, activeSecSub:activeSec?activeSec.sub:'', activeSecCount, activeCards, activeSectionEmpty, activeSectionHasCards:activeTop.length>0, activeEmptyMsg,
+      listModel, drawerOpen, d,
+      showAddSheet:s.sheet==='add', addTitle, addResults, addNoResults, addQuery:s.addQuery,
+      showManual:s.sheet==='manual', manualName:s.manualName,
+      showNewList:s.sheet==='newlist', newTitle:newIsSub?'New sub-list':'New list', newContext, newName:s.newName, newCovers,
+      showNewCat:s.sheet==='newcat', newCatName:s.newCatName,
+      showSort:s.sheet==='sort', sortOptions,
+      showListMenu:s.sheet==='listmenu',
+      searchEmpty:!lq, searchHasResults:!!lq&&searchResults.length>0, searchNoResults:!!lq&&searchResults.length===0,
+      searchResults, searchChips, searchCountLabel:this.fmtInt(searchTotal)+(searchTotal===1?' result':' results')+(searchTotal>searchResults.length?' · showing top 60':''), libQuery:s.libQuery,
+      toastVisible:!!s.toast, toast:s.toast,
+      catalogueCount:this.fmtInt(s.catalogue.length)+' perfumes',
+      userEmail, userInitial, signOut:()=>this.signOut(),
+      goHome:()=>this.goHome(), openSearch:()=>this.openSearch(), openSettings:()=>this.openSettings(),
+      openNewCat:()=>this.openNewCat(), onNewCatName:(e)=>this.onNewCatName(e), createCat:()=>this.createCat(),
+      back:()=>this.back(), closeDrawer:()=>this.closeDrawer(),
+      openAdd:()=>this.openAdd(), openManual:()=>this.openManual(), closeSheet:()=>this.closeSheet(),
+      onAddQuery:(e)=>this.onAddQuery(e), onLibQuery:(e)=>this.onLibQuery(e),
+      openSort:()=>this.openSort(), openListMenu:()=>this.openListMenu(), shareCurrent:()=>this.shareCurrent(),
+      openNewListTop:()=>this.openNewList(null), addSubList:()=>this.addSubList(), onNewName:(e)=>this.onNewName(e), createList:()=>this.createList(),
+      onManualName:(e)=>this.onManualName(e), manualSave:()=>this.manualSave(),
+      authEmail:s.authEmail, authSent:s.authSent, authNotSent:!s.authSent, authLoading:s.authLoading, authError:s.authError||'', authBtnLabel:s.authLoading?'Sending…':'Send magic link',
+      onAuthEmail:(e)=>this.onAuthEmail(e), sendMagicLink:()=>this.sendMagicLink(), resendLink:()=>this.resendLink(),
+      menuRename:()=>{this.setState({sheet:null});this.toast('Rename — coming soon');},
+      menuDelete:()=>{this.setState({sheet:null});this.toast('Delete — coming soon');},
+    };
+  }
+}
+</script>
+</body>
+</html>
