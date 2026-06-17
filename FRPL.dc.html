@@ -83,19 +83,53 @@
         <sc-if value="{{ showAuth }}" hint-placeholder-val="">
           <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; padding:80px 32px 80px; min-height:100%;">
             <img src="assets/frpl-logo.png" alt="FRPL" style="height:32px; width:auto; margin-bottom:10px;" />
-            <div style="font-size:10.5px; font-weight:600; letter-spacing:0.14em; text-transform:uppercase; color:var(--accent); margin-bottom:52px;">your fragrance journal</div>
+            <div style="font-size:10.5px; font-weight:600; letter-spacing:0.14em; text-transform:uppercase; color:var(--accent); margin-bottom:44px;">your fragrance journal</div>
 
             <div style="width:100%;">
-              <div style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; color:#9C99A8; margin-bottom:8px;">{{ authHeading }}</div>
-              <input class="frpl-in" value="{{ authEmail }}" onChange="{{ onAuthEmail }}" placeholder="your@email.com" type="email" autocomplete="email" style="width:100%; border:1.5px solid #ECEAF2; border-radius:13px; padding:14px 16px; font-size:16px; color:#1C1B22; background:#fff;" />
-              <input class="frpl-in" value="{{ authPassword }}" onChange="{{ onAuthPassword }}" placeholder="Password" type="password" autocomplete="{{ authPwAutocomplete }}" style="width:100%; border:1.5px solid #ECEAF2; border-radius:13px; padding:14px 16px; font-size:16px; color:#1C1B22; background:#fff; margin-top:10px;" />
-              <button onClick="{{ submitAuth }}" style="width:100%; height:52px; border-radius:13px; background:var(--accent); border:none; color:#fff; font-size:15px; font-weight:700; cursor:pointer; font-family:inherit; margin-top:12px; box-shadow:0 8px 22px rgba(120,94,175,0.35);">{{ authBtnLabel }}</button>
-              <sc-if value="{{ authError }}" hint-placeholder-val="">
-                <div style="font-size:12.5px; color:#C0353A; margin-top:10px; text-align:center;">{{ authError }}</div>
+              <div style="font-size:19px; font-weight:700; color:#1C1B22; margin-bottom:5px;">{{ authTitle }}</div>
+              <div style="font-size:13.5px; color:#9C99A8; line-height:1.55; margin-bottom:22px;">{{ authSubtitle }}</div>
+
+              <!-- email -->
+              <sc-if value="{{ authShowEmail }}" hint-placeholder-val="{{ true }}">
+                <input class="frpl-in" value="{{ authEmail }}" onChange="{{ onAuthEmail }}" placeholder="your@email.com" type="email" autocomplete="email" style="width:100%; border:1.5px solid #ECEAF2; border-radius:13px; padding:14px 16px; font-size:16px; color:#1C1B22; background:#fff; margin-bottom:10px;" />
               </sc-if>
-              <div style="text-align:center; margin-top:22px; font-size:13px; color:#9C99A8;">
+
+              <!-- password with eye toggle -->
+              <sc-if value="{{ authShowPw }}" hint-placeholder-val="">
+                <div style="position:relative; margin-bottom:10px;">
+                  <input class="frpl-in" value="{{ authPassword }}" onChange="{{ onAuthPassword }}" placeholder="{{ authPwPlaceholder }}" type="{{ authPwType }}" autocomplete="{{ authPwAutocomplete }}" style="width:100%; border:1.5px solid #ECEAF2; border-radius:13px; padding:14px 46px 14px 16px; font-size:16px; color:#1C1B22; background:#fff;" />
+                  <button onClick="{{ togglePwVisible }}" aria-label="Show password" style="position:absolute; right:6px; top:50%; transform:translateY(-50%); width:36px; height:36px; border:none; background:none; color:#9C99A8; display:flex; align-items:center; justify-content:center; cursor:pointer;"><span class="ms" style="font-size:21px;">{{ pwEyeIcon }}</span></button>
+                </div>
+              </sc-if>
+
+              <!-- confirm password with eye toggle -->
+              <sc-if value="{{ authShowPw2 }}" hint-placeholder-val="">
+                <div style="position:relative; margin-bottom:10px;">
+                  <input class="frpl-in" value="{{ authPassword2 }}" onChange="{{ onAuthPassword2 }}" placeholder="Confirm password" type="{{ authPwType }}" autocomplete="new-password" style="width:100%; border:1.5px solid #ECEAF2; border-radius:13px; padding:14px 46px 14px 16px; font-size:16px; color:#1C1B22; background:#fff;" />
+                  <button onClick="{{ togglePwVisible }}" aria-label="Show password" style="position:absolute; right:6px; top:50%; transform:translateY(-50%); width:36px; height:36px; border:none; background:none; color:#9C99A8; display:flex; align-items:center; justify-content:center; cursor:pointer;"><span class="ms" style="font-size:21px;">{{ pwEyeIcon }}</span></button>
+                </div>
+              </sc-if>
+
+              <button onClick="{{ submitAuth }}" style="width:100%; height:52px; border-radius:13px; background:var(--accent); border:none; color:#fff; font-size:15px; font-weight:700; cursor:pointer; font-family:inherit; margin-top:4px; box-shadow:0 8px 22px rgba(120,94,175,0.35);">{{ authBtnLabel }}</button>
+
+              <sc-if value="{{ authError }}" hint-placeholder-val="">
+                <div style="font-size:12.5px; color:#C0353A; margin-top:10px; text-align:center; line-height:1.5;">{{ authError }}</div>
+              </sc-if>
+              <sc-if value="{{ authNotice }}" hint-placeholder-val="">
+                <div style="font-size:12.5px; color:var(--accent-deep); background:var(--accent-tint); border-radius:11px; padding:11px 14px; margin-top:12px; text-align:center; line-height:1.55;">{{ authNotice }}</div>
+              </sc-if>
+
+              <!-- forgot-password link (sign-in only) -->
+              <sc-if value="{{ authShowForgot }}" hint-placeholder-val="">
+                <div style="text-align:center; margin-top:16px;">
+                  <button onClick="{{ goForgot }}" style="background:none; border:none; color:#9C99A8; font-size:13px; font-weight:600; cursor:pointer; font-family:inherit;">Forgot password?</button>
+                </div>
+              </sc-if>
+
+              <!-- mode toggle / back -->
+              <div style="text-align:center; margin-top:20px; font-size:13px; color:#9C99A8;">
                 {{ authTogglePrompt }}
-                <button onClick="{{ toggleAuthMode }}" style="background:none; border:none; color:var(--accent); font-size:13px; font-weight:700; cursor:pointer; font-family:inherit; padding:0; margin-left:3px;">{{ authToggleAction }}</button>
+                <button onClick="{{ authToggleFn }}" style="background:none; border:none; color:var(--accent); font-size:13px; font-weight:700; cursor:pointer; font-family:inherit; padding:0; margin-left:3px;">{{ authToggleAction }}</button>
               </div>
             </div>
           </div>
@@ -582,7 +616,7 @@ class Component extends DCLogic {
   state = {
     appState: 'initializing',
     session: null,
-    authEmail: '', authPassword: '', authMode: 'signin', authLoading: false, authError: null,
+    authEmail: (() => { try { return localStorage.getItem('frpl_last_email') || ''; } catch (_) { return ''; } })(), authPassword: '', authPassword2: '', authMode: 'signin', authLoading: false, authError: null, authNotice: null, pwVisible: false,
     loadError: null,
     catalogue: [], catById: {},
     lists: {},
@@ -614,7 +648,12 @@ class Component extends DCLogic {
       'sb_publishable_AYyUlmTU8DS1OQLonzCU2A_eC5figBW'
     );
     this._sb.auth.onAuthStateChange(async (event, session) => {
+      if (event === 'PASSWORD_RECOVERY') {
+        this.setState({ appState: 'auth', authMode: 'reset', authNotice: 'Set a new password below.', authError: null, authPassword: '', authPassword2: '' });
+        return;
+      }
       if ((event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') && session) {
+        if (this.state.authMode === 'reset') return;
         if (this.state.appState !== 'ready') {
           this.setState({ session, appState: 'loading' });
           await this._awaitCatalogue();
@@ -682,28 +721,103 @@ class Component extends DCLogic {
   }
 
   // ── auth ──
-  onAuthEmail(e) { this.setState({ authEmail: e.target.value, authError: null }); }
+  onAuthEmail(e) { const v = e.target.value; try { localStorage.setItem('frpl_last_email', v.trim()); } catch (_) {} this.setState({ authEmail: v, authError: null }); }
   onAuthPassword(e) { this.setState({ authPassword: e.target.value, authError: null }); }
-  toggleAuthMode() { this.setState({ authMode: this.state.authMode === 'signup' ? 'signin' : 'signup', authError: null }); }
+  onAuthPassword2(e) { this.setState({ authPassword2: e.target.value, authError: null }); }
+  togglePwVisible() { this.setState({ pwVisible: !this.state.pwVisible }); }
+  setAuthMode(mode) { this.setState({ authMode: mode, authError: null, authNotice: null, authPassword: '', authPassword2: '', pwVisible: false }); }
+  goForgot() { this.setAuthMode('forgot'); }
+  toggleSignInUp() { this.setAuthMode(this.state.authMode === 'signin' ? 'signup' : 'signin'); }
+
   async submitAuth() {
-    const email = (this.state.authEmail||'').trim();
-    const password = (this.state.authPassword||'');
-    if (!email) { this.setState({ authError: 'Enter your email.' }); return; }
-    if (password.length < 6) { this.setState({ authError: 'Password must be at least 6 characters.' }); return; }
-    this.setState({ authLoading: true, authError: null });
-    if (this.state.authMode === 'signup') {
-      const { data, error } = await this._sb.auth.signUp({ email, password });
+    const s = this.state;
+    const email = (s.authEmail || '').trim();
+    const password = s.authPassword || '';
+    const appUrl = window.location.href.split('#')[0];
+
+    if (s.authMode === 'reset') {
+      if (password.length < 6) { this.setState({ authError: 'Password must be at least 6 characters.' }); return; }
+      if (password !== s.authPassword2) { this.setState({ authError: 'Passwords don\u2019t match.' }); return; }
+      this.setState({ authLoading: true, authError: null });
+      const { error } = await this._sb.auth.updateUser({ password });
       if (error) { this.setState({ authLoading: false, authError: error.message }); return; }
-      if (!data.session) { this.setState({ authLoading: false, authError: 'Account created. Now tap Sign in.', authMode: 'signin' }); return; }
-      this.setState({ authLoading: false });
-    } else {
-      const { error } = await this._sb.auth.signInWithPassword({ email, password });
-      if (error) { this.setState({ authLoading: false, authError: 'Wrong email or password. New here? Tap Create account.' }); return; }
-      this.setState({ authLoading: false });
+      this.setState({ authLoading: false, authMode: 'signin', authPassword: '', authPassword2: '', authNotice: 'Password updated. Sign in with your new password.' });
+      return;
     }
-    // onAuthStateChange handles the SIGNED_IN transition
+
+    if (!email) { this.setState({ authError: 'Enter your email.' }); return; }
+
+    if (s.authMode === 'forgot') {
+      this.setState({ authLoading: true, authError: null });
+      const { error } = await this._sb.auth.resetPasswordForEmail(email, { redirectTo: appUrl });
+      if (error) { this.setState({ authLoading: false, authError: error.message }); return; }
+      this.setState({ authLoading: false, authNotice: 'We emailed a reset link to ' + email + '. Open it in your browser, set a new password, then return here and sign in.' });
+      return;
+    }
+
+    if (password.length < 6) { this.setState({ authError: 'Password must be at least 6 characters.' }); return; }
+
+    if (s.authMode === 'signup') {
+      if (password !== s.authPassword2) { this.setState({ authError: 'Passwords don\u2019t match.' }); return; }
+      this.setState({ authLoading: true, authError: null });
+      const { data, error } = await this._sb.auth.signUp({ email, password, options: { emailRedirectTo: appUrl } });
+      if (error) { this.setState({ authLoading: false, authError: error.message }); return; }
+      if (data.session) { this.setState({ authLoading: false }); return; } // confirmation disabled → straight in
+      this.setState({ authLoading: false, authMode: 'signup_sent', authNotice: 'We emailed a confirmation link to ' + email + '. Open it in your browser to confirm, then come back here and sign in.' });
+      return;
+    }
+
+    // signin
+    this.setState({ authLoading: true, authError: null });
+    const { error } = await this._sb.auth.signInWithPassword({ email, password });
+    if (error) {
+      const msg = /confirm/i.test(error.message) ? 'Please confirm your email first — check your inbox for the link.' : 'Wrong email or password. New here? Tap Create account.';
+      this.setState({ authLoading: false, authError: msg }); return;
+    }
+    this.setState({ authLoading: false });
+    // onAuthStateChange handles entry
   }
   async signOut() { await this._sb.auth.signOut(); }
+
+  _authVals() {
+    const s = this.state, m = s.authMode;
+    const titles = { signin: 'Welcome back', signup: 'Create your account', forgot: 'Reset your password', signup_sent: 'Confirm your email', reset: 'Set a new password' };
+    const subs = {
+      signin: 'Sign in to your fragrance library.',
+      signup: 'Pick an email and password to start your library.',
+      forgot: 'Enter your email and we\u2019ll send a reset link.',
+      signup_sent: 'Almost there.',
+      reset: 'Choose a new password for your account.'
+    };
+    const btn = { signin: 'Sign in', signup: 'Create account', forgot: 'Send reset link', signup_sent: 'Back to sign in', reset: 'Update password' };
+    const loadingBtn = { signin: 'Signing in\u2026', signup: 'Creating\u2026', forgot: 'Sending\u2026', reset: 'Updating\u2026' };
+    const isSent = m === 'signup_sent';
+    return {
+      authEmail: s.authEmail, authPassword: s.authPassword, authPassword2: s.authPassword2,
+      authError: s.authError || '', authNotice: s.authNotice || '',
+      authTitle: titles[m] || titles.signin, authSubtitle: subs[m] || subs.signin,
+      authBtnLabel: s.authLoading ? (loadingBtn[m] || 'Please wait\u2026') : (btn[m] || 'Continue'),
+      authShowEmail: (m === 'signin' || m === 'signup' || m === 'forgot') ? true : '',
+      authShowPw: (m === 'signin' || m === 'signup' || m === 'reset') ? true : '',
+      authShowPw2: (m === 'signup' || m === 'reset') ? true : '',
+      authPwPlaceholder: (m === 'reset') ? 'New password' : 'Password',
+      authPwType: s.pwVisible ? 'text' : 'password',
+      authPwAutocomplete: (m === 'signin') ? 'current-password' : 'new-password',
+      pwEyeIcon: s.pwVisible ? 'visibility_off' : 'visibility',
+      authShowForgot: (m === 'signin') ? true : '',
+      authTogglePrompt: (m === 'signin') ? 'First time here?' : (m === 'signup' ? 'Already have an account?' : (isSent ? 'Confirmed it?' : 'Remembered it?')),
+      authToggleAction: (m === 'signin') ? 'Create account' : (m === 'signup' ? 'Sign in' : (isSent ? 'Sign in' : 'Back to sign in')),
+      submitAuth: () => (isSent ? this.setAuthMode('signin') : this.submitAuth()),
+      authToggleFn: () => this.toggleSignInUp_or_back(),
+      onAuthEmail: (e) => this.onAuthEmail(e), onAuthPassword: (e) => this.onAuthPassword(e), onAuthPassword2: (e) => this.onAuthPassword2(e),
+      togglePwVisible: () => this.togglePwVisible(), goForgot: () => this.goForgot()
+    };
+  }
+  toggleSignInUp_or_back() {
+    const m = this.state.authMode;
+    if (m === 'signin') this.setAuthMode('signup');
+    else this.setAuthMode('signin');
+  }
 
   // ── helpers ──
   covers() { return [['#8E73C0','#C9B8E6'],['#5E4A93','#9B82C9'],['#7C5EAF','#B9A4DE'],['#9B6FB0','#D7BEE3'],['#6573C9','#98A4E6'],['#8A6BB5','#E3D4F0']]; }
@@ -851,7 +965,7 @@ class Component extends DCLogic {
     const palettes={iris:{a:'#785EAF',d:'#5A4691',l:'#9B82C9',t:'#F1ECF9'},lavender:{a:'#7A6AD8',d:'#574BB0',l:'#A99BEF',t:'#EFEDFB'},plum:{a:'#8E5AA8',d:'#6E4283',l:'#B98ECD',t:'#F4ECF8'},periwinkle:{a:'#6573C9',d:'#4A57A8',l:'#98A4E6',t:'#EDEFFB'}};
     const pal=palettes[this.props.accent]||palettes.iris;
     const accentVarsCss='--accent:'+pal.a+';--accent-deep:'+pal.d+';--accent-light:'+pal.l+';--accent-tint:'+pal.t+';';
-    const blank={accentVarsCss,scrollRef:(el)=>{this._scroll=el;},showInitializing:s.appState==='initializing'||s.appState==='loading',showAuth:s.appState==='auth',showHome:false,showList:false,showSearch:false,showSettings:false,showFab:false,drawerOpen:false,showAddSheet:false,showManual:false,showNewList:false,showNewCat:false,showSort:false,showListMenu:false,toastVisible:false,loadError:s.loadError||'',authEmail:s.authEmail,authPassword:s.authPassword,authError:s.authError||'',authHeading:s.authMode==='signup'?'Create your account':'Sign in with email',authBtnLabel:s.authLoading?'Please wait…':(s.authMode==='signup'?'Create account':'Sign in'),authTogglePrompt:s.authMode==='signup'?'Already have an account?':'First time here?',authToggleAction:s.authMode==='signup'?'Sign in':'Create account',authPwAutocomplete:s.authMode==='signup'?'new-password':'current-password',onAuthEmail:(e)=>this.onAuthEmail(e),onAuthPassword:(e)=>this.onAuthPassword(e),submitAuth:()=>this.submitAuth(),toggleAuthMode:()=>this.toggleAuthMode(),homeTabs:[],activeCards:[],activeSecSub:'',activeSecCount:'',activeSectionEmpty:false,activeSectionHasCards:false,activeEmptyMsg:'',listModel:{d:{},accords:[],top:[],heart:[],base:[],similar:[]},addResults:[],searchResults:[],searchChips:[],newCovers:[],sortOptions:[],newName:'',newCatName:'',newContext:'',newTitle:'',addQuery:'',libQuery:'',addTitle:'',addNoResults:false,searchEmpty:true,searchHasResults:false,searchNoResults:false,searchCountLabel:'',catalogueCount:'',userEmail:'',userInitial:'',signOut:()=>this.signOut(),goHome:()=>this.goHome(),openSearch:()=>this.openSearch(),openSettings:()=>this.openSettings(),openNewCat:()=>this.openNewCat(),openNewListTop:()=>this.openNewList(null)};
+    const blank={accentVarsCss,scrollRef:(el)=>{this._scroll=el;},showInitializing:s.appState==='initializing'||s.appState==='loading',showAuth:s.appState==='auth',showHome:false,showList:false,showSearch:false,showSettings:false,showFab:false,drawerOpen:false,showAddSheet:false,showManual:false,showNewList:false,showNewCat:false,showSort:false,showListMenu:false,toastVisible:false,loadError:s.loadError||'',...this._authVals(),homeTabs:[],activeCards:[],activeSecSub:'',activeSecCount:'',activeSectionEmpty:false,activeSectionHasCards:false,activeEmptyMsg:'',listModel:{d:{},accords:[],top:[],heart:[],base:[],similar:[]},addResults:[],searchResults:[],searchChips:[],newCovers:[],sortOptions:[],newName:'',newCatName:'',newContext:'',newTitle:'',addQuery:'',libQuery:'',addTitle:'',addNoResults:false,searchEmpty:true,searchHasResults:false,searchNoResults:false,searchCountLabel:'',catalogueCount:'',userEmail:'',userInitial:'',signOut:()=>this.signOut(),goHome:()=>this.goHome(),openSearch:()=>this.openSearch(),openSettings:()=>this.openSettings(),openNewCat:()=>this.openNewCat(),openNewListTop:()=>this.openNewList(null)};
     if (s.appState!=='ready') return blank;
 
     const allLists=Object.values(lists), topLists=allLists.filter(l=>!l.parentId);
@@ -962,8 +1076,7 @@ class Component extends DCLogic {
       openSort:()=>this.openSort(), openListMenu:()=>this.openListMenu(), shareCurrent:()=>this.shareCurrent(),
       openNewListTop:()=>this.openNewList(null), addSubList:()=>this.addSubList(), onNewName:(e)=>this.onNewName(e), createList:()=>this.createList(),
       onManualName:(e)=>this.onManualName(e), manualSave:()=>this.manualSave(),
-      authEmail:s.authEmail, authPassword:s.authPassword, authError:s.authError||'', authHeading:s.authMode==='signup'?'Create your account':'Sign in with email', authBtnLabel:s.authLoading?'Please wait…':(s.authMode==='signup'?'Create account':'Sign in'), authTogglePrompt:s.authMode==='signup'?'Already have an account?':'First time here?', authToggleAction:s.authMode==='signup'?'Sign in':'Create account', authPwAutocomplete:s.authMode==='signup'?'new-password':'current-password',
-      onAuthEmail:(e)=>this.onAuthEmail(e), onAuthPassword:(e)=>this.onAuthPassword(e), submitAuth:()=>this.submitAuth(), toggleAuthMode:()=>this.toggleAuthMode(),
+      ...this._authVals(),
       menuRename:()=>{this.setState({sheet:null});this.toast('Rename — coming soon');},
       menuDelete:()=>{this.setState({sheet:null});this.toast('Delete — coming soon');},
     };
