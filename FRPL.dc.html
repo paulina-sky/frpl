@@ -1034,7 +1034,7 @@ class Component extends DCLogic {
     const ud=(id)=>s.userData[id]||{};
     const pidOf=(e)=>cat[e.perfumeId];
     const mkImg=(src,sty)=>src?React.createElement('img',{src,alt:'',style:sty,onError:(e)=>{e.target.style.visibility='hidden';}}):null;
-    const ST={card:{height:76,width:'auto',maxWidth:64,objectFit:'contain',filter:'drop-shadow(0 7px 9px rgba(0,0,0,0.20))'},row:{maxHeight:42,maxWidth:38,objectFit:'contain'},search:{maxHeight:40,maxWidth:36,objectFit:'contain'},add:{maxHeight:38,maxWidth:34,objectFit:'contain'},drawer:{maxHeight:108,maxWidth:80,objectFit:'contain',filter:'drop-shadow(0 10px 14px rgba(0,0,0,0.18))'},sim:{maxHeight:54,maxWidth:44,objectFit:'contain'}};
+    const ST={card:{height:76,width:'auto',maxWidth:64,objectFit:'contain'},row:{maxHeight:42,maxWidth:38,objectFit:'contain'},search:{maxHeight:40,maxWidth:36,objectFit:'contain'},add:{maxHeight:38,maxWidth:34,objectFit:'contain'},drawer:{maxHeight:108,maxWidth:80,objectFit:'contain',filter:'drop-shadow(0 10px 14px rgba(0,0,0,0.18))'},sim:{maxHeight:54,maxWidth:44,objectFit:'contain'}};
 
     // home
     const homeTabs=s.sections.map(sec=>{const active=sec.id===s.activeSection;return{name:sec.name,active,style:'flex:0 0 auto;padding:9px 16px;border-radius:999px;font-size:13.5px;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap;'+(active?'background:var(--accent);border:1px solid var(--accent);color:#fff;':'background:#F2F1F6;border:1px solid #F2F1F6;color:#6A6775;'),onSelect:()=>this.selectSection(sec.id)};});
