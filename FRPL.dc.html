@@ -27,7 +27,7 @@
   .fill1 { font-variation-settings: 'FILL' 1; }
   .appscroll::-webkit-scrollbar { display: none; }
   .appscroll { -ms-overflow-style: none; scrollbar-width: none; }
-  .frpl-in { border: none; background: none; outline: none; font-family: 'Inter', sans-serif; }
+  .frpl-in { border: none; background: none; outline: none; font-family: 'Inter', sans-serif; font-size: 16px !important; }
   .frpl-in::placeholder { color: #B4B1C0; }
   @keyframes sheetUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
   @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
@@ -199,7 +199,7 @@
               <div style="display:flex; align-items:center; justify-content:space-between; padding-top:8px;">
                 <button onClick="{{ back }}" style="width:36px; height:36px; border-radius:50%; background:rgba(255,255,255,0.24); backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); border:none; color:#fff; display:flex; align-items:center; justify-content:center; cursor:pointer;"><span class="ms" style="font-size:21px;">arrow_back_ios_new</span></button>
                 <div style="display:flex; gap:8px;">
-                  <button onClick="{{ shareCurrent }}" style="width:36px; height:36px; border-radius:50%; background:rgba(255,255,255,0.24); backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); border:none; color:#fff; display:flex; align-items:center; justify-content:center; cursor:pointer;"><span class="ms" style="font-size:19px;">ios_share</span></button>
+                  <button onClick="{{ shareCurrent }}" style="width:36px; height:36px; border-radius:50%; background:rgba(255,255,255,0.24); backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); border:none; color:#fff; display:flex; align-items:center; justify-content:center; cursor:pointer;"><span class="ms" style="font-size:19px;">share</span></button>
                   <button onClick="{{ openListMenu }}" style="width:36px; height:36px; border-radius:50%; background:rgba(255,255,255,0.24); backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); border:none; color:#fff; display:flex; align-items:center; justify-content:center; cursor:pointer;"><span class="ms" style="font-size:21px;">more_horiz</span></button>
                 </div>
               </div>
@@ -376,10 +376,10 @@
       <!-- DETAIL DRAWER -->
       <sc-if value="{{ drawerOpen }}" hint-placeholder-val="">
         <div onClick="{{ closeDrawer }}" style="position:absolute; inset:0; background:rgba(20,16,32,0.42); z-index:40; animation:fadeIn 180ms ease;"></div>
-        <div style="position:absolute; left:0; right:0; bottom:0; max-height:91%; background:#fff; border-radius:26px 26px 0 0; z-index:41; display:flex; flex-direction:column; animation:sheetUp 300ms cubic-bezier(.2,.7,.2,1); box-shadow:0 -14px 44px rgba(20,16,32,0.24); overflow:hidden;">
-          <div style="flex:0 0 auto; display:flex; justify-content:center; padding:9px 0 3px;"><div style="width:38px; height:5px; border-radius:99px; background:#E2DEEC;"></div></div>
+        <div ref="{{ drawerSheetRef }}" style="position:absolute; left:0; right:0; bottom:0; max-height:91%; background:#fff; border-radius:26px 26px 0 0; z-index:41; display:flex; flex-direction:column; animation:sheetUp 300ms cubic-bezier(.2,.7,.2,1); box-shadow:0 -14px 44px rgba(20,16,32,0.24); overflow:hidden;">
+          <div onTouchStart="{{ onGrabStart }}" onTouchMove="{{ onGrabMove }}" onTouchEnd="{{ onGrabEnd }}" style="flex:0 0 auto; display:flex; justify-content:center; padding:11px 0 9px; cursor:grab; touch-action:none;"><div style="width:38px; height:5px; border-radius:99px; background:#E2DEEC;"></div></div>
           <div class="appscroll" style="overflow-y:auto; flex:1;">
-            <div style="position:relative; padding:16px 20px 18px; background:var(--accent-tint); display:flex; align-items:center; gap:16px;">
+            <div style="position:relative; padding:16px 20px 18px; background:#fff; border-bottom:1px solid #ECEAF2; display:flex; align-items:center; gap:16px;">
               <div style="width:92px; height:110px; display:flex; align-items:center; justify-content:center; flex:0 0 auto;">
                 <sc-if value="{{ d.img }}" hint-placeholder-val="">{{ d.imgEl }}</sc-if>
                 <sc-if value="{{ d.noImg }}" hint-placeholder-val=""><span class="ms" style="font-size:54px; color:var(--accent-light);">water_drop</span></sc-if>
@@ -389,7 +389,7 @@
                 <div style="font-size:22px; font-weight:700; color:#1C1B22; margin-top:4px; line-height:1.15;">{{ d.name }}</div>
                 <div style="font-size:12.5px; color:#6A6775; margin-top:7px; line-height:1.5;">{{ d.metaLine }}</div>
               </div>
-              <button onClick="{{ closeDrawer }}" style="position:absolute; top:14px; right:16px; width:32px; height:32px; border-radius:50%; background:rgba(255,255,255,0.7); border:none; color:#6A6775; display:flex; align-items:center; justify-content:center; cursor:pointer;"><span class="ms" style="font-size:20px;">close</span></button>
+              <button onClick="{{ closeDrawer }}" style="position:absolute; top:14px; right:16px; width:32px; height:32px; border-radius:50%; background:#F2F1F6; border:none; color:#6A6775; display:flex; align-items:center; justify-content:center; cursor:pointer;"><span class="ms" style="font-size:20px;">close</span></button>
             </div>
 
             <sc-if value="{{ d.inList }}" hint-placeholder-val="">
@@ -426,43 +426,104 @@
               </div>
             </div>
 
-            <div style="padding:18px 20px 4px; display:flex; gap:12px;">
-              <div style="flex:1; background:#F7F6FB; border:1px solid #ECEAF2; border-radius:14px; padding:12px 14px;">
-                <div style="font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:0.04em; color:#A7A4B4;">Price paid</div>
-                <div style="font-size:17px; font-weight:700; color:#1C1B22; margin-top:5px;">{{ d.pricePaid }}</div>
+            <sc-if value="{{ d.showPrice }}" hint-placeholder-val="">
+              <div style="padding:18px 20px 4px;">
+                <div style="font-size:11px; font-weight:700; letter-spacing:0.06em; text-transform:uppercase; color:#9C99A8;">Price paid</div>
+                <sc-if value="{{ d.editing }}" hint-placeholder-val="">
+                  <input class="frpl-in" value="{{ editPrice }}" onChange="{{ onEditPrice }}" placeholder="e.g. €120" style="margin-top:10px; width:100%; background:#F7F6FB; border:1px solid #ECEAF2; border-radius:14px; padding:13px 15px; color:#1C1B22;" />
+                </sc-if>
+                <sc-if value="{{ d.notEditing }}" hint-placeholder-val="{{ true }}">
+                  <div style="margin-top:10px; background:#F7F6FB; border:1px solid #ECEAF2; border-radius:14px; padding:13px 15px; font-size:17px; font-weight:700; color:{{ d.priceColor }};">{{ d.pricePaidLabel }}</div>
+                </sc-if>
               </div>
-              <div style="flex:1; background:#F7F6FB; border:1px solid #ECEAF2; border-radius:14px; padding:12px 14px;">
-                <div style="font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:0.04em; color:#A7A4B4;">Price target</div>
-                <div style="font-size:17px; font-weight:700; color:#1C1B22; margin-top:5px;">{{ d.priceTarget }}</div>
-              </div>
-            </div>
+            </sc-if>
 
             <div style="padding:18px 20px 4px;">
               <div style="font-size:11px; font-weight:700; letter-spacing:0.06em; text-transform:uppercase; color:#9C99A8;">Your notes</div>
-              <div style="margin-top:10px; background:#F7F6FB; border:1px solid #ECEAF2; border-radius:14px; padding:13px 15px; font-size:14px; line-height:1.55; color:{{ d.noteColor }};">{{ d.noteText }}</div>
+              <sc-if value="{{ d.editing }}" hint-placeholder-val="">
+                <textarea class="frpl-in" value="{{ editNote }}" onChange="{{ onEditNote }}" placeholder="A personal note — how it wears, when you reach for it…" rows="4" style="margin-top:10px; width:100%; box-sizing:border-box; resize:none; background:#F7F6FB; border:1px solid #ECEAF2; border-radius:14px; padding:13px 15px; line-height:1.55; color:#3A3845;"></textarea>
+              </sc-if>
+              <sc-if value="{{ d.notEditing }}" hint-placeholder-val="{{ true }}">
+                <div style="margin-top:10px; background:#F7F6FB; border:1px solid #ECEAF2; border-radius:14px; padding:13px 15px; font-size:14px; line-height:1.55; color:{{ d.noteColor }}; white-space:pre-wrap;">{{ d.noteText }}</div>
+              </sc-if>
             </div>
 
-            <sc-if value="{{ d.hasSimilar }}" hint-placeholder-val="">
+            <sc-if value="{{ d.showSimilar }}" hint-placeholder-val="">
               <div style="padding:18px 20px 4px;">
-                <div style="font-size:11px; font-weight:700; letter-spacing:0.06em; text-transform:uppercase; color:#9C99A8;">Similar scents</div>
+                <div style="display:flex; align-items:center; justify-content:space-between;">
+                  <div style="font-size:11px; font-weight:700; letter-spacing:0.06em; text-transform:uppercase; color:#9C99A8;">Similar scents</div>
+                  <sc-if value="{{ d.editing }}" hint-placeholder-val="">
+                    <button onClick="{{ openSimAdd }}" style="display:flex; align-items:center; gap:4px; background:var(--accent-tint); border:none; color:var(--accent-deep); font-size:12px; font-weight:700; padding:6px 12px; border-radius:999px; cursor:pointer; font-family:inherit;"><span class="ms" style="font-size:16px;">add</span>Add</button>
+                  </sc-if>
+                </div>
+                <sc-if value="{{ d.similarEmpty }}" hint-placeholder-val="">
+                  <div style="margin-top:12px; font-size:13px; color:#B4B1C0; line-height:1.5;">No similar scents linked yet. Tap Add to connect one.</div>
+                </sc-if>
                 <div class="appscroll" style="display:flex; gap:11px; overflow-x:auto; margin-top:12px; padding-bottom:2px;">
                   <sc-for list="{{ d.similar }}" as="sim" hint-placeholder-count="2">
-                    <button onClick="{{ sim.onOpen }}" style="flex:0 0 auto; width:138px; text-align:left; background:#fff; border:1px solid #ECEAF2; border-radius:14px; padding:12px; cursor:pointer; font-family:inherit;">
-                      <div style="height:54px; display:flex; align-items:center; justify-content:center;"><sc-if value="{{ sim.img }}" hint-placeholder-val="">{{ sim.imgEl }}</sc-if></div>
-                      <div style="font-size:13.5px; font-weight:600; color:#1C1B22; margin-top:9px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ sim.name }}</div>
-                      <div style="font-size:11.5px; color:#9C99A8; margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ sim.house }}</div>
-                    </button>
+                    <div style="position:relative; flex:0 0 auto;">
+                      <button onClick="{{ sim.onOpen }}" style="width:138px; text-align:left; background:#fff; border:1px solid #ECEAF2; border-radius:14px; padding:12px; cursor:pointer; font-family:inherit;">
+                        <div style="height:54px; display:flex; align-items:center; justify-content:center;"><sc-if value="{{ sim.img }}" hint-placeholder-val="">{{ sim.imgEl }}</sc-if></div>
+                        <div style="font-size:13.5px; font-weight:600; color:#1C1B22; margin-top:9px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ sim.name }}</div>
+                        <div style="font-size:11.5px; color:#9C99A8; margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ sim.house }}</div>
+                      </button>
+                      <sc-if value="{{ sim.showRemove }}" hint-placeholder-val="">
+                        <button onClick="{{ sim.onRemove }}" aria-label="Remove" style="position:absolute; top:-7px; right:-7px; width:24px; height:24px; border-radius:50%; background:#C0353A; border:2px solid #fff; color:#fff; display:flex; align-items:center; justify-content:center; cursor:pointer; box-shadow:0 2px 6px rgba(0,0,0,0.2);"><span class="ms" style="font-size:15px;">close</span></button>
+                      </sc-if>
+                    </div>
                   </sc-for>
                 </div>
               </div>
             </sc-if>
 
-            <div style="padding:22px 20px 28px; display:flex; gap:11px;">
-              <button style="flex:1; height:46px; border-radius:13px; background:var(--accent); border:none; color:#fff; font-size:14.5px; font-weight:600; cursor:pointer; font-family:inherit; display:flex; align-items:center; justify-content:center; gap:7px;"><span class="ms" style="font-size:19px;">edit</span>Edit details</button>
+            <div style="height:14px;"></div>
+          </div>
+
+          <div style="flex:0 0 auto; padding:14px 20px calc(18px + env(safe-area-inset-bottom,0px)); display:flex; gap:11px; background:#fff; border-top:1px solid #ECEAF2; box-shadow:0 -6px 18px rgba(20,16,32,0.06);">
+            <sc-if value="{{ d.editing }}" hint-placeholder-val="">
+              <button onClick="{{ cancelEdit }}" style="flex:0 0 auto; width:96px; height:46px; border-radius:13px; background:#fff; border:1px solid #ECEAF2; color:#6A6775; font-size:14.5px; font-weight:600; cursor:pointer; font-family:inherit;">Cancel</button>
+              <button onClick="{{ saveEdit }}" style="flex:1; height:46px; border-radius:13px; background:var(--accent); border:none; color:#fff; font-size:14.5px; font-weight:700; cursor:pointer; font-family:inherit; display:flex; align-items:center; justify-content:center; gap:7px;"><span class="ms" style="font-size:19px;">check</span>Save changes</button>
+            </sc-if>
+            <sc-if value="{{ d.notEditing }}" hint-placeholder-val="{{ true }}">
+              <button onClick="{{ openEdit }}" style="flex:1; height:46px; border-radius:13px; background:var(--accent); border:none; color:#fff; font-size:14.5px; font-weight:600; cursor:pointer; font-family:inherit; display:flex; align-items:center; justify-content:center; gap:7px;"><span class="ms" style="font-size:19px;">edit</span>Edit details</button>
               <sc-if value="{{ d.inList }}" hint-placeholder-val="">
                 <button onClick="{{ d.removeFromList }}" style="width:46px; height:46px; border-radius:13px; background:#fff; border:1px solid #ECEAF2; color:#C0353A; display:flex; align-items:center; justify-content:center; cursor:pointer;"><span class="ms" style="font-size:21px;">delete</span></button>
               </sc-if>
-            </div>
+            </sc-if>
+          </div>
+        </div>
+      </sc-if>
+
+      <!-- ADD SIMILAR SHEET -->
+      <sc-if value="{{ showSimAdd }}" hint-placeholder-val="">
+        <div onClick="{{ closeSheet }}" style="position:absolute; inset:0; background:rgba(20,16,32,0.42); z-index:44; animation:fadeIn 180ms ease;"></div>
+        <div style="position:absolute; left:0; right:0; bottom:0; height:80%; background:#fff; border-radius:26px 26px 0 0; z-index:45; display:flex; flex-direction:column; animation:sheetUp 300ms cubic-bezier(.2,.7,.2,1); box-shadow:0 -14px 44px rgba(20,16,32,0.24); overflow:hidden;">
+          <div style="flex:0 0 auto; display:flex; justify-content:center; padding:9px 0 3px;"><div style="width:38px; height:5px; border-radius:99px; background:#E2DEEC;"></div></div>
+          <div style="flex:0 0 auto; display:flex; align-items:center; justify-content:space-between; padding:6px 20px 12px;">
+            <div style="font-size:18px; font-weight:700; color:#1C1B22;">Add a similar scent</div>
+            <button onClick="{{ closeSheet }}" style="width:32px; height:32px; border-radius:50%; background:#F2F1F6; border:none; color:#6A6775; display:flex; align-items:center; justify-content:center; cursor:pointer;"><span class="ms" style="font-size:20px;">close</span></button>
+          </div>
+          <div style="flex:0 0 auto; margin:0 20px 8px; display:flex; align-items:center; gap:10px; background:#F2F1F6; border-radius:14px; padding:13px 14px;">
+            <span class="ms" style="font-size:21px; color:#9C99A8;">search</span>
+            <input class="frpl-in" value="{{ simQuery }}" onChange="{{ onSimQuery }}" placeholder="Search the catalogue…" style="flex:1; color:#1C1B22;" />
+          </div>
+          <div class="appscroll" style="flex:1; overflow-y:auto; padding:0 16px;">
+            <sc-for list="{{ simResults }}" as="r" hint-placeholder-count="5">
+              <div style="display:flex; align-items:center; gap:12px; padding:11px 8px; border-bottom:1px solid #F2F1F6;">
+                <span style="width:46px; height:46px; border-radius:12px; background:#F4F1FA; display:flex; align-items:center; justify-content:center; flex:0 0 auto; overflow:hidden;"><sc-if value="{{ r.img }}" hint-placeholder-val="">{{ r.imgEl }}</sc-if></span>
+                <span style="flex:1; min-width:0;">
+                  <span style="display:block; font-size:14.5px; font-weight:600; color:#1C1B22;">{{ r.name }}</span>
+                  <span style="display:block; font-size:12px; color:#9C99A8; margin-top:2px;">{{ r.sub }}</span>
+                </span>
+                <button onClick="{{ r.onAdd }}" style="width:34px; height:34px; border-radius:50%; border:none; flex:0 0 auto; display:flex; align-items:center; justify-content:center; cursor:pointer; background:var(--accent); color:#fff;"><span class="ms" style="font-size:20px;">add</span></button>
+              </div>
+            </sc-for>
+            <sc-if value="{{ simPrompt }}" hint-placeholder-val="">
+              <div style="padding:40px 20px 12px; text-align:center; color:#B4B1C0; font-size:13.5px; line-height:1.6;">Search for a perfume to link as a similar scent.</div>
+            </sc-if>
+            <sc-if value="{{ simNoResults }}" hint-placeholder-val="">
+              <div style="padding:36px 20px 12px; text-align:center; color:#9C99A8; font-size:13.5px;">No catalogue match for "{{ simQuery }}".</div>
+            </sc-if>
           </div>
         </div>
       </sc-if>
@@ -580,11 +641,20 @@
         <div onClick="{{ closeSheet }}" style="position:absolute; inset:0; background:rgba(20,16,32,0.42); z-index:48; animation:fadeIn 180ms ease;"></div>
         <div style="position:absolute; left:0; right:0; bottom:0; background:#fff; border-radius:26px 26px 0 0; z-index:49; animation:sheetUp 280ms cubic-bezier(.2,.7,.2,1); box-shadow:0 -14px 44px rgba(20,16,32,0.24); padding-bottom:26px;">
           <div style="display:flex; justify-content:center; padding:9px 0 3px;"><div style="width:38px; height:5px; border-radius:99px; background:#E2DEEC;"></div></div>
-          <div style="font-size:18px; font-weight:700; color:#1C1B22; padding:6px 20px 12px;">Sort by</div>
+          <div style="padding:6px 20px 4px;">
+            <div style="font-size:18px; font-weight:700; color:#1C1B22;">Sort by</div>
+            <div style="font-size:12px; color:#9C99A8; margin-top:3px;">Tap the active option again to reverse the order.</div>
+          </div>
+          <div style="height:8px;"></div>
           <sc-for list="{{ sortOptions }}" as="opt" hint-placeholder-count="4">
             <button onClick="{{ opt.onPick }}" style="display:flex; align-items:center; justify-content:space-between; width:100%; padding:14px 20px; background:none; border:none; border-top:1px solid #F2F1F6; cursor:pointer; font-family:inherit;">
               <span style="font-size:15px; font-weight:500; color:{{ opt.color }};">{{ opt.label }}</span>
-              <sc-if value="{{ opt.active }}" hint-placeholder-val=""><span class="ms" style="font-size:21px; color:var(--accent);">check</span></sc-if>
+              <sc-if value="{{ opt.active }}" hint-placeholder-val="">
+                <span style="display:flex; align-items:center; gap:7px;">
+                  <span style="font-size:12px; font-weight:600; color:var(--accent);">{{ opt.dirLabel }}</span>
+                  <span class="ms" style="font-size:20px; color:var(--accent);">{{ opt.dirIcon }}</span>
+                </span>
+              </sc-if>
             </button>
           </sc-for>
         </div>
@@ -597,7 +667,6 @@
           <div style="display:flex; justify-content:center; padding:9px 0 3px;"><div style="width:38px; height:5px; border-radius:99px; background:#E2DEEC;"></div></div>
           <div style="padding:8px 8px 0;">
             <button onClick="{{ menuRename }}" style="display:flex; align-items:center; gap:14px; width:100%; padding:15px 16px; background:none; border:none; cursor:pointer; font-family:inherit; text-align:left;"><span class="ms" style="font-size:22px; color:var(--accent);">edit</span><span style="font-size:15px; color:#1C1B22; font-weight:500;">Rename list</span></button>
-            <button onClick="{{ shareCurrent }}" style="display:flex; align-items:center; gap:14px; width:100%; padding:15px 16px; background:none; border:none; cursor:pointer; font-family:inherit; text-align:left;"><span class="ms" style="font-size:22px; color:var(--accent);">link</span><span style="font-size:15px; color:#1C1B22; font-weight:500;">Copy share link</span></button>
             <button onClick="{{ addSubList }}" style="display:flex; align-items:center; gap:14px; width:100%; padding:15px 16px; background:none; border:none; cursor:pointer; font-family:inherit; text-align:left;"><span class="ms" style="font-size:22px; color:var(--accent);">create_new_folder</span><span style="font-size:15px; color:#1C1B22; font-weight:500;">Add a sub-list</span></button>
             <button onClick="{{ menuDelete }}" style="display:flex; align-items:center; gap:14px; width:100%; padding:15px 16px; background:none; border:none; border-top:1px solid #F2F1F6; cursor:pointer; font-family:inherit; text-align:left;"><span class="ms" style="font-size:22px; color:#C0353A;">delete</span><span style="font-size:15px; color:#C0353A; font-weight:500;">Delete list</span></button>
           </div>
@@ -653,9 +722,9 @@ class Component extends DCLogic {
     ],
     userData: {},
     view: 'home', activeSection: 'totry', activeListId: null,
-    drawerPerfumeId: null, drawerListId: null,
+    drawerPerfumeId: null, drawerListId: null, drawerEdit: false, editNote: '', editPrice: '', simQuery: '',
     sheet: null, addTargetListId: null,
-    sort: 'added', addQuery: '', libQuery: '',
+    sort: 'added', sortDir: 'asc', addQuery: '', libQuery: '',
     newName: '', newCover: 0, newParent: null,
     manualName: '', newCatName: '', renameValue: '', toast: null,
   };
@@ -860,10 +929,13 @@ class Component extends DCLogic {
     return null;
   }
   sortedEntries(l) {
-    const cat=this.state.catById, arr=l.entries.filter(e=>cat[e.perfumeId]), k=this.state.sort;
+    const cat=this.state.catById, k=this.state.sort, dir=this.state.sortDir;
+    let arr=l.entries.filter(e=>cat[e.perfumeId]);
     if (k==='name') arr.sort((a,b)=>cat[a.perfumeId].name.localeCompare(cat[b.perfumeId].name));
     else if (k==='brand') arr.sort((a,b)=>(cat[a.perfumeId].brand||'').localeCompare(cat[b.perfumeId].brand||''));
-    else if (k==='release') arr.sort((a,b)=>(cat[b.perfumeId].year||0)-(cat[a.perfumeId].year||0));
+    else if (k==='release') arr.sort((a,b)=>(cat[a.perfumeId].year||0)-(cat[b.perfumeId].year||0));
+    // k==='added' keeps insertion (added) order
+    if (dir==='desc') arr.reverse();
     return arr;
   }
   fmtInt(n) { return n==null?'':Number(n).toLocaleString('en-US'); }
@@ -890,8 +962,56 @@ class Component extends DCLogic {
     else this.setState({view:'home',activeListId:null});
     this.resetScroll();
   }
-  openDrawer(pid,lid) { this.setState({drawerPerfumeId:pid,drawerListId:lid||null}); }
-  closeDrawer() { this.setState({drawerPerfumeId:null,drawerListId:null}); }
+  openDrawer(pid,lid) { this.setState({drawerPerfumeId:pid,drawerListId:lid||null,drawerEdit:false}); }
+  closeDrawer() { this.setState({drawerPerfumeId:null,drawerListId:null,drawerEdit:false}); }
+  // swipe-down to dismiss the drawer
+  onGrabStart(e){ this._gy0=e.touches[0].clientY; this._gy=0; if(this._drawerSheet) this._drawerSheet.style.transition='none'; }
+  onGrabMove(e){ if(this._gy0==null)return; const dy=e.touches[0].clientY-this._gy0; this._gy=dy; if(this._drawerSheet) this._drawerSheet.style.transform='translateY('+Math.max(0,dy)+'px)'; }
+  onGrabEnd(){ if(this._gy0==null)return; const sheet=this._drawerSheet; if(this._gy>110){ this.closeDrawer(); } else if(sheet){ sheet.style.transition='transform 220ms cubic-bezier(.2,.7,.2,1)'; sheet.style.transform='translateY(0)'; } this._gy0=null; this._gy=0; }
+
+  // ── perfume editing ──
+  _userSimilarIds(pid) {
+    const m = this.state.userData[pid];
+    if (!m || !m.remindsOf) return [];
+    try { const a = JSON.parse(m.remindsOf); return Array.isArray(a) ? a : []; } catch (_) { return []; }
+  }
+  async saveUserMeta(pid, patch) {
+    const s = this.state;
+    const next = { ...(s.userData[pid] || {}), ...patch };
+    s.userData[pid] = next;
+    this.forceUpdate();
+    if (this._sb && s.session) {
+      const row = { user_id: s.session.user.id, perfume_id: pid, note: next.note || null, reminds_of: next.remindsOf || null, price_paid: next.pricePaid || null, price_target: next.priceTarget || null, updated_at: new Date().toISOString() };
+      const { error } = await this._sb.from('user_perfume_notes').upsert(row, { onConflict: 'user_id,perfume_id' });
+      if (error) this.toast('Save error: ' + error.message);
+    }
+  }
+  openEdit() { const m = this.state.userData[this.state.drawerPerfumeId] || {}; this.setState({ drawerEdit: true, editNote: m.note || '', editPrice: m.pricePaid || '' }); }
+  cancelEdit() { this.setState({ drawerEdit: false }); }
+  onEditNote(e) { this.setState({ editNote: e.target.value }); }
+  onEditPrice(e) { this.setState({ editPrice: e.target.value }); }
+  async saveEdit() {
+    const pid = this.state.drawerPerfumeId;
+    await this.saveUserMeta(pid, { note: (this.state.editNote || '').trim(), pricePaid: (this.state.editPrice || '').trim() });
+    this.setState({ drawerEdit: false });
+    this.toast('Saved');
+  }
+  openSimAdd() { this.setState({ sheet: 'simadd', simQuery: '' }); }
+  onSimQuery(e) { this.setState({ simQuery: e.target.value }); }
+  async addSimilar(simId) {
+    const pid = this.state.drawerPerfumeId;
+    const ids = this._userSimilarIds(pid);
+    if (simId !== pid && !ids.includes(simId)) ids.push(simId);
+    await this.saveUserMeta(pid, { remindsOf: JSON.stringify(ids) });
+    this.setState({ sheet: null });
+    this.toast('Similar scent added');
+  }
+  async removeSimilar(simId) {
+    const pid = this.state.drawerPerfumeId;
+    const ids = this._userSimilarIds(pid).filter(x => x !== simId);
+    await this.saveUserMeta(pid, { remindsOf: ids.length ? JSON.stringify(ids) : null });
+    this.toast('Removed');
+  }
   closeSheet() { this.setState({sheet:null}); }
   openAdd() { this.setState({sheet:'add',addTargetListId:this.state.activeListId,addQuery:''}); }
   openManual() { this.setState({sheet:'manual',manualName:''}); }
@@ -903,7 +1023,10 @@ class Component extends DCLogic {
   onAddQuery(e) { this.setState({addQuery:e.target.value}); }
   onLibQuery(e) { this.setState({libQuery:e.target.value}); }
   pickChip(v) { this.setState({libQuery:v}); }
-  setSort(v) { this.setState({sort:v,sheet:null}); }
+  setSort(v) {
+    if (this.state.sort === v) this.setState({ sortDir: this.state.sortDir === 'asc' ? 'desc' : 'asc' });
+    else this.setState({ sort: v, sortDir: 'asc' });
+  }
   onNewName(e) { this.setState({newName:e.target.value}); }
   setNewCover(i) { this.setState({newCover:i}); }
   onNewCatName(e) { this.setState({newCatName:e.target.value}); }
@@ -1027,14 +1150,14 @@ class Component extends DCLogic {
     const palettes={iris:{a:'#785EAF',d:'#5A4691',l:'#9B82C9',t:'#F1ECF9'},lavender:{a:'#7A6AD8',d:'#574BB0',l:'#A99BEF',t:'#EFEDFB'},plum:{a:'#8E5AA8',d:'#6E4283',l:'#B98ECD',t:'#F4ECF8'},periwinkle:{a:'#6573C9',d:'#4A57A8',l:'#98A4E6',t:'#EDEFFB'}};
     const pal=palettes[this.props.accent]||palettes.iris;
     const accentVarsCss='--accent:'+pal.a+';--accent-deep:'+pal.d+';--accent-light:'+pal.l+';--accent-tint:'+pal.t+';';
-    const blank={accentVarsCss,scrollRef:(el)=>{this._scroll=el;},showInitializing:s.appState==='initializing'||s.appState==='loading',showAuth:s.appState==='auth',showHome:false,showList:false,showSearch:false,showSettings:false,showFab:false,drawerOpen:false,showAddSheet:false,showManual:false,showNewList:false,showNewCat:false,showSort:false,showListMenu:false,showRenameList:false,showDeleteList:false,renameValue:'',deleteListName:'',deleteListWarning:'',toastVisible:false,loadError:s.loadError||'',...this._authVals(),homeTabs:[],activeCards:[],activeSecSub:'',activeSecCount:'',activeSectionEmpty:false,activeSectionHasCards:false,activeEmptyMsg:'',listModel:{d:{},accords:[],top:[],heart:[],base:[],similar:[]},addResults:[],searchResults:[],searchChips:[],newCovers:[],sortOptions:[],newName:'',newCatName:'',newContext:'',newTitle:'',addQuery:'',libQuery:'',addTitle:'',addNoResults:false,searchEmpty:true,searchHasResults:false,searchNoResults:false,searchCountLabel:'',catalogueCount:'',userEmail:'',userInitial:'',signOut:()=>this.signOut(),goHome:()=>this.goHome(),openSearch:()=>this.openSearch(),openSettings:()=>this.openSettings(),openNewCat:()=>this.openNewCat(),openNewListTop:()=>this.openNewList(null)};
+    const blank={accentVarsCss,scrollRef:(el)=>{this._scroll=el;},showInitializing:s.appState==='initializing'||s.appState==='loading',showAuth:s.appState==='auth',showHome:false,showList:false,showSearch:false,showSettings:false,showFab:false,drawerOpen:false,showAddSheet:false,showManual:false,showNewList:false,showNewCat:false,showSort:false,showListMenu:false,showRenameList:false,showDeleteList:false,showSimAdd:false,simResults:[],simNoResults:false,simPrompt:false,simQuery:'',renameValue:'',deleteListName:'',deleteListWarning:'',toastVisible:false,loadError:s.loadError||'',...this._authVals(),homeTabs:[],activeCards:[],activeSecSub:'',activeSecCount:'',activeSectionEmpty:false,activeSectionHasCards:false,activeEmptyMsg:'',listModel:{d:{},accords:[],top:[],heart:[],base:[],similar:[]},addResults:[],searchResults:[],searchChips:[],newCovers:[],sortOptions:[],newName:'',newCatName:'',newContext:'',newTitle:'',addQuery:'',libQuery:'',addTitle:'',addNoResults:false,searchEmpty:true,searchHasResults:false,searchNoResults:false,searchCountLabel:'',catalogueCount:'',userEmail:'',userInitial:'',signOut:()=>this.signOut(),goHome:()=>this.goHome(),openSearch:()=>this.openSearch(),openSettings:()=>this.openSettings(),openNewCat:()=>this.openNewCat(),openNewListTop:()=>this.openNewList(null)};
     if (s.appState!=='ready') return blank;
 
     const allLists=Object.values(lists), topLists=allLists.filter(l=>!l.parentId);
     const ud=(id)=>s.userData[id]||{};
     const pidOf=(e)=>cat[e.perfumeId];
     const mkImg=(src,sty)=>src?React.createElement('img',{src,alt:'',style:sty,onError:(e)=>{e.target.style.visibility='hidden';}}):null;
-    const ST={card:{height:76,width:'auto',maxWidth:64,objectFit:'contain'},row:{maxHeight:42,maxWidth:38,objectFit:'contain'},search:{maxHeight:40,maxWidth:36,objectFit:'contain'},add:{maxHeight:38,maxWidth:34,objectFit:'contain'},drawer:{maxHeight:108,maxWidth:80,objectFit:'contain',filter:'drop-shadow(0 10px 14px rgba(0,0,0,0.18))'},sim:{maxHeight:54,maxWidth:44,objectFit:'contain'}};
+    const ST={card:{height:76,width:'auto',maxWidth:64,objectFit:'contain'},row:{maxHeight:42,maxWidth:38,objectFit:'contain'},search:{maxHeight:40,maxWidth:36,objectFit:'contain'},add:{maxHeight:38,maxWidth:34,objectFit:'contain'},drawer:{maxHeight:108,maxWidth:80,objectFit:'contain'},sim:{maxHeight:54,maxWidth:44,objectFit:'contain'}};
 
     // home
     const homeTabs=s.sections.map(sec=>{const active=sec.id===s.activeSection;return{name:sec.name,active,style:'flex:0 0 auto;padding:9px 16px;border-radius:999px;font-size:13.5px;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap;'+(active?'background:var(--accent);border:1px solid var(--accent);color:#fff;':'background:#F2F1F6;border:1px solid #F2F1F6;color:#6A6775;'),onSelect:()=>this.selectSection(sec.id)};});
@@ -1055,30 +1178,38 @@ class Component extends DCLogic {
       const sec=s.sections.find(x=>x.id===al.sectionId)||{name:''};
       const subLists=allLists.filter(x=>x.parentId===al.id).map(x=>({name:x.name,countLabel:x.entries.length+(x.entries.length===1?' perfume':' perfumes'),coverCss:this.coverCss(x.cover),onOpen:()=>this.openList(x.id)}));
       const sortLabels={added:'Date added',name:'Name',brand:'Brand',release:'Release'};
+      const dirArrow=s.sortDir==='asc'?'↑':'↓';
       const rows=this.sortedEntries(al).map(e=>{
         const p=pidOf(e),ti=this.tagInfo(e.tag);
         const flat='display:flex;align-items:center;gap:12px;padding:13px 8px;background:none;border:none;border-bottom:1px solid #F2F1F6;width:100%;cursor:pointer;font-family:inherit;';
         const tagged=ti?('display:flex;align-items:center;gap:12px;padding:14px 12px;margin:8px 0;background:'+ti.bg+';border:1px solid '+ti.border+';border-radius:16px;width:100%;cursor:pointer;font-family:inherit;box-shadow:0 5px 14px -4px '+ti.glow+';'):'';
         const tagStyle=ti?('display:inline-flex;align-items:center;gap:5px;margin-top:7px;font-size:10.5px;font-weight:700;color:'+ti.text+';background:#fff;border:1px solid '+ti.border+';padding:3px 9px;border-radius:999px;'):'';
-        return{name:p.name,house:p.brand||'—',img:p.thumb,imgEl:mkImg(p.thumb,ST.row),noImg:!p.thumb,thumbBg:ti?'#FFFFFF':'#F4F1FA',tag:e.tag||'',tagLabel:ti?ti.label:'',tagDot:ti?ti.dot:'',tagStyle,wrapStyle:ti?tagged:flat,onOpen:()=>this.openDrawer(p.id,al.id)};
+        return{name:p.name,house:p.brand||'—',img:p.thumb,imgEl:mkImg(p.thumb,ST.row),noImg:!p.thumb,thumbBg:'#FFFFFF',tag:e.tag||'',tagLabel:ti?ti.label:'',tagDot:ti?ti.dot:'',tagStyle,wrapStyle:ti?tagged:flat,onOpen:()=>this.openDrawer(p.id,al.id)};
       });
-      listModel={name:al.name,sectionName:sec.name,coverCss:this.coverCss(al.cover),countLabel:al.entries.length+(al.entries.length===1?' perfume':' perfumes'),hasSub:subLists.length>0,subLists,empty:al.entries.length===0,hasRows:al.entries.length>0,rows,sortLabel:sortLabels[s.sort]};
+      listModel={name:al.name,sectionName:sec.name,coverCss:this.coverCss(al.cover),countLabel:al.entries.length+(al.entries.length===1?' perfume':' perfumes'),hasSub:subLists.length>0,subLists,empty:al.entries.length===0,hasRows:al.entries.length>0,rows,sortLabel:sortLabels[s.sort]+' '+dirArrow};
     }
 
     // drawer
     const p=s.drawerPerfumeId?cat[s.drawerPerfumeId]:null;
     const drawerOpen=!!p;
-    let d={img:'',imgEl:null,noImg:true,name:'',house:'',metaLine:'',inList:false,accords:[],hasAccords:false,top:['—'],heart:['—'],base:['—'],pricePaid:'—',priceTarget:'—',noteText:'',noteColor:'#B4B1C0',togetBtnStyle:'',travelBtnStyle:'',hasSimilar:false,similar:[],removeFromList:()=>{}};
+    let d={img:'',imgEl:null,noImg:true,name:'',house:'',metaLine:'',inList:false,accords:[],hasAccords:false,top:['—'],heart:['—'],base:['—'],showPrice:false,pricePaidLabel:'Not set',priceColor:'#B4B1C0',noteText:'',noteColor:'#B4B1C0',editing:false,notEditing:true,togetBtnStyle:'',travelBtnStyle:'',showSimilar:false,similarEmpty:false,similar:[],removeFromList:()=>{}};
     if (drawerOpen) {
       const inList=!!s.drawerListId;
       let curTag=null;
       if (inList&&lists[s.drawerListId]){const en=lists[s.drawerListId].entries.find(e=>e.perfumeId===p.id);curTag=en?en.tag:null;}
       const meta=ud(p.id);
+      const isOwned=Object.values(lists).some(l=>l.sectionId==='owned'&&l.entries.some(e=>e.perfumeId===p.id));
       const metaLine=[(p.perfumers&&p.perfumers.length?p.perfumers.slice(0,2).join(', '):null),p.year||null,p.rating?('★ '+p.rating):null,p.ratingCount?(this.fmtInt(p.ratingCount)+' ratings'):null].filter(Boolean).join('  ·  ');
       const bs='display:flex;align-items:center;justify-content:center;gap:7px;flex:1;height:44px;border-radius:13px;font-size:13.5px;font-weight:600;cursor:pointer;font-family:inherit;';
-      const similar=this.resolveReminds(p.reminds).map(r=>({name:r.name,house:r.house,img:r.img,imgEl:mkImg(r.img,ST.sim),onOpen:r.id?(()=>this.openDrawer(r.id,s.drawerListId)):(()=>{})}));
+      // merge dataset similar + user-added similar
+      const userSimIds=this._userSimilarIds(p.id);
+      const datasetSim=this.resolveReminds(p.reminds);
+      const userSim=userSimIds.map(id=>{const cp=cat[id];return cp?{id,name:cp.name,house:cp.brand,img:cp.thumb}:null;}).filter(Boolean);
+      const seen=new Set();const merged=[];
+      for (const it of [...datasetSim,...userSim]){if(it.id&&seen.has(it.id))continue;if(it.id)seen.add(it.id);merged.push({...it,removable:!!(it.id&&userSimIds.includes(it.id))});}
+      const similar=merged.map(r=>({name:r.name,house:r.house,img:r.img,imgEl:mkImg(r.img,ST.sim),onOpen:r.id?(()=>this.openDrawer(r.id,s.drawerListId)):(()=>{}),showRemove:s.drawerEdit&&r.removable,onRemove:()=>this.removeSimilar(r.id)}));
       const fb=a=>(a&&a.length?a:['—']);
-      d={name:p.name,house:p.brand||'—',metaLine,img:p.thumb,imgEl:mkImg(p.thumb,ST.drawer),noImg:!p.thumb,inList,accords:p.accords||[],hasAccords:!!(p.accords&&p.accords.length),top:fb(p.notes.top),heart:fb(p.notes.mid),base:fb(p.notes.base),pricePaid:meta.pricePaid||'—',priceTarget:meta.priceTarget||'—',noteText:meta.note||'No personal notes yet. Tap edit to add.',noteColor:meta.note?'#3A3845':'#B4B1C0',togetBtnStyle:bs+(curTag==='toget'?'border:1.5px solid #E5484D;background:#FDECEC;color:#BE343A;':'border:1.5px solid #ECEAF2;background:#fff;color:#6A6775;'),travelBtnStyle:bs+(curTag==='travel'?'border:1.5px solid #2F73E0;background:#EAF1FD;color:#2560C0;':'border:1.5px solid #ECEAF2;background:#fff;color:#6A6775;'),toggleToGet:()=>this.toggleTag(p.id,s.drawerListId,'toget'),toggleTravel:()=>this.toggleTag(p.id,s.drawerListId,'travel'),hasSimilar:similar.length>0,similar,removeFromList:()=>this.removeFromList()};
+      d={name:p.name,house:p.brand||'—',metaLine,img:p.thumb,imgEl:mkImg(p.thumb,ST.drawer),noImg:!p.thumb,inList,accords:p.accords||[],hasAccords:!!(p.accords&&p.accords.length),top:fb(p.notes.top),heart:fb(p.notes.mid),base:fb(p.notes.base),showPrice:isOwned,pricePaidLabel:meta.pricePaid||'Not set',priceColor:meta.pricePaid?'#1C1B22':'#B4B1C0',noteText:meta.note||'No personal notes yet. Tap edit to add.',noteColor:meta.note?'#3A3845':'#B4B1C0',editing:s.drawerEdit,notEditing:!s.drawerEdit,togetBtnStyle:bs+(curTag==='toget'?'border:1.5px solid #E5484D;background:#FDECEC;color:#BE343A;':'border:1.5px solid #ECEAF2;background:#fff;color:#6A6775;'),travelBtnStyle:bs+(curTag==='travel'?'border:1.5px solid #2F73E0;background:#EAF1FD;color:#2560C0;':'border:1.5px solid #ECEAF2;background:#fff;color:#6A6775;'),toggleToGet:()=>this.toggleTag(p.id,s.drawerListId,'toget'),toggleTravel:()=>this.toggleTag(p.id,s.drawerListId,'travel'),showSimilar:(similar.length>0||s.drawerEdit),similarEmpty:(s.drawerEdit&&similar.length===0),similar,removeFromList:()=>this.removeFromList()};
     }
 
     // add sheet
@@ -1090,6 +1221,19 @@ class Component extends DCLogic {
       const matched=s.catalogue.filter(p=>!q||p.name.toLowerCase().includes(q)||(p.brand||'').toLowerCase().includes(q));
       addResults=matched.slice(0,50).map(p=>{const already=al&&al.entries.some(e=>e.perfumeId===p.id);return{name:p.name,sub:(p.brand||'—')+'  ·  '+(p.year||'—'),img:p.thumb,imgEl:mkImg(p.thumb,ST.add),btnIcon:already?'check':'add',btnStyle:'width:34px;height:34px;border-radius:50%;border:none;flex:0 0 auto;display:flex;align-items:center;justify-content:center;cursor:pointer;'+(already?'background:#EAF6EE;color:#4F9D6B;':'background:var(--accent);color:#fff;'),onAdd:()=>this.addToList(p.id)};});
       addNoResults=!!(q&&matched.length===0);
+    }
+
+    // similar-add sheet
+    let simResults=[],simNoResults=false,simPrompt=false;
+    if (s.sheet==='simadd') {
+      const q=(s.simQuery||'').toLowerCase().trim();
+      if (!q) { simPrompt=true; }
+      else {
+        const exclude=new Set([s.drawerPerfumeId,...this._userSimilarIds(s.drawerPerfumeId)]);
+        const matched=s.catalogue.filter(p=>!exclude.has(p.id)&&(p.name.toLowerCase().includes(q)||(p.brand||'').toLowerCase().includes(q)));
+        simResults=matched.slice(0,40).map(p=>({name:p.name,sub:(p.brand||'—')+'  ·  '+(p.year||'—'),img:p.thumb,imgEl:mkImg(p.thumb,ST.add),onAdd:()=>this.addSimilar(p.id)}));
+        simNoResults=matched.length===0;
+      }
     }
 
     // search
@@ -1107,8 +1251,9 @@ class Component extends DCLogic {
     const newIsSub=!!s.newParent;
     const newContext=newIsSub?('Sub-list of '+(lists[s.newParent]?lists[s.newParent].name:'')):(activeSec?('Added to '+activeSec.name):'');
     const newCovers=this.covers().map((c,i)=>({onPick:()=>this.setNewCover(i),style:'width:46px;height:46px;border-radius:13px;cursor:pointer;background-image:'+this.coverCss(c)+';'+(s.newCover===i?'border:2.5px solid var(--accent-deep);box-shadow:0 0 0 2px #fff inset;':'border:2.5px solid transparent;')}));
-    const sortDefs=[{id:'added',label:'Date added'},{id:'name',label:'Name (A–Z)'},{id:'brand',label:'Brand name'},{id:'release',label:'Release year'}];
-    const sortOptions=sortDefs.map(o=>({label:o.label,active:s.sort===o.id,color:s.sort===o.id?'#1C1B22':'#3A3845',onPick:()=>this.setSort(o.id)}));
+    const sortDefs=[{id:'added',label:'Date added'},{id:'name',label:'Name'},{id:'brand',label:'Brand name'},{id:'release',label:'Release year'}];
+    const dirText={added:{asc:'Oldest first',desc:'Newest first'},name:{asc:'A → Z',desc:'Z → A'},brand:{asc:'A → Z',desc:'Z → A'},release:{asc:'Oldest first',desc:'Newest first'}};
+    const sortOptions=sortDefs.map(o=>{const active=s.sort===o.id;return{label:o.label,active,color:active?'#1C1B22':'#3A3845',dirLabel:active?dirText[o.id][s.sortDir]:'',dirIcon:s.sortDir==='asc'?'arrow_upward':'arrow_downward',onPick:()=>this.setSort(o.id)};});
 
     const userEmail=s.session?s.session.user.email:'';
     const userInitial=userEmail?userEmail[0].toUpperCase():'?';
@@ -1119,6 +1264,10 @@ class Component extends DCLogic {
       showHome:s.view==='home', showList, showSearch:s.view==='search', showSettings:s.view==='settings', showFab:!!showList,
       homeTabs, activeSecSub:activeSec?activeSec.sub:'', activeSecCount, activeCards, activeSectionEmpty, activeSectionHasCards:activeTop.length>0, activeEmptyMsg,
       listModel, drawerOpen, d,
+      drawerSheetRef:(el)=>{this._drawerSheet=el;}, onGrabStart:(e)=>this.onGrabStart(e), onGrabMove:(e)=>this.onGrabMove(e), onGrabEnd:()=>this.onGrabEnd(),
+      editNote:s.editNote, editPrice:s.editPrice, onEditNote:(e)=>this.onEditNote(e), onEditPrice:(e)=>this.onEditPrice(e),
+      openEdit:()=>this.openEdit(), cancelEdit:()=>this.cancelEdit(), saveEdit:()=>this.saveEdit(), openSimAdd:()=>this.openSimAdd(),
+      showSimAdd:s.sheet==='simadd', simQuery:s.simQuery, onSimQuery:(e)=>this.onSimQuery(e), simResults, simNoResults, simPrompt,
       showAddSheet:s.sheet==='add', addTitle, addResults, addNoResults, addQuery:s.addQuery,
       showManual:s.sheet==='manual', manualName:s.manualName,
       showNewList:s.sheet==='newlist', newTitle:newIsSub?'New sub-list':'New list', newContext, newName:s.newName, newCovers,

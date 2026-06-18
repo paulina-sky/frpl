@@ -1,5 +1,5 @@
 // FRPL Service Worker — caches app shell + perfume catalogue
-const CACHE = 'frpl-v9';
+const CACHE = 'frpl-v12';
 const PRECACHE = [
   './FRPL.dc.html',
   './data/catalogue-manifest.json',
