@@ -36,7 +36,7 @@
 
   /* ── Real-device / installed-PWA mode: drop the mockup frame, fill the screen ── */
   @media (display-mode: standalone), (display-mode: fullscreen) {
-    html, body { margin: 0 !important; padding: 0 !important; width: 100% !important; height: 100% !important; overflow: hidden !important; position: fixed !important; top: 0; left: 0; right: 0; bottom: 0; overscroll-behavior: none !important; background: #fff !important; }
+    html, body { margin: 0 !important; padding: 0 !important; width: 100% !important; height: 100% !important; overflow: hidden !important; overscroll-behavior: none !important; background: #fff !important; }
     .frpl-stage { padding: 0 !important; margin: 0 !important; width: 100vw !important; height: 100dvh !important; min-height: 0 !important; background: #fff !important; display: block !important; overflow: hidden !important; }
     .frpl-bezel { padding: 0 !important; margin: 0 !important; background: none !important; border-radius: 0 !important; box-shadow: none !important; width: 100% !important; height: 100% !important; }
     .frpl-screen { width: 100% !important; height: 100% !important; max-width: 100% !important; border-radius: 0 !important; overflow: hidden !important; }
@@ -401,15 +401,62 @@
               <button onClick="{{ closeDrawer }}" style="position:absolute; top:14px; right:16px; width:32px; height:32px; border-radius:50%; background:#F2F1F6; border:none; color:#6A6775; display:flex; align-items:center; justify-content:center; cursor:pointer;"><span class="ms" style="font-size:20px;">close</span></button>
             </div>
 
-            <sc-if value="{{ d.inList }}" hint-placeholder-val="">
+            <sc-if value="{{ d.canEditPhoto }}" hint-placeholder-val="">
+              <div style="padding:14px 20px 0;">
+                <button onClick="{{ pastePerfumeUrl }}" style="width:100%; height:42px; border-radius:12px; background:var(--accent-tint); border:none; color:var(--accent-deep); font-size:13.5px; font-weight:600; cursor:pointer; font-family:inherit; display:flex; align-items:center; justify-content:center; gap:7px;"><span class="ms" style="font-size:18px;">link</span>Paste image URL</button>
+              </div>
+            </sc-if>
+
+            <sc-if value="{{ d.showToGet }}" hint-placeholder-val="">
               <div style="display:flex; gap:10px; padding:16px 20px 2px;">
                 <button onClick="{{ d.toggleToGet }}" style="{{ d.togetBtnStyle }}"><span class="ms" style="font-size:18px;">flag</span>To get</button>
-                <button onClick="{{ d.toggleTravel }}" style="{{ d.travelBtnStyle }}"><span class="ms" style="font-size:18px;">flight</span>Travel size</button>
+              </div>
+            </sc-if>
+
+            <sc-if value="{{ d.showNotesEdit }}" hint-placeholder-val="">
+              <div style="padding:18px 20px 4px;">
+                <div style="font-size:11px; font-weight:700; letter-spacing:0.06em; text-transform:uppercase; color:#9C99A8;">Your notes <span style="font-weight:600; color:#C6C2D2; letter-spacing:0;">· private</span></div>
+                <textarea class="frpl-in" value="{{ editNote }}" onChange="{{ onEditNote }}" placeholder="Add a private note — how it wears, when you reach for it…" rows="3" style="margin-top:10px; width:100%; box-sizing:border-box; resize:none; background:#F7F6FB; border:1px solid #ECEAF2; border-radius:14px; padding:13px 15px; line-height:1.55; color:#3A3845;"></textarea>
+              </div>
+            </sc-if>
+
+            <sc-if value="{{ d.showPriceEdit }}" hint-placeholder-val="">
+              <div style="padding:14px 20px 4px;">
+                <div style="font-size:11px; font-weight:700; letter-spacing:0.06em; text-transform:uppercase; color:#9C99A8;">Price paid</div>
+                <input class="frpl-in" value="{{ editPrice }}" onChange="{{ onEditPrice }}" placeholder="e.g. €120" style="margin-top:10px; width:100%; box-sizing:border-box; background:#F7F6FB; border:1px solid #ECEAF2; border-radius:14px; padding:13px 15px; color:#1C1B22;" />
+              </div>
+            </sc-if>
+
+            <sc-if value="{{ d.showSimilar }}" hint-placeholder-val="">
+              <div style="padding:18px 20px 4px;">
+                <div style="display:flex; align-items:center; justify-content:space-between;">
+                  <div style="font-size:11px; font-weight:700; letter-spacing:0.06em; text-transform:uppercase; color:#9C99A8;">Similar scents</div>
+                  <sc-if value="{{ d.simControls }}" hint-placeholder-val="">
+                    <button onClick="{{ openSimAdd }}" style="display:flex; align-items:center; gap:4px; background:var(--accent-tint); border:none; color:var(--accent-deep); font-size:12px; font-weight:700; padding:6px 12px; border-radius:999px; cursor:pointer; font-family:inherit;"><span class="ms" style="font-size:16px;">add</span>Add</button>
+                  </sc-if>
+                </div>
+                <sc-if value="{{ d.similarEmpty }}" hint-placeholder-val="">
+                  <div style="margin-top:12px; font-size:13px; color:#B4B1C0; line-height:1.5;">No similar scents linked yet. Tap Add to connect one.</div>
+                </sc-if>
+                <div class="appscroll" style="display:flex; gap:11px; overflow-x:auto; margin-top:12px; padding-bottom:2px;">
+                  <sc-for list="{{ d.similar }}" as="sim" hint-placeholder-count="2">
+                    <div style="position:relative; flex:0 0 auto;">
+                      <button onClick="{{ sim.onOpen }}" style="width:138px; text-align:left; background:#fff; border:1px solid #ECEAF2; border-radius:14px; padding:12px; cursor:pointer; font-family:inherit;">
+                        <div style="height:54px; display:flex; align-items:center; justify-content:center;"><sc-if value="{{ sim.img }}" hint-placeholder-val="">{{ sim.imgEl }}</sc-if></div>
+                        <div style="font-size:13.5px; font-weight:600; color:#1C1B22; margin-top:9px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ sim.name }}</div>
+                        <div style="font-size:11.5px; color:#9C99A8; margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ sim.house }}</div>
+                      </button>
+                      <sc-if value="{{ sim.showRemove }}" hint-placeholder-val="">
+                        <button onClick="{{ sim.onRemove }}" aria-label="Remove" style="position:absolute; top:-7px; right:-7px; width:24px; height:24px; border-radius:50%; background:#C0353A; border:2px solid #fff; color:#fff; display:flex; align-items:center; justify-content:center; cursor:pointer; box-shadow:0 2px 6px rgba(0,0,0,0.2);"><span class="ms" style="font-size:15px;">close</span></button>
+                      </sc-if>
+                    </div>
+                  </sc-for>
+                </div>
               </div>
             </sc-if>
 
             <sc-if value="{{ d.hasAccords }}" hint-placeholder-val="">
-              <div style="padding:16px 20px 4px;">
+              <div style="padding:18px 20px 4px;">
                 <div style="font-size:11px; font-weight:700; letter-spacing:0.06em; text-transform:uppercase; color:#9C99A8;">Accords</div>
                 <div style="display:flex; flex-wrap:wrap; gap:8px; margin-top:11px;">
                   <sc-for list="{{ d.accords }}" as="a" hint-placeholder-count="3"><span style="font-size:12.5px; font-weight:500; color:var(--accent-deep); background:var(--accent-tint); padding:6px 13px; border-radius:999px;">{{ a }}</span></sc-for>
@@ -435,76 +482,21 @@
               </div>
             </div>
 
-            <sc-if value="{{ d.showPrice }}" hint-placeholder-val="">
-              <div style="padding:18px 20px 4px;">
-                <div style="font-size:11px; font-weight:700; letter-spacing:0.06em; text-transform:uppercase; color:#9C99A8;">Price paid</div>
-                <sc-if value="{{ d.editing }}" hint-placeholder-val="">
-                  <input class="frpl-in" value="{{ editPrice }}" onChange="{{ onEditPrice }}" placeholder="e.g. €120" style="margin-top:10px; width:100%; background:#F7F6FB; border:1px solid #ECEAF2; border-radius:14px; padding:13px 15px; color:#1C1B22;" />
-                </sc-if>
-                <sc-if value="{{ d.notEditing }}" hint-placeholder-val="{{ true }}">
-                  <div style="margin-top:10px; background:#F7F6FB; border:1px solid #ECEAF2; border-radius:14px; padding:13px 15px; font-size:17px; font-weight:700; color:{{ d.priceColor }};">{{ d.pricePaidLabel }}</div>
-                </sc-if>
-              </div>
-            </sc-if>
-
-            <sc-if value="{{ d.showNotes }}" hint-placeholder-val="{{ true }}">
-              <div style="padding:18px 20px 4px;">
-                <div style="font-size:11px; font-weight:700; letter-spacing:0.06em; text-transform:uppercase; color:#9C99A8;">Your notes</div>
-                <sc-if value="{{ d.editing }}" hint-placeholder-val="">
-                  <textarea class="frpl-in" value="{{ editNote }}" onChange="{{ onEditNote }}" placeholder="A personal note — how it wears, when you reach for it…" rows="4" style="margin-top:10px; width:100%; box-sizing:border-box; resize:none; background:#F7F6FB; border:1px solid #ECEAF2; border-radius:14px; padding:13px 15px; line-height:1.55; color:#3A3845;"></textarea>
-                </sc-if>
-                <sc-if value="{{ d.notEditing }}" hint-placeholder-val="{{ true }}">
-                  <div style="margin-top:10px; background:#F7F6FB; border:1px solid #ECEAF2; border-radius:14px; padding:13px 15px; font-size:14px; line-height:1.55; color:{{ d.noteColor }}; white-space:pre-wrap;">{{ d.noteText }}</div>
-                </sc-if>
-              </div>
-            </sc-if>
-
-            <sc-if value="{{ d.showSimilar }}" hint-placeholder-val="">
-              <div style="padding:18px 20px 4px;">
-                <div style="display:flex; align-items:center; justify-content:space-between;">
-                  <div style="font-size:11px; font-weight:700; letter-spacing:0.06em; text-transform:uppercase; color:#9C99A8;">Similar scents</div>
-                  <sc-if value="{{ d.editing }}" hint-placeholder-val="">
-                    <button onClick="{{ openSimAdd }}" style="display:flex; align-items:center; gap:4px; background:var(--accent-tint); border:none; color:var(--accent-deep); font-size:12px; font-weight:700; padding:6px 12px; border-radius:999px; cursor:pointer; font-family:inherit;"><span class="ms" style="font-size:16px;">add</span>Add</button>
-                  </sc-if>
-                </div>
-                <sc-if value="{{ d.similarEmpty }}" hint-placeholder-val="">
-                  <div style="margin-top:12px; font-size:13px; color:#B4B1C0; line-height:1.5;">No similar scents linked yet. Tap Add to connect one.</div>
-                </sc-if>
-                <div class="appscroll" style="display:flex; gap:11px; overflow-x:auto; margin-top:12px; padding-bottom:2px;">
-                  <sc-for list="{{ d.similar }}" as="sim" hint-placeholder-count="2">
-                    <div style="position:relative; flex:0 0 auto;">
-                      <button onClick="{{ sim.onOpen }}" style="width:138px; text-align:left; background:#fff; border:1px solid #ECEAF2; border-radius:14px; padding:12px; cursor:pointer; font-family:inherit;">
-                        <div style="height:54px; display:flex; align-items:center; justify-content:center;"><sc-if value="{{ sim.img }}" hint-placeholder-val="">{{ sim.imgEl }}</sc-if></div>
-                        <div style="font-size:13.5px; font-weight:600; color:#1C1B22; margin-top:9px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ sim.name }}</div>
-                        <div style="font-size:11.5px; color:#9C99A8; margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ sim.house }}</div>
-                      </button>
-                      <sc-if value="{{ sim.showRemove }}" hint-placeholder-val="">
-                        <button onClick="{{ sim.onRemove }}" aria-label="Remove" style="position:absolute; top:-7px; right:-7px; width:24px; height:24px; border-radius:50%; background:#C0353A; border:2px solid #fff; color:#fff; display:flex; align-items:center; justify-content:center; cursor:pointer; box-shadow:0 2px 6px rgba(0,0,0,0.2);"><span class="ms" style="font-size:15px;">close</span></button>
-                      </sc-if>
-                    </div>
-                  </sc-for>
-                </div>
-              </div>
-            </sc-if>
-
             <div style="height:14px;"></div>
           </div>
 
-          <div style="flex:0 0 auto; padding:14px 20px calc(18px + env(safe-area-inset-bottom,0px)); display:flex; gap:11px; background:#fff; border-top:1px solid #ECEAF2; box-shadow:0 -6px 18px rgba(20,16,32,0.06);">
-            <sc-if value="{{ d.fromSearch }}" hint-placeholder-val="">
+          <div style="flex:0 0 auto; padding:14px 20px calc(18px + env(safe-area-inset-bottom,0px)); display:flex; gap:11px; align-items:center; background:#fff; border-top:1px solid #ECEAF2; box-shadow:0 -6px 18px rgba(20,16,32,0.06);">
+            <sc-if value="{{ d.showAddToList }}" hint-placeholder-val="">
               <button onClick="{{ openPickList }}" style="flex:1; height:46px; border-radius:13px; background:var(--accent); border:none; color:#fff; font-size:14.5px; font-weight:600; cursor:pointer; font-family:inherit; display:flex; align-items:center; justify-content:center; gap:7px;"><span class="ms" style="font-size:19px;">playlist_add</span>Add to list</button>
             </sc-if>
-            <sc-if value="{{ d.notFromSearch }}" hint-placeholder-val="{{ true }}">
-              <sc-if value="{{ d.editing }}" hint-placeholder-val="">
-                <button onClick="{{ cancelEdit }}" style="flex:0 0 auto; width:96px; height:46px; border-radius:13px; background:#fff; border:1px solid #ECEAF2; color:#6A6775; font-size:14.5px; font-weight:600; cursor:pointer; font-family:inherit;">Cancel</button>
+            <sc-if value="{{ d.showListFooter }}" hint-placeholder-val="">
+              <sc-if value="{{ d.dirty }}" hint-placeholder-val="">
                 <button onClick="{{ saveEdit }}" style="flex:1; height:46px; border-radius:13px; background:var(--accent); border:none; color:#fff; font-size:14.5px; font-weight:700; cursor:pointer; font-family:inherit; display:flex; align-items:center; justify-content:center; gap:7px;"><span class="ms" style="font-size:19px;">check</span>Save changes</button>
               </sc-if>
-              <sc-if value="{{ d.notEditing }}" hint-placeholder-val="{{ true }}">
-                <button onClick="{{ openEdit }}" style="flex:1; height:46px; border-radius:13px; background:var(--accent); border:none; color:#fff; font-size:14.5px; font-weight:600; cursor:pointer; font-family:inherit; display:flex; align-items:center; justify-content:center; gap:7px;"><span class="ms" style="font-size:19px;">edit</span>Edit details</button>
-                <sc-if value="{{ d.inList }}" hint-placeholder-val="">
-                  <button onClick="{{ d.removeFromList }}" style="width:46px; height:46px; border-radius:13px; background:#fff; border:1px solid #ECEAF2; color:#C0353A; display:flex; align-items:center; justify-content:center; cursor:pointer;"><span class="ms" style="font-size:21px;">delete</span></button>
-                </sc-if>
+              <sc-if value="{{ d.notDirty }}" hint-placeholder-val="{{ true }}">
+                <div style="flex:1; font-size:12.5px; color:#B4B1C0;">Tap a field to edit · changes are private</div>
               </sc-if>
+              <button onClick="{{ d.removeFromList }}" aria-label="Remove from list" style="flex:0 0 auto; width:46px; height:46px; border-radius:13px; background:#fff; border:1px solid #ECEAF2; color:#6A6775; display:flex; align-items:center; justify-content:center; cursor:pointer;"><span class="ms" style="font-size:22px;">close</span></button>
             </sc-if>
           </div>
         </div>
@@ -728,10 +720,47 @@
           <div style="display:flex; justify-content:center; padding:9px 0 3px;"><div style="width:38px; height:5px; border-radius:99px; background:#E2DEEC;"></div></div>
           <div style="padding:8px 8px 0;">
             <button onClick="{{ menuRename }}" style="display:flex; align-items:center; gap:14px; width:100%; padding:15px 16px; background:none; border:none; cursor:pointer; font-family:inherit; text-align:left;"><span class="ms" style="font-size:22px; color:var(--accent);">edit</span><span style="font-size:15px; color:#1C1B22; font-weight:500;">Rename list</span></button>
-            <button onClick="{{ changeCoverForList }}" style="display:flex; align-items:center; gap:14px; width:100%; padding:15px 16px; background:none; border:none; cursor:pointer; font-family:inherit; text-align:left;"><span class="ms" style="font-size:22px; color:var(--accent);">image</span><span style="font-size:15px; color:#1C1B22; font-weight:500;">Change cover photo</span></button>
+            <button onClick="{{ openCoverEdit }}" style="display:flex; align-items:center; gap:14px; width:100%; padding:15px 16px; background:none; border:none; cursor:pointer; font-family:inherit; text-align:left;"><span class="ms" style="font-size:22px; color:var(--accent);">image</span><span style="font-size:15px; color:#1C1B22; font-weight:500;">Change cover</span></button>
             <button onClick="{{ addSubList }}" style="display:flex; align-items:center; gap:14px; width:100%; padding:15px 16px; background:none; border:none; cursor:pointer; font-family:inherit; text-align:left;"><span class="ms" style="font-size:22px; color:var(--accent);">create_new_folder</span><span style="font-size:15px; color:#1C1B22; font-weight:500;">Add a sub-list</span></button>
             <button onClick="{{ menuDelete }}" style="display:flex; align-items:center; gap:14px; width:100%; padding:15px 16px; background:none; border:none; border-top:1px solid #F2F1F6; cursor:pointer; font-family:inherit; text-align:left;"><span class="ms" style="font-size:22px; color:#C0353A;">delete</span><span style="font-size:15px; color:#C0353A; font-weight:500;">Delete list</span></button>
           </div>
+        </div>
+      </sc-if>
+
+      <!-- CHANGE COVER -->
+      <sc-if value="{{ showCoverEdit }}" hint-placeholder-val="">
+        <div onClick="{{ closeSheet }}" style="position:absolute; inset:0; background:rgba(20,16,32,0.42); z-index:48; animation:fadeIn 180ms ease;"></div>
+        <div style="position:absolute; left:0; right:0; bottom:0; background:#fff; border-radius:26px 26px 0 0; z-index:49; animation:sheetUp 280ms cubic-bezier(.2,.7,.2,1); box-shadow:0 -14px 44px rgba(20,16,32,0.24); padding:0 22px calc(26px + env(safe-area-inset-bottom,0px));">
+          <div style="display:flex; justify-content:center; padding:9px 0 14px;"><div style="width:38px; height:5px; border-radius:99px; background:#E2DEEC;"></div></div>
+          <div style="font-size:18px; font-weight:700; color:#1C1B22; margin-bottom:4px;">Change cover</div>
+          <div style="font-size:13px; color:#9C99A8; margin-bottom:18px;">Pick a colour or upload a photo.</div>
+          <div style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; color:#9C99A8; margin-bottom:9px;">Colour</div>
+          <div style="display:flex; gap:10px; margin-bottom:20px;">
+            <sc-for list="{{ coverEditSwatches }}" as="cov" hint-placeholder-count="5">
+              <button onClick="{{ cov.onPick }}" style="{{ cov.style }}"></button>
+            </sc-for>
+          </div>
+          <label style="display:flex; align-items:center; gap:13px; width:100%; padding:14px 16px; background:#F7F6FB; border:1px solid #ECEAF2; border-radius:14px; cursor:pointer; position:relative;">
+            <input type="file" accept="image/*" onChange="{{ onChangeCoverFile }}" style="position:absolute; inset:0; opacity:0; cursor:pointer; font-size:0;" />
+            <span class="ms" style="font-size:22px; color:var(--accent);">photo_camera</span>
+            <span style="font-size:15px; color:#1C1B22; font-weight:500;">Upload photo</span>
+          </label>
+          <button onClick="{{ pasteCoverUrl }}" style="display:flex; align-items:center; gap:13px; width:100%; padding:14px 16px; background:#fff; border:1px solid #ECEAF2; border-radius:14px; cursor:pointer; font-family:inherit; text-align:left; margin-top:10px;">
+            <span class="ms" style="font-size:22px; color:var(--accent);">link</span>
+            <span style="font-size:15px; color:#1C1B22; font-weight:500;">Paste URL</span>
+          </button>
+        </div>
+      </sc-if>
+
+      <!-- PASTE IMAGE URL -->
+      <sc-if value="{{ showUrlInput }}" hint-placeholder-val="">
+        <div onClick="{{ closeSheet }}" style="position:absolute; inset:0; background:rgba(20,16,32,0.42); z-index:50; animation:fadeIn 180ms ease;"></div>
+        <div style="position:absolute; left:0; right:0; bottom:0; background:#fff; border-radius:26px 26px 0 0; z-index:51; animation:sheetUp 280ms cubic-bezier(.2,.7,.2,1); box-shadow:0 -14px 44px rgba(20,16,32,0.24); padding:0 22px calc(26px + env(safe-area-inset-bottom,0px));">
+          <div style="display:flex; justify-content:center; padding:9px 0 14px;"><div style="width:38px; height:5px; border-radius:99px; background:#E2DEEC;"></div></div>
+          <div style="font-size:18px; font-weight:700; color:#1C1B22; margin-bottom:4px;">Paste image URL</div>
+          <div style="font-size:13px; color:#9C99A8; margin-bottom:16px;">A direct link to an image (ending in .jpg, .png, .webp).</div>
+          <input class="frpl-in" value="{{ urlValue }}" onChange="{{ onUrlValue }}" placeholder="https://…" type="url" inputmode="url" autocapitalize="off" style="width:100%; border:1.5px solid #ECEAF2; border-radius:13px; padding:14px 16px; color:#1C1B22; background:#fff;" />
+          <button onClick="{{ applyUrl }}" style="width:100%; height:50px; border-radius:13px; background:var(--accent); border:none; color:#fff; font-size:15px; font-weight:700; cursor:pointer; font-family:inherit; margin-top:14px;">Use this image</button>
         </div>
       </sc-if>
 
@@ -789,7 +818,7 @@ class Component extends DCLogic {
     sort: 'added', sortDir: 'asc', addQuery: '', libQuery: '',
     newName: '', newCover: 0, newParent: null, newCoverPhoto: null, coverBusy: false,
     manualName: '', manualBrand: '', manualYear: '', manualNote: '', manualPhoto: null, manualBusy: false, drawerPhotoBusy: false,
-    newCatName: '', renameValue: '', toast: null,
+    newCatName: '', renameValue: '', urlValue: '', urlTarget: null, toast: null,
   };
 
   async componentDidMount() {
@@ -862,24 +891,33 @@ class Component extends DCLogic {
 
   async loadUserData() {
     const sb = this._sb;
-    const [listsRes, entriesRes, catsRes, notesRes, customRes] = await Promise.all([
+    const uid = this.state.session.user.id;
+    const [listsRes, entriesRes, catsRes, notesRes, customRes, profileRes, communityRes] = await Promise.all([
       sb.from('lists').select('*').order('created_at'),
       sb.from('list_entries').select('*').order('position'),
       sb.from('categories').select('*').order('sort_order'),
       sb.from('user_perfume_notes').select('*'),
       sb.from('custom_perfumes').select('*'),
+      sb.from('profiles').select('is_admin').eq('id', uid).maybeSingle(),
+      sb.from('community_perfumes').select('*'),
     ]);
+    this._isAdmin = !!(profileRes && profileRes.data && profileRes.data.is_admin);
     const lists = {};
     for (const l of (listsRes.data||[])) lists[l.id] = { id:l.id, name:l.name, sectionId:l.section_id, parentId:l.parent_id||null, cover:[l.cover_start,l.cover_end], coverImage:l.cover_image_url||null, entries:[] };
     for (const e of (entriesRes.data||[])) { if (lists[e.list_id]) lists[e.list_id].entries.push({ perfumeId:e.perfume_id, tag:e.tag||null }); }
     const catById = { ...(this._catById||{}) };
-    for (const cp of (customRes.data||[])) catById[cp.id] = { id:cp.id, name:cp.name, brand:cp.brand||'Added manually', year:cp.year, rating:null, ratingCount:null, gender:'', thumb:cp.image_url||'', url:'', notes:{top:[],mid:[],base:[]}, reminds:[], manual:true };
+    // Shared, admin-curated catalogue — searchable by everyone
+    const communityArr = (communityRes && communityRes.data ? communityRes.data : []).map(cp => ({ id:cp.id, name:cp.name, brand:cp.brand||'', year:cp.year, rating:null, ratingCount:null, gender:'', thumb:cp.image_url||'', url:'', accords:cp.accords||[], notes:{top:cp.notes_top||[],mid:cp.notes_mid||[],base:cp.notes_base||[]}, reminds:[], community:true }));
+    for (const cp of communityArr) catById[cp.id] = cp;
+    // This user's private manual perfumes
+    const customArr = (customRes.data||[]).map(cp => ({ id:cp.id, name:cp.name, brand:cp.brand||'Added manually', year:cp.year, rating:null, ratingCount:null, gender:'', thumb:cp.image_url||'', url:'', notes:{top:[],mid:[],base:[]}, reminds:[], manual:true }));
+    for (const cp of customArr) catById[cp.id] = cp;
     const userData = {};
     for (const n of (notesRes.data||[])) userData[n.perfume_id] = { note:n.note, remindsOf:n.reminds_of, pricePaid:n.price_paid, priceTarget:n.price_target };
     const customCats = (catsRes.data||[]).map(c => ({ id:c.id, name:c.name, sub:'your category', custom:true }));
     const sections = [...this._fixedSections(), ...customCats];
     const activeSection = sections.find(s => s.id === this.state.activeSection) ? this.state.activeSection : 'totry';
-    this.setState({ lists, userData, sections, catById, catalogue: this._catalogue||[], activeSection });
+    this.setState({ lists, userData, sections, catById, catalogue: [...(this._catalogue||[]), ...communityArr, ...customArr], activeSection });
   }
 
   // ── auth ──
@@ -1007,11 +1045,13 @@ class Component extends DCLogic {
     const { error } = await this._sb.storage.from('images').upload(path, blob, { upsert:true, contentType:blob.type });
     if (error) throw error;
     const { data } = this._sb.storage.from('images').getPublicUrl(path);
-    return data.publicUrl + '?v=' + Date.now();
+    const url = data.publicUrl + '?v=' + Date.now();
+    // Preload so the image is in cache before we apply it — otherwise it only shows on the 2nd try (read-after-write lag).
+    await new Promise(res=>{ const im=new Image(); im.onload=()=>res(); im.onerror=()=>res(); im.src=url; setTimeout(res,4000); });
+    return url;
   }
   tagInfo(tag) {
     if (tag==='toget') return {label:'To get',text:'#BE343A',dot:'#E5484D',bg:'#FDECEC',border:'#F3CBCB',glow:'rgba(229,72,77,0.10)'};
-    if (tag==='travel') return {label:'Travel size',text:'#2560C0',dot:'#2F73E0',bg:'#EAF1FD',border:'#CFE0FB',glow:'rgba(47,115,224,0.10)'};
     return null;
   }
   sortedEntries(l) {
@@ -1048,7 +1088,7 @@ class Component extends DCLogic {
     else this.setState({view:'home',activeListId:null});
     this.resetScroll();
   }
-  openDrawer(pid,lid,fromSearch) { this.setState({drawerPerfumeId:pid,drawerListId:lid||null,drawerEdit:false,drawerFromSearch:!!fromSearch}); }
+  openDrawer(pid,lid,fromSearch) { const m=this.state.userData[pid]||{}; this.setState({drawerPerfumeId:pid,drawerListId:lid||null,drawerEdit:false,drawerFromSearch:!!fromSearch,editNote:m.note||'',editPrice:m.pricePaid||''}); }
   closeDrawer() { this.setState({drawerPerfumeId:null,drawerListId:null,drawerEdit:false,drawerFromSearch:false}); }
   // swipe-down to dismiss the drawer
   onGrabStart(e){ this._gy0=e.touches[0].clientY; this._gy=0; if(this._drawerSheet) this._drawerSheet.style.transition='none'; }
@@ -1079,7 +1119,6 @@ class Component extends DCLogic {
   async saveEdit() {
     const pid = this.state.drawerPerfumeId;
     await this.saveUserMeta(pid, { note: (this.state.editNote || '').trim(), pricePaid: (this.state.editPrice || '').trim() });
-    this.setState({ drawerEdit: false });
     this.toast('Saved');
   }
   openSimAdd() { this.setState({ sheet: 'simadd', simQuery: '' }); }
@@ -1135,19 +1174,55 @@ class Component extends DCLogic {
   }
   removeManualPhoto() { this._pendingBottleBlob=null; this.setState({manualPhoto:null}); }
   changeCoverForList() { this._coverTargetListId=this.state.activeListId; this.setState({sheet:null}); if(this._coverInput) this._coverInput.click(); }
+  openCoverEdit() { this._coverTargetListId=this.state.activeListId; this.setState({sheet:'coveredit'}); }
+  async applyCoverColor(i) {
+    const lid=this._coverTargetListId, l=this.state.lists[lid]; if(!l) return;
+    const c=this.covers()[i]; l.cover=c; l.coverImage=null; this.setState({sheet:null}); this.forceUpdate();
+    if(this._sb&&this.state.session) await this._sb.from('lists').update({cover_start:c[0],cover_end:c[1],cover_image_url:null}).eq('id',lid);
+    this.toast('Cover updated');
+  }
+  webImageInfo() { this.toast('Web image search is coming soon'); }
+  pasteCoverUrl() { this.openUrlSheet('cover'); }
+  pastePerfumeUrl() { this.openUrlSheet('perfume'); }
+  openUrlSheet(target) { this.setState({sheet:'urlinput', urlTarget:target, urlValue:''}); }
+  onUrlValue(e) { this.setState({urlValue:e.target.value}); }
+  async applyUrl() {
+    const s=this.state, url=(s.urlValue||'').trim(), target=s.urlTarget; if(!url) return;
+    this.setState({sheet:null}); this.toast('Loading image…');
+    const ok=await new Promise(res=>{ const im=new Image(); im.onload=()=>res(true); im.onerror=()=>res(false); im.src=url; setTimeout(()=>res(false),6000); });
+    if(!ok){ this.toast('Couldn\u2019t load that image URL'); return; }
+    if(target==='cover'){
+      const lid=this._coverTargetListId, l=s.lists[lid]; if(!l) return;
+      l.coverImage=url; this.forceUpdate();
+      if(this._sb&&s.session) await this._sb.from('lists').update({cover_image_url:url}).eq('id',lid);
+      this.toast('Cover updated');
+    } else {
+      const pid=s.drawerPerfumeId, p=s.catById[pid]; if(!p) return;
+      p.thumb=url; this.forceUpdate();
+      if(this._sb&&s.session){ const table=p.community?'community_perfumes':'custom_perfumes'; await this._sb.from(table).update({image_url:url}).eq('id',pid); }
+      this.toast('Photo updated');
+    }
+  }
   async onChangeCoverFile(e) {
     const file=e.target.files&&e.target.files[0]; e.target.value=''; const lid=this._coverTargetListId; if(!file||!lid) return;
     const l=this.state.lists[lid]; if(!l||!this._sb||!this.state.session) return;
-    this.toast('Uploading cover…');
+    this.setState({sheet:null}); this.toast('Uploading cover…');
     try { const {blob}=await this._resizeImage(file,1200,'image/jpeg',0.82); const url=await this._uploadImage('covers/'+this.state.session.user.id+'/'+lid+'.jpg', blob); l.coverImage=url; this.forceUpdate(); await this._sb.from('lists').update({cover_image_url:url}).eq('id',lid); this.toast('Cover updated'); }
     catch(err){ this.toast('Upload failed'); }
   }
   async onPickDrawerPhoto(e) {
     const file=e.target.files&&e.target.files[0]; e.target.value=''; if(!file) return;
-    const pid=this.state.drawerPerfumeId, p=this.state.catById[pid]; if(!p||!p.manual||!this._sb||!this.state.session) return;
+    const pid=this.state.drawerPerfumeId, p=this.state.catById[pid]; if(!p||!this._sb||!this.state.session) return;
+    const isCommunity=!!p.community, isManual=!!p.manual;
+    if (!isManual && !(isCommunity && this._isAdmin)) return;
     this.setState({drawerPhotoBusy:true});
-    try { const {blob}=await this._resizeImage(file,700,'image/jpeg',0.85); const url=await this._uploadImage('bottles/'+this.state.session.user.id+'/'+pid+'.jpg', blob); p.thumb=url; this.setState({drawerPhotoBusy:false}); this.forceUpdate(); await this._sb.from('custom_perfumes').update({image_url:url}).eq('id',pid); this.toast('Photo updated'); }
-    catch(err){ this.setState({drawerPhotoBusy:false}); this.toast('Upload failed'); }
+    try {
+      const {blob}=await this._resizeImage(file,700,'image/jpeg',0.85);
+      const url=await this._uploadImage('bottles/'+this.state.session.user.id+'/'+pid+'.jpg', blob);
+      p.thumb=url; this.setState({drawerPhotoBusy:false}); this.forceUpdate();
+      const table=isCommunity?'community_perfumes':'custom_perfumes';
+      await this._sb.from(table).update({image_url:url}).eq('id',pid); this.toast('Photo updated');
+    } catch(err){ this.setState({drawerPhotoBusy:false}); this.toast('Upload failed'); }
   }
   shareCurrent() { this.setState({sheet:null}); this.toast('Link copied'); }
   toast(m) { this.setState({toast:m}); clearTimeout(this._tt); this._tt=setTimeout(()=>this.setState({toast:null}),1900); }
@@ -1278,23 +1353,34 @@ class Component extends DCLogic {
     const brand=(s.manualBrand||'').trim()||'Added manually';
     const yi=parseInt((s.manualYear||'').replace(/[^\d]/g,''),10); const yr=isNaN(yi)?null:yi;
     const note=(s.manualNote||'').trim();
-    const id='cp_'+((window.crypto&&crypto.randomUUID)?crypto.randomUUID():(Date.now()+Math.random().toString(16).slice(2)));
+    const admin=!!this._isAdmin;
+    const id=(admin?'cm_':'cp_')+((window.crypto&&crypto.randomUUID)?crypto.randomUUID():(Date.now()+Math.random().toString(16).slice(2)));
     const blob=this._pendingBottleBlob; this._pendingBottleBlob=null;
     const targetListId=s.addTargetListId;
     this.setState({sheet:null, manualName:'',manualBrand:'',manualYear:'',manualNote:'',manualPhoto:null});
     let imageUrl='';
     if (blob && this._sb && s.session) { try { imageUrl=await this._uploadImage('bottles/'+s.session.user.id+'/'+id+'.jpg', blob); } catch(err){ this.toast('Image upload failed'); } }
-    s.catById[id]={id,name:nm,brand,year:yr,rating:null,ratingCount:null,gender:'',thumb:imageUrl,url:'',notes:{top:[],mid:[],base:[]},reminds:[],manual:true};
+    s.catById[id]={id,name:nm,brand,year:yr,rating:null,ratingCount:null,gender:'',thumb:imageUrl,url:'',notes:{top:[],mid:[],base:[]},reminds:[],manual:!admin,community:admin};
+    if (s.catalogue && !s.catalogue.some(p=>p.id===id)) s.catalogue.push(s.catById[id]);
     const l=s.lists[targetListId];
     if (l) l.entries.push({perfumeId:id,tag:null});
     this.forceUpdate();
     if (this._sb && s.session) {
-      const {error}=await this._sb.from('custom_perfumes').insert({id,user_id:s.session.user.id,name:nm,brand,year:yr,image_url:imageUrl||null});
-      if (error) { this.toast('Save error: '+error.message); }
+      let err;
+      if (admin) {
+        // Admin → write to the SHARED catalogue everyone can search
+        const {error}=await this._sb.from('community_perfumes').insert({id,name:nm,brand:brand==='Added manually'?null:brand,year:yr,image_url:imageUrl||null,created_by:s.session.user.id});
+        err=error;
+      } else {
+        // Regular user → private perfume
+        const {error}=await this._sb.from('custom_perfumes').insert({id,user_id:s.session.user.id,name:nm,brand,year:yr,image_url:imageUrl||null});
+        err=error;
+      }
+      if (err) { this.toast('Save error: '+err.message); }
       else if (l) { await this._sb.from('list_entries').insert({list_id:l.id,user_id:s.session.user.id,perfume_id:id,position:l.entries.length}); }
     }
     if (note) await this.saveUserMeta(id,{note});
-    this.toast('“'+nm+'” added');
+    this.toast(admin ? ('“'+nm+'” added to the catalogue') : ('“'+nm+'” added'));
   }
 
   // ── renderVals ──
@@ -1303,7 +1389,7 @@ class Component extends DCLogic {
     const palettes={iris:{a:'#785EAF',d:'#5A4691',l:'#9B82C9',t:'#F1ECF9'},lavender:{a:'#7A6AD8',d:'#574BB0',l:'#A99BEF',t:'#EFEDFB'},plum:{a:'#8E5AA8',d:'#6E4283',l:'#B98ECD',t:'#F4ECF8'},periwinkle:{a:'#6573C9',d:'#4A57A8',l:'#98A4E6',t:'#EDEFFB'}};
     const pal=palettes[this.props.accent]||palettes.iris;
     const accentVarsCss='--accent:'+pal.a+';--accent-deep:'+pal.d+';--accent-light:'+pal.l+';--accent-tint:'+pal.t+';';
-    const blank={accentVarsCss,scrollRef:(el)=>{this._scroll=el;},showInitializing:s.appState==='initializing'||s.appState==='loading',showAuth:s.appState==='auth',showHome:false,showList:false,showSearch:false,showSettings:false,showFab:false,drawerOpen:false,showAddSheet:false,showManual:false,showNewList:false,showNewCat:false,showSort:false,showListMenu:false,showRenameList:false,showDeleteList:false,showSimAdd:false,showPickList:false,pickListOptions:[],simResults:[],simNoResults:false,simPrompt:false,simQuery:'',renameValue:'',deleteListName:'',deleteListWarning:'',toastVisible:false,loadError:s.loadError||'',...this._authVals(),homeTabs:[],activeCards:[],activeSecSub:'',activeSecCount:'',activeSectionEmpty:false,activeSectionHasCards:false,activeEmptyMsg:'',listModel:{d:{},accords:[],top:[],heart:[],base:[],similar:[]},addResults:[],searchResults:[],searchChips:[],newCovers:[],sortOptions:[],newName:'',newCatName:'',newContext:'',newTitle:'',addQuery:'',libQuery:'',addTitle:'',addNoResults:false,searchEmpty:true,searchHasResults:false,searchNoResults:false,searchCountLabel:'',catalogueCount:'',userEmail:'',userInitial:'',signOut:()=>this.signOut(),goHome:()=>this.goHome(),openSearch:()=>this.openSearch(),openSettings:()=>this.openSettings(),openNewCat:()=>this.openNewCat(),openNewListTop:()=>this.openNewList(null),coverInputRef:(el)=>{this._coverInput=el;},onChangeCoverFile:(e)=>this.onChangeCoverFile(e)};
+    const blank={accentVarsCss,scrollRef:(el)=>{this._scroll=el;},showInitializing:s.appState==='initializing'||s.appState==='loading',showAuth:s.appState==='auth',showHome:false,showList:false,showSearch:false,showSettings:false,showFab:false,drawerOpen:false,showAddSheet:false,showManual:false,showNewList:false,showNewCat:false,showSort:false,showListMenu:false,showRenameList:false,showDeleteList:false,showCoverEdit:false,showUrlInput:false,showSimAdd:false,showPickList:false,pickListOptions:[],simResults:[],simNoResults:false,simPrompt:false,simQuery:'',renameValue:'',deleteListName:'',deleteListWarning:'',toastVisible:false,loadError:s.loadError||'',...this._authVals(),homeTabs:[],activeCards:[],activeSecSub:'',activeSecCount:'',activeSectionEmpty:false,activeSectionHasCards:false,activeEmptyMsg:'',listModel:{d:{},accords:[],top:[],heart:[],base:[],similar:[]},addResults:[],searchResults:[],searchChips:[],newCovers:[],sortOptions:[],newName:'',newCatName:'',newContext:'',newTitle:'',addQuery:'',libQuery:'',addTitle:'',addNoResults:false,searchEmpty:true,searchHasResults:false,searchNoResults:false,searchCountLabel:'',catalogueCount:'',userEmail:'',userInitial:'',signOut:()=>this.signOut(),goHome:()=>this.goHome(),openSearch:()=>this.openSearch(),openSettings:()=>this.openSettings(),openNewCat:()=>this.openNewCat(),openNewListTop:()=>this.openNewList(null),coverInputRef:(el)=>{this._coverInput=el;},onChangeCoverFile:(e)=>this.onChangeCoverFile(e)};
     if (s.appState!=='ready') return blank;
 
     const allLists=Object.values(lists), topLists=allLists.filter(l=>!l.parentId);
@@ -1316,7 +1402,7 @@ class Component extends DCLogic {
     const homeTabs=s.sections.map(sec=>{const active=sec.id===s.activeSection;return{name:sec.name,active,style:'flex:0 0 auto;padding:9px 16px;border-radius:999px;font-size:13.5px;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap;'+(active?'background:var(--accent);border:1px solid var(--accent);color:#fff;':'background:#F2F1F6;border:1px solid #F2F1F6;color:#6A6775;'),onSelect:()=>this.selectSection(sec.id)};});
     const activeSec=s.sections.find(x=>x.id===s.activeSection)||s.sections[0];
     const activeTop=topLists.filter(l=>l.sectionId===activeSec.id);
-    const activeCards=activeTop.map(l=>{const sc=allLists.filter(x=>x.parentId===l.id).length,fp=l.entries.length?pidOf(l.entries[0]):null,fi=fp?fp.thumb:'';let cl=l.entries.length+(l.entries.length===1?' perfume':' perfumes');if(sc)cl+=' · '+sc+(sc===1?' sub-list':' sub-lists');return{name:l.name,countLabel:cl,coverCss:this.coverCss(l.cover),hasCover:!!l.coverImage,coverBgCss:l.coverImage?('url("'+l.coverImage+'") center/cover no-repeat'):(l.entries.length===0?'var(--accent-tint)':'#fff'),thumbBg:l.entries.length===0?'var(--accent-tint)':'#fff',bottleEl:mkImg(fi,ST.card),bottleImg:fi,showBottle:!l.coverImage&&!!fi,showEmptyIcon:!l.coverImage&&l.entries.length===0,empty:l.entries.length===0,onOpen:()=>this.openList(l.id)};});
+    const activeCards=activeTop.map(l=>{const sc=allLists.filter(x=>x.parentId===l.id).length,fp=l.entries.length?pidOf(l.entries[0]):null,fi=fp?fp.thumb:'';let cl=l.entries.length+(l.entries.length===1?' perfume':' perfumes');if(sc)cl+=' · '+sc+(sc===1?' sub-list':' sub-lists');return{name:l.name,countLabel:cl,coverCss:this.coverCss(l.cover),hasCover:!!l.coverImage,coverBgCss:l.coverImage?('url("'+l.coverImage+'") center/cover no-repeat'):this.coverCss(l.cover),thumbBg:l.entries.length===0?'var(--accent-tint)':'#fff',bottleEl:mkImg(fi,ST.card),bottleImg:fi,showBottle:false,showEmptyIcon:false,empty:l.entries.length===0,onOpen:()=>this.openList(l.id)};});
     const secPerf=activeTop.reduce((n,l)=>n+l.entries.length,0);
     const activeSecCount=activeTop.length+(activeTop.length===1?' list · ':' lists · ')+secPerf+(secPerf===1?' perfume':' perfumes');
     const emptyMsgs={owned:'Start by creating a list for your owned fragrances.',totry:'Save fragrances you want to discover or buy.',favnotes:'Group perfumes by ingredients you love.'};
@@ -1345,7 +1431,7 @@ class Component extends DCLogic {
     // drawer
     const p=s.drawerPerfumeId?cat[s.drawerPerfumeId]:null;
     const drawerOpen=!!p;
-    let d={img:'',imgEl:null,noImg:true,name:'',house:'',metaLine:'',inList:false,accords:[],hasAccords:false,top:['—'],heart:['—'],base:['—'],showPrice:false,pricePaidLabel:'Not set',priceColor:'#B4B1C0',noteText:'',noteColor:'#B4B1C0',editing:false,notEditing:true,togetBtnStyle:'',travelBtnStyle:'',showSimilar:false,similarEmpty:false,similar:[],removeFromList:()=>{},fromSearch:false,notFromSearch:true,showNotes:true,canEditPhoto:false};
+    let d={img:'',imgEl:null,noImg:true,name:'',house:'',metaLine:'',inList:false,fromSearch:false,accords:[],hasAccords:false,top:['—'],heart:['—'],base:['—'],showToGet:false,showNotesEdit:false,showPriceEdit:false,simControls:false,showAddToList:false,showListFooter:false,dirty:false,notDirty:true,togetBtnStyle:'',toggleToGet:()=>{},showSimilar:false,similarEmpty:false,similar:[],removeFromList:()=>{},canEditPhoto:false};
     if (drawerOpen) {
       const inList=!!s.drawerListId;
       let curTag=null;
@@ -1360,9 +1446,10 @@ class Component extends DCLogic {
       const userSim=userSimIds.map(id=>{const cp=cat[id];return cp?{id,name:cp.name,house:cp.brand,img:cp.thumb}:null;}).filter(Boolean);
       const seen=new Set();const merged=[];
       for (const it of [...datasetSim,...userSim]){if(it.id&&seen.has(it.id))continue;if(it.id)seen.add(it.id);merged.push({...it,removable:!!(it.id&&userSimIds.includes(it.id))});}
-      const similar=merged.map(r=>({name:r.name,house:r.house,img:r.img,imgEl:mkImg(r.img,ST.sim),onOpen:r.id?(()=>this.openDrawer(r.id,s.drawerListId)):(()=>{}),showRemove:s.drawerEdit&&r.removable,onRemove:()=>this.removeSimilar(r.id)}));
+      const similar=merged.map(r=>({name:r.name,house:r.house,img:r.img,imgEl:mkImg(r.img,ST.sim),onOpen:r.id?(()=>this.openDrawer(r.id,s.drawerListId)):(()=>{}),showRemove:inList&&r.removable,onRemove:()=>this.removeSimilar(r.id)}));
       const fb=a=>(a&&a.length?a:['—']);
-      d={name:p.name,house:p.brand||'—',metaLine,img:p.thumb,imgEl:mkImg(p.thumb,ST.drawer),noImg:!p.thumb,inList,accords:p.accords||[],hasAccords:!!(p.accords&&p.accords.length),top:fb(p.notes.top),heart:fb(p.notes.mid),base:fb(p.notes.base),showPrice:isOwned,pricePaidLabel:meta.pricePaid||'Not set',priceColor:meta.pricePaid?'#1C1B22':'#B4B1C0',noteText:meta.note||'No personal notes yet. Tap edit to add.',noteColor:meta.note?'#3A3845':'#B4B1C0',editing:s.drawerEdit,notEditing:!s.drawerEdit,togetBtnStyle:bs+(curTag==='toget'?'border:1.5px solid #E5484D;background:#FDECEC;color:#BE343A;':'border:1.5px solid #ECEAF2;background:#fff;color:#6A6775;'),travelBtnStyle:bs+(curTag==='travel'?'border:1.5px solid #2F73E0;background:#EAF1FD;color:#2560C0;':'border:1.5px solid #ECEAF2;background:#fff;color:#6A6775;'),toggleToGet:()=>this.toggleTag(p.id,s.drawerListId,'toget'),toggleTravel:()=>this.toggleTag(p.id,s.drawerListId,'travel'),showSimilar:(similar.length>0||s.drawerEdit),similarEmpty:(s.drawerEdit&&similar.length===0),similar,removeFromList:()=>this.removeFromList(),fromSearch:s.drawerFromSearch,notFromSearch:!s.drawerFromSearch,showNotes:!s.drawerFromSearch,canEditPhoto:(s.drawerEdit&&!!p.manual)};
+      const noteDirty=(s.editNote||'')!==(meta.note||''); const priceDirty=isOwned&&((s.editPrice||'')!==(meta.pricePaid||'')); const isDirty=inList&&(noteDirty||priceDirty);
+      d={name:p.name,house:p.brand||'—',metaLine,img:p.thumb,imgEl:mkImg(p.thumb,ST.drawer),noImg:!p.thumb,inList,fromSearch:s.drawerFromSearch,accords:p.accords||[],hasAccords:!!(p.accords&&p.accords.length),top:fb(p.notes.top),heart:fb(p.notes.mid),base:fb(p.notes.base),showToGet:inList,showNotesEdit:inList,showPriceEdit:(inList&&isOwned),togetBtnStyle:bs+(curTag==='toget'?'border:1.5px solid #E5484D;background:#FDECEC;color:#BE343A;':'border:1.5px solid #ECEAF2;background:#fff;color:#6A6775;'),toggleToGet:()=>this.toggleTag(p.id,s.drawerListId,'toget'),showSimilar:(similar.length>0||inList),simControls:inList,similarEmpty:(inList&&similar.length===0),similar,removeFromList:()=>this.removeFromList(),showAddToList:s.drawerFromSearch,showListFooter:inList,dirty:isDirty,notDirty:!isDirty,canEditPhoto:(inList&&(!!p.manual||(!!p.community&&!!this._isAdmin)))};
     }
 
     // add sheet
@@ -1417,6 +1504,8 @@ class Component extends DCLogic {
     const newCoverHasPhoto=!!s.newCoverPhoto;
     const newCoverTileBg=s.newCoverPhoto?('url("'+s.newCoverPhoto+'") center/cover no-repeat'):'#F4F1FA';
     const newCoverTileBorder=s.newCoverPhoto?'2.5px solid var(--accent-deep)':'1.5px dashed #C9C4D8';
+    const coverEditList=lists[this._coverTargetListId];
+    const coverEditSwatches=this.covers().map((c,i)=>{const active=coverEditList&&!coverEditList.coverImage&&coverEditList.cover&&coverEditList.cover[0]===c[0]&&coverEditList.cover[1]===c[1];return{onPick:()=>this.applyCoverColor(i),style:'width:46px;height:46px;border-radius:13px;cursor:pointer;background-image:'+this.coverCss(c)+';'+(active?'border:2.5px solid var(--accent-deep);box-shadow:0 0 0 2px #fff inset;':'border:2.5px solid transparent;')};});
     const sortDefs=[{id:'added',label:'Date added'},{id:'name',label:'Name'},{id:'brand',label:'Brand name'},{id:'release',label:'Release year'}];
     const dirText={added:{asc:'Oldest first',desc:'Newest first'},name:{asc:'A → Z',desc:'Z → A'},brand:{asc:'A → Z',desc:'Z → A'},release:{asc:'Oldest first',desc:'Newest first'}};
     const sortOptions=sortDefs.map(o=>{const active=s.sort===o.id;return{label:o.label,active,color:active?'#1C1B22':'#3A3845',dirLabel:active?dirText[o.id][s.sortDir]:'',dirIcon:s.sortDir==='asc'?'arrow_upward':'arrow_downward',onPick:()=>this.setSort(o.id)};});
@@ -1468,6 +1557,8 @@ class Component extends DCLogic {
       onPickCoverPhoto:(e)=>this.onPickCoverPhoto(e), removeCoverPhoto:()=>this.removeCoverPhoto(),
       newCoverHasPhoto, newCoverNoPhoto:!s.newCoverPhoto, newCoverTileBg, newCoverTileBorder,
       changeCoverForList:()=>this.changeCoverForList(), coverInputRef:(el)=>{this._coverInput=el;}, onChangeCoverFile:(e)=>this.onChangeCoverFile(e),
+      openCoverEdit:()=>this.openCoverEdit(), showCoverEdit:s.sheet==='coveredit', coverEditSwatches, applyCoverColor:(i)=>this.applyCoverColor(i), webImageInfo:()=>this.webImageInfo(),
+      pasteCoverUrl:()=>this.pasteCoverUrl(), pastePerfumeUrl:()=>this.pastePerfumeUrl(), showUrlInput:s.sheet==='urlinput', urlValue:s.urlValue, onUrlValue:(e)=>this.onUrlValue(e), applyUrl:()=>this.applyUrl(),
       onPickDrawerPhoto:(e)=>this.onPickDrawerPhoto(e),
       ...this._authVals(),
       menuRename:()=>this.openRename(),
