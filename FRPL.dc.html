@@ -173,9 +173,9 @@
               <div style="padding:0 20px; display:grid; grid-template-columns:1fr 1fr; gap:13px;">
                 <sc-for list="{{ activeCards }}" as="card" hint-placeholder-count="4">
                   <button onClick="{{ card.onOpen }}" style="text-align:left; border:1px solid #ECEAF2; background:#fff; border-radius:18px; overflow:hidden; padding:0; cursor:pointer; box-shadow:0 1px 2px rgba(28,27,34,0.04), 0 7px 18px -6px rgba(28,27,34,0.10); display:flex; flex-direction:column; font-family:inherit;">
-                    <div style="height:96px; display:flex; align-items:center; justify-content:center; background:{{ card.thumbBg }}; border-bottom:1px solid #F1EFF6;">
-                      <sc-if value="{{ card.bottleImg }}" hint-placeholder-val="">{{ card.bottleEl }}</sc-if>
-                      <sc-if value="{{ card.empty }}" hint-placeholder-val=""><span class="ms" style="font-size:28px; color:var(--accent-light);">add_photo_alternate</span></sc-if>
+                    <div style="height:96px; display:flex; align-items:center; justify-content:center; background:{{ card.coverBgCss }}; border-bottom:1px solid #F1EFF6;">
+                      <sc-if value="{{ card.showBottle }}" hint-placeholder-val="">{{ card.bottleEl }}</sc-if>
+                      <sc-if value="{{ card.showEmptyIcon }}" hint-placeholder-val=""><span class="ms" style="font-size:28px; color:var(--accent-light);">add_photo_alternate</span></sc-if>
                     </div>
                     <div style="padding:11px 13px 13px;">
                       <div style="font-size:14.5px; font-weight:600; color:#1C1B22; line-height:1.25;">{{ card.name }}</div>
@@ -195,7 +195,7 @@
         <!-- ============ LIST VIEW ============ -->
         <sc-if value="{{ showList }}" hint-placeholder-val="">
           <div style="padding:0 0 120px;">
-            <div style="position:relative; min-height:156px; background-image:{{ listModel.coverCss }}; padding:0 16px; display:flex; flex-direction:column;">
+            <div style="position:relative; min-height:156px; background-image:{{ listModel.coverCss }}; background-size:cover; background-position:center; background-repeat:no-repeat; padding:0 16px; display:flex; flex-direction:column;">
               <div style="display:flex; align-items:center; justify-content:space-between; padding-top:8px;">
                 <button onClick="{{ back }}" style="width:36px; height:36px; border-radius:50%; background:rgba(255,255,255,0.24); backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); border:none; color:#fff; display:flex; align-items:center; justify-content:center; cursor:pointer;"><span class="ms" style="font-size:21px;">arrow_back_ios_new</span></button>
                 <div style="display:flex; gap:8px;">
@@ -216,7 +216,7 @@
                 <div class="appscroll" style="display:flex; gap:10px; overflow-x:auto; padding-bottom:2px;">
                   <sc-for list="{{ listModel.subLists }}" as="sl" hint-placeholder-count="2">
                     <button onClick="{{ sl.onOpen }}" style="flex:0 0 auto; display:flex; align-items:center; gap:10px; background:#F7F6FB; border:1px solid #ECEAF2; border-radius:14px; padding:8px 14px 8px 8px; cursor:pointer; font-family:inherit;">
-                      <span style="width:32px; height:32px; border-radius:9px; background-image:{{ sl.coverCss }}; display:block; flex:0 0 auto;"></span>
+                      <span style="width:32px; height:32px; border-radius:9px; background-image:{{ sl.coverCss }}; background-size:cover; background-position:center; display:block; flex:0 0 auto;"></span>
                       <span style="text-align:left;">
                         <span style="display:block; font-size:13px; font-weight:600; color:#1C1B22;">{{ sl.name }}</span>
                         <span style="display:block; font-size:11px; color:#9C99A8; margin-top:1px;">{{ sl.countLabel }}</span>
@@ -300,7 +300,7 @@
               <div style="padding:0 16px;">
                 <sc-for list="{{ searchResults }}" as="r" hint-placeholder-count="5">
                   <button onClick="{{ r.onOpen }}" style="display:flex; align-items:center; gap:12px; padding:11px 8px; background:none; border:none; border-bottom:1px solid #F2F1F6; width:100%; cursor:pointer; font-family:inherit; text-align:left;">
-                    <span style="width:48px; height:48px; border-radius:12px; background:#F4F1FA; display:flex; align-items:center; justify-content:center; flex:0 0 auto; overflow:hidden;"><sc-if value="{{ r.img }}" hint-placeholder-val="">{{ r.imgEl }}</sc-if></span>
+                    <span style="width:48px; height:48px; border-radius:12px; background:#fff; display:flex; align-items:center; justify-content:center; flex:0 0 auto; overflow:hidden;"><sc-if value="{{ r.img }}" hint-placeholder-val="">{{ r.imgEl }}</sc-if></span>
                     <span style="flex:1; min-width:0;">
                       <span style="display:block; font-size:15px; font-weight:600; color:#1C1B22;">{{ r.name }}</span>
                       <span style="display:block; font-size:12.5px; color:#9C99A8; margin-top:2px;">{{ r.sub }}</span>
@@ -368,6 +368,9 @@
 
       </div>
 
+      <!-- hidden input for "Change cover photo" from the list menu -->
+      <input type="file" accept="image/*" ref="{{ coverInputRef }}" onChange="{{ onChangeCoverFile }}" style="position:absolute; width:0; height:0; opacity:0; pointer-events:none;" />
+
       <!-- FAB -->
       <sc-if value="{{ showFab }}" hint-placeholder-val="">
         <button onClick="{{ openAdd }}" style="position:absolute; right:20px; bottom:28px; width:56px; height:56px; border-radius:50%; background:var(--accent); border:none; color:#fff; display:flex; align-items:center; justify-content:center; cursor:pointer; z-index:30; box-shadow:0 10px 24px -4px rgba(120,94,175,0.5), 0 4px 8px rgba(28,27,34,0.12);"><span class="ms" style="font-size:28px;">add</span></button>
@@ -380,9 +383,15 @@
           <div onTouchStart="{{ onGrabStart }}" onTouchMove="{{ onGrabMove }}" onTouchEnd="{{ onGrabEnd }}" style="flex:0 0 auto; display:flex; justify-content:center; padding:11px 0 9px; cursor:grab; touch-action:none;"><div style="width:38px; height:5px; border-radius:99px; background:#E2DEEC;"></div></div>
           <div class="appscroll" style="overflow-y:auto; flex:1;">
             <div style="position:relative; padding:16px 20px 18px; background:#fff; border-bottom:1px solid #ECEAF2; display:flex; align-items:center; gap:16px;">
-              <div style="width:92px; height:110px; display:flex; align-items:center; justify-content:center; flex:0 0 auto;">
+              <div style="position:relative; width:92px; height:110px; display:flex; align-items:center; justify-content:center; flex:0 0 auto;">
                 <sc-if value="{{ d.img }}" hint-placeholder-val="">{{ d.imgEl }}</sc-if>
                 <sc-if value="{{ d.noImg }}" hint-placeholder-val=""><span class="ms" style="font-size:54px; color:var(--accent-light);">water_drop</span></sc-if>
+                <sc-if value="{{ d.canEditPhoto }}" hint-placeholder-val="">
+                  <label style="position:absolute; inset:0; display:flex; align-items:flex-end; justify-content:center; cursor:pointer;">
+                    <input type="file" accept="image/*" onChange="{{ onPickDrawerPhoto }}" style="position:absolute; inset:0; opacity:0; cursor:pointer; font-size:0;" />
+                    <span style="font-size:10px; font-weight:700; color:#fff; background:var(--accent); padding:3px 9px; border-radius:999px; display:flex; align-items:center; gap:3px;"><span class="ms" style="font-size:13px;">photo_camera</span>Photo</span>
+                  </label>
+                </sc-if>
               </div>
               <div style="flex:1; min-width:0;">
                 <div style="font-size:11px; font-weight:700; letter-spacing:0.05em; text-transform:uppercase; color:var(--accent-deep);">{{ d.house }}</div>
@@ -438,15 +447,17 @@
               </div>
             </sc-if>
 
-            <div style="padding:18px 20px 4px;">
-              <div style="font-size:11px; font-weight:700; letter-spacing:0.06em; text-transform:uppercase; color:#9C99A8;">Your notes</div>
-              <sc-if value="{{ d.editing }}" hint-placeholder-val="">
-                <textarea class="frpl-in" value="{{ editNote }}" onChange="{{ onEditNote }}" placeholder="A personal note — how it wears, when you reach for it…" rows="4" style="margin-top:10px; width:100%; box-sizing:border-box; resize:none; background:#F7F6FB; border:1px solid #ECEAF2; border-radius:14px; padding:13px 15px; line-height:1.55; color:#3A3845;"></textarea>
-              </sc-if>
-              <sc-if value="{{ d.notEditing }}" hint-placeholder-val="{{ true }}">
-                <div style="margin-top:10px; background:#F7F6FB; border:1px solid #ECEAF2; border-radius:14px; padding:13px 15px; font-size:14px; line-height:1.55; color:{{ d.noteColor }}; white-space:pre-wrap;">{{ d.noteText }}</div>
-              </sc-if>
-            </div>
+            <sc-if value="{{ d.showNotes }}" hint-placeholder-val="{{ true }}">
+              <div style="padding:18px 20px 4px;">
+                <div style="font-size:11px; font-weight:700; letter-spacing:0.06em; text-transform:uppercase; color:#9C99A8;">Your notes</div>
+                <sc-if value="{{ d.editing }}" hint-placeholder-val="">
+                  <textarea class="frpl-in" value="{{ editNote }}" onChange="{{ onEditNote }}" placeholder="A personal note — how it wears, when you reach for it…" rows="4" style="margin-top:10px; width:100%; box-sizing:border-box; resize:none; background:#F7F6FB; border:1px solid #ECEAF2; border-radius:14px; padding:13px 15px; line-height:1.55; color:#3A3845;"></textarea>
+                </sc-if>
+                <sc-if value="{{ d.notEditing }}" hint-placeholder-val="{{ true }}">
+                  <div style="margin-top:10px; background:#F7F6FB; border:1px solid #ECEAF2; border-radius:14px; padding:13px 15px; font-size:14px; line-height:1.55; color:{{ d.noteColor }}; white-space:pre-wrap;">{{ d.noteText }}</div>
+                </sc-if>
+              </div>
+            </sc-if>
 
             <sc-if value="{{ d.showSimilar }}" hint-placeholder-val="">
               <div style="padding:18px 20px 4px;">
@@ -480,16 +491,48 @@
           </div>
 
           <div style="flex:0 0 auto; padding:14px 20px calc(18px + env(safe-area-inset-bottom,0px)); display:flex; gap:11px; background:#fff; border-top:1px solid #ECEAF2; box-shadow:0 -6px 18px rgba(20,16,32,0.06);">
-            <sc-if value="{{ d.editing }}" hint-placeholder-val="">
-              <button onClick="{{ cancelEdit }}" style="flex:0 0 auto; width:96px; height:46px; border-radius:13px; background:#fff; border:1px solid #ECEAF2; color:#6A6775; font-size:14.5px; font-weight:600; cursor:pointer; font-family:inherit;">Cancel</button>
-              <button onClick="{{ saveEdit }}" style="flex:1; height:46px; border-radius:13px; background:var(--accent); border:none; color:#fff; font-size:14.5px; font-weight:700; cursor:pointer; font-family:inherit; display:flex; align-items:center; justify-content:center; gap:7px;"><span class="ms" style="font-size:19px;">check</span>Save changes</button>
+            <sc-if value="{{ d.fromSearch }}" hint-placeholder-val="">
+              <button onClick="{{ openPickList }}" style="flex:1; height:46px; border-radius:13px; background:var(--accent); border:none; color:#fff; font-size:14.5px; font-weight:600; cursor:pointer; font-family:inherit; display:flex; align-items:center; justify-content:center; gap:7px;"><span class="ms" style="font-size:19px;">playlist_add</span>Add to list</button>
             </sc-if>
-            <sc-if value="{{ d.notEditing }}" hint-placeholder-val="{{ true }}">
-              <button onClick="{{ openEdit }}" style="flex:1; height:46px; border-radius:13px; background:var(--accent); border:none; color:#fff; font-size:14.5px; font-weight:600; cursor:pointer; font-family:inherit; display:flex; align-items:center; justify-content:center; gap:7px;"><span class="ms" style="font-size:19px;">edit</span>Edit details</button>
-              <sc-if value="{{ d.inList }}" hint-placeholder-val="">
-                <button onClick="{{ d.removeFromList }}" style="width:46px; height:46px; border-radius:13px; background:#fff; border:1px solid #ECEAF2; color:#C0353A; display:flex; align-items:center; justify-content:center; cursor:pointer;"><span class="ms" style="font-size:21px;">delete</span></button>
+            <sc-if value="{{ d.notFromSearch }}" hint-placeholder-val="{{ true }}">
+              <sc-if value="{{ d.editing }}" hint-placeholder-val="">
+                <button onClick="{{ cancelEdit }}" style="flex:0 0 auto; width:96px; height:46px; border-radius:13px; background:#fff; border:1px solid #ECEAF2; color:#6A6775; font-size:14.5px; font-weight:600; cursor:pointer; font-family:inherit;">Cancel</button>
+                <button onClick="{{ saveEdit }}" style="flex:1; height:46px; border-radius:13px; background:var(--accent); border:none; color:#fff; font-size:14.5px; font-weight:700; cursor:pointer; font-family:inherit; display:flex; align-items:center; justify-content:center; gap:7px;"><span class="ms" style="font-size:19px;">check</span>Save changes</button>
+              </sc-if>
+              <sc-if value="{{ d.notEditing }}" hint-placeholder-val="{{ true }}">
+                <button onClick="{{ openEdit }}" style="flex:1; height:46px; border-radius:13px; background:var(--accent); border:none; color:#fff; font-size:14.5px; font-weight:600; cursor:pointer; font-family:inherit; display:flex; align-items:center; justify-content:center; gap:7px;"><span class="ms" style="font-size:19px;">edit</span>Edit details</button>
+                <sc-if value="{{ d.inList }}" hint-placeholder-val="">
+                  <button onClick="{{ d.removeFromList }}" style="width:46px; height:46px; border-radius:13px; background:#fff; border:1px solid #ECEAF2; color:#C0353A; display:flex; align-items:center; justify-content:center; cursor:pointer;"><span class="ms" style="font-size:21px;">delete</span></button>
+                </sc-if>
               </sc-if>
             </sc-if>
+          </div>
+        </div>
+      </sc-if>
+
+      <!-- PICK LIST SHEET (add a searched perfume to a list) -->
+      <sc-if value="{{ showPickList }}" hint-placeholder-val="">
+        <div onClick="{{ closeSheet }}" style="position:absolute; inset:0; background:rgba(20,16,32,0.42); z-index:46; animation:fadeIn 180ms ease;"></div>
+        <div style="position:absolute; left:0; right:0; bottom:0; height:74%; background:#fff; border-radius:26px 26px 0 0; z-index:47; display:flex; flex-direction:column; animation:sheetUp 300ms cubic-bezier(.2,.7,.2,1); box-shadow:0 -14px 44px rgba(20,16,32,0.24); overflow:hidden;">
+          <div style="flex:0 0 auto; display:flex; justify-content:center; padding:9px 0 3px;"><div style="width:38px; height:5px; border-radius:99px; background:#E2DEEC;"></div></div>
+          <div style="flex:0 0 auto; display:flex; align-items:center; justify-content:space-between; padding:6px 20px 12px;">
+            <div style="font-size:18px; font-weight:700; color:#1C1B22;">Add to list</div>
+            <button onClick="{{ closeSheet }}" style="width:32px; height:32px; border-radius:50%; background:#F2F1F6; border:none; color:#6A6775; display:flex; align-items:center; justify-content:center; cursor:pointer;"><span class="ms" style="font-size:20px;">close</span></button>
+          </div>
+          <div style="flex:0 0 auto; padding:0 16px 10px;">
+            <button onClick="{{ createListWithPerfume }}" style="width:100%; height:48px; border-radius:14px; background:#fff; border:1.5px dashed #D8D4E4; color:var(--accent); font-size:14.5px; font-weight:600; cursor:pointer; font-family:inherit; display:flex; align-items:center; justify-content:center; gap:8px;"><span class="ms" style="font-size:20px;">add</span>Create a new list</button>
+          </div>
+          <div class="appscroll" style="flex:1; overflow-y:auto; padding:0 16px 16px;">
+            <sc-for list="{{ pickListOptions }}" as="o" hint-placeholder-count="4">
+              <button onClick="{{ o.onPick }}" style="display:flex; align-items:center; gap:12px; padding:14px 8px; background:none; border:none; border-bottom:1px solid #F2F1F6; width:100%; cursor:pointer; font-family:inherit; text-align:left;">
+                <span style="flex:1; min-width:0;">
+                  <span style="display:block; font-size:15px; font-weight:600; color:{{ o.nameColor }};">{{ o.name }}</span>
+                  <span style="display:block; font-size:12px; color:#9C99A8; margin-top:2px;">{{ o.meta }}</span>
+                </span>
+                <sc-if value="{{ o.already }}" hint-placeholder-val=""><span class="ms" style="font-size:20px; color:#4F9D6B;">check_circle</span></sc-if>
+                <sc-if value="{{ o.notAlready }}" hint-placeholder-val="{{ true }}"><span class="ms" style="font-size:21px; color:var(--accent);">add_circle</span></sc-if>
+              </button>
+            </sc-for>
           </div>
         </div>
       </sc-if>
@@ -510,7 +553,7 @@
           <div class="appscroll" style="flex:1; overflow-y:auto; padding:0 16px;">
             <sc-for list="{{ simResults }}" as="r" hint-placeholder-count="5">
               <div style="display:flex; align-items:center; gap:12px; padding:11px 8px; border-bottom:1px solid #F2F1F6;">
-                <span style="width:46px; height:46px; border-radius:12px; background:#F4F1FA; display:flex; align-items:center; justify-content:center; flex:0 0 auto; overflow:hidden;"><sc-if value="{{ r.img }}" hint-placeholder-val="">{{ r.imgEl }}</sc-if></span>
+                <span style="width:46px; height:46px; border-radius:12px; background:#fff; display:flex; align-items:center; justify-content:center; flex:0 0 auto; overflow:hidden;"><sc-if value="{{ r.img }}" hint-placeholder-val="">{{ r.imgEl }}</sc-if></span>
                 <span style="flex:1; min-width:0;">
                   <span style="display:block; font-size:14.5px; font-weight:600; color:#1C1B22;">{{ r.name }}</span>
                   <span style="display:block; font-size:12px; color:#9C99A8; margin-top:2px;">{{ r.sub }}</span>
@@ -544,7 +587,7 @@
           <div class="appscroll" style="flex:1; overflow-y:auto; padding:0 16px;">
             <sc-for list="{{ addResults }}" as="r" hint-placeholder-count="5">
               <div style="display:flex; align-items:center; gap:12px; padding:11px 8px; border-bottom:1px solid #F2F1F6;">
-                <span style="width:46px; height:46px; border-radius:12px; background:#F4F1FA; display:flex; align-items:center; justify-content:center; flex:0 0 auto; overflow:hidden;"><sc-if value="{{ r.img }}" hint-placeholder-val="">{{ r.imgEl }}</sc-if></span>
+                <span style="width:46px; height:46px; border-radius:12px; background:#fff; display:flex; align-items:center; justify-content:center; flex:0 0 auto; overflow:hidden;"><sc-if value="{{ r.img }}" hint-placeholder-val="">{{ r.imgEl }}</sc-if></span>
                 <span style="flex:1; min-width:0;">
                   <span style="display:block; font-size:14.5px; font-weight:600; color:#1C1B22;">{{ r.name }}</span>
                   <span style="display:block; font-size:12px; color:#9C99A8; margin-top:2px;">{{ r.sub }}</span>
@@ -572,13 +615,23 @@
             <div style="font-size:18px; font-weight:700; color:#1C1B22;">Add manually</div>
           </div>
           <div class="appscroll" style="flex:1; overflow-y:auto; padding:4px 20px 0;">
+            <div style="display:flex; justify-content:center; margin:2px 0 16px;">
+              <label style="width:96px; height:96px; border-radius:24px; cursor:pointer; position:relative; overflow:hidden; display:flex; align-items:center; justify-content:center; background:{{ manualPhotoBg }}; border:{{ manualPhotoBorder }};">
+                <input type="file" accept="image/*" onChange="{{ onPickManualPhoto }}" style="position:absolute; inset:0; opacity:0; cursor:pointer; font-size:0;" />
+                <sc-if value="{{ manualHasPhoto }}" hint-placeholder-val=""><span class="ms" style="font-size:22px; color:#fff; text-shadow:0 1px 3px rgba(0,0,0,0.5);">photo_camera</span></sc-if>
+                <sc-if value="{{ manualNoPhoto }}" hint-placeholder-val="{{ true }}"><span style="display:flex; flex-direction:column; align-items:center; gap:4px; color:var(--accent);"><span class="ms" style="font-size:26px;">add_a_photo</span><span style="font-size:10px; font-weight:600;">Add photo</span></span></sc-if>
+              </label>
+            </div>
+            <sc-if value="{{ manualHasPhoto }}" hint-placeholder-val="">
+              <div style="text-align:center; margin:-8px 0 14px;"><button onClick="{{ removeManualPhoto }}" style="background:none; border:none; color:#9C99A8; font-size:12px; font-weight:600; cursor:pointer; font-family:inherit;">Remove photo</button></div>
+            </sc-if>
             <div style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; color:#9C99A8; margin-bottom:6px;">Name <span style="color:#C0353A;">*</span></div>
-            <input class="frpl-in" value="{{ manualName }}" onChange="{{ onManualName }}" placeholder="e.g. Vetiver Extraordinaire" style="width:100%; border:1px solid #ECEAF2; border-radius:11px; padding:11px 13px; font-size:14.5px; color:#1C1B22; background:#fff; margin-bottom:6px;" />
+            <input class="frpl-in" value="{{ manualName }}" onChange="{{ onManualName }}" placeholder="e.g. Vetiver Extraordinaire" style="width:100%; border:1px solid #ECEAF2; border-radius:11px; padding:11px 13px; color:#1C1B22; background:#fff; margin-bottom:6px;" />
             <div style="font-size:11.5px; color:#B4B1C0; margin-bottom:18px; line-height:1.4;">Only the name is required. You can add more detail later.</div>
             <div style="display:flex; flex-direction:column; gap:14px;">
-              <div><div style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; color:#9C99A8; margin-bottom:6px;">House / Brand</div><input class="frpl-in" placeholder="House" style="width:100%; border:1px solid #ECEAF2; border-radius:11px; padding:11px 13px; font-size:14.5px; color:#1C1B22; background:#fff;" /></div>
-              <div><div style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; color:#9C99A8; margin-bottom:6px;">Year</div><input class="frpl-in" placeholder="2026" style="width:100%; border:1px solid #ECEAF2; border-radius:11px; padding:11px 13px; font-size:14.5px; color:#1C1B22; background:#fff;" /></div>
-              <div><div style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; color:#9C99A8; margin-bottom:6px;">Your notes</div><textarea class="frpl-in" placeholder="First impressions, longevity, where you wore it…" rows="3" style="width:100%; border:1px solid #ECEAF2; border-radius:11px; padding:11px 13px; font-size:14.5px; color:#1C1B22; background:#fff; resize:none;"></textarea></div>
+              <div><div style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; color:#9C99A8; margin-bottom:6px;">House / Brand</div><input class="frpl-in" value="{{ manualBrand }}" onChange="{{ onManualBrand }}" placeholder="House" style="width:100%; border:1px solid #ECEAF2; border-radius:11px; padding:11px 13px; color:#1C1B22; background:#fff;" /></div>
+              <div><div style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; color:#9C99A8; margin-bottom:6px;">Release Year</div><input class="frpl-in" value="{{ manualYear }}" onChange="{{ onManualYear }}" inputmode="numeric" placeholder="2026" style="width:100%; border:1px solid #ECEAF2; border-radius:11px; padding:11px 13px; color:#1C1B22; background:#fff;" /></div>
+              <div><div style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; color:#9C99A8; margin-bottom:6px;">Your notes</div><textarea class="frpl-in" value="{{ manualNote }}" onChange="{{ onManualNote }}" placeholder="First impressions, longevity, where you wore it…" rows="3" style="width:100%; border:1px solid #ECEAF2; border-radius:11px; padding:11px 13px; color:#1C1B22; background:#fff; resize:none; box-sizing:border-box;"></textarea></div>
             </div>
           </div>
           <div style="flex:0 0 auto; padding:12px 20px 26px; border-top:1px solid #F2F1F6;">
@@ -601,11 +654,19 @@
             <input class="frpl-in" value="{{ newName }}" onChange="{{ onNewName }}" placeholder="e.g. Vintage finds" style="width:100%; border:1px solid #ECEAF2; border-radius:12px; padding:12px 14px; font-size:15px; color:#1C1B22; background:#fff;" />
             <div style="font-size:11.5px; color:#B4B1C0; margin-top:8px;">{{ newContext }}</div>
             <div style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; color:#9C99A8; margin:18px 0 9px;">Cover</div>
-            <div style="display:flex; gap:10px;">
-              <sc-for list="{{ newCovers }}" as="cov" hint-placeholder-count="6">
+            <div style="display:flex; gap:10px; align-items:center;">
+              <sc-for list="{{ newCovers }}" as="cov" hint-placeholder-count="5">
                 <button onClick="{{ cov.onPick }}" style="{{ cov.style }}"></button>
               </sc-for>
+              <label style="width:46px; height:46px; border-radius:13px; cursor:pointer; position:relative; overflow:hidden; display:flex; align-items:center; justify-content:center; flex:0 0 auto; background:{{ newCoverTileBg }}; border:{{ newCoverTileBorder }};">
+                <input type="file" accept="image/*" onChange="{{ onPickCoverPhoto }}" style="position:absolute; inset:0; opacity:0; cursor:pointer; font-size:0;" />
+                <sc-if value="{{ newCoverHasPhoto }}" hint-placeholder-val=""><span class="ms" style="font-size:18px; color:#fff; text-shadow:0 1px 3px rgba(0,0,0,0.5);">photo_camera</span></sc-if>
+                <sc-if value="{{ newCoverNoPhoto }}" hint-placeholder-val="{{ true }}"><span class="ms" style="font-size:22px; color:var(--accent);">add_a_photo</span></sc-if>
+              </label>
             </div>
+            <sc-if value="{{ newCoverHasPhoto }}" hint-placeholder-val="">
+              <button onClick="{{ removeCoverPhoto }}" style="margin-top:10px; background:none; border:none; color:#9C99A8; font-size:12.5px; font-weight:600; cursor:pointer; font-family:inherit; display:flex; align-items:center; gap:5px; padding:0;"><span class="ms" style="font-size:16px;">close</span>Remove photo, use a colour</button>
+            </sc-if>
           </div>
           <div style="padding:20px 20px 26px;">
             <button onClick="{{ createList }}" style="width:100%; height:48px; border-radius:14px; background:var(--accent); border:none; color:#fff; font-size:15px; font-weight:600; cursor:pointer; font-family:inherit; box-shadow:0 6px 16px rgba(120,94,175,0.30);">Create list</button>
@@ -667,6 +728,7 @@
           <div style="display:flex; justify-content:center; padding:9px 0 3px;"><div style="width:38px; height:5px; border-radius:99px; background:#E2DEEC;"></div></div>
           <div style="padding:8px 8px 0;">
             <button onClick="{{ menuRename }}" style="display:flex; align-items:center; gap:14px; width:100%; padding:15px 16px; background:none; border:none; cursor:pointer; font-family:inherit; text-align:left;"><span class="ms" style="font-size:22px; color:var(--accent);">edit</span><span style="font-size:15px; color:#1C1B22; font-weight:500;">Rename list</span></button>
+            <button onClick="{{ changeCoverForList }}" style="display:flex; align-items:center; gap:14px; width:100%; padding:15px 16px; background:none; border:none; cursor:pointer; font-family:inherit; text-align:left;"><span class="ms" style="font-size:22px; color:var(--accent);">image</span><span style="font-size:15px; color:#1C1B22; font-weight:500;">Change cover photo</span></button>
             <button onClick="{{ addSubList }}" style="display:flex; align-items:center; gap:14px; width:100%; padding:15px 16px; background:none; border:none; cursor:pointer; font-family:inherit; text-align:left;"><span class="ms" style="font-size:22px; color:var(--accent);">create_new_folder</span><span style="font-size:15px; color:#1C1B22; font-weight:500;">Add a sub-list</span></button>
             <button onClick="{{ menuDelete }}" style="display:flex; align-items:center; gap:14px; width:100%; padding:15px 16px; background:none; border:none; border-top:1px solid #F2F1F6; cursor:pointer; font-family:inherit; text-align:left;"><span class="ms" style="font-size:22px; color:#C0353A;">delete</span><span style="font-size:15px; color:#C0353A; font-weight:500;">Delete list</span></button>
           </div>
@@ -722,11 +784,12 @@ class Component extends DCLogic {
     ],
     userData: {},
     view: 'home', activeSection: 'totry', activeListId: null,
-    drawerPerfumeId: null, drawerListId: null, drawerEdit: false, editNote: '', editPrice: '', simQuery: '',
+    drawerPerfumeId: null, drawerListId: null, drawerEdit: false, drawerFromSearch: false, pendingAddPerfumeId: null, editNote: '', editPrice: '', simQuery: '',
     sheet: null, addTargetListId: null,
     sort: 'added', sortDir: 'asc', addQuery: '', libQuery: '',
-    newName: '', newCover: 0, newParent: null,
-    manualName: '', newCatName: '', renameValue: '', toast: null,
+    newName: '', newCover: 0, newParent: null, newCoverPhoto: null, coverBusy: false,
+    manualName: '', manualBrand: '', manualYear: '', manualNote: '', manualPhoto: null, manualBusy: false, drawerPhotoBusy: false,
+    newCatName: '', renameValue: '', toast: null,
   };
 
   async componentDidMount() {
@@ -807,10 +870,10 @@ class Component extends DCLogic {
       sb.from('custom_perfumes').select('*'),
     ]);
     const lists = {};
-    for (const l of (listsRes.data||[])) lists[l.id] = { id:l.id, name:l.name, sectionId:l.section_id, parentId:l.parent_id||null, cover:[l.cover_start,l.cover_end], entries:[] };
+    for (const l of (listsRes.data||[])) lists[l.id] = { id:l.id, name:l.name, sectionId:l.section_id, parentId:l.parent_id||null, cover:[l.cover_start,l.cover_end], coverImage:l.cover_image_url||null, entries:[] };
     for (const e of (entriesRes.data||[])) { if (lists[e.list_id]) lists[e.list_id].entries.push({ perfumeId:e.perfume_id, tag:e.tag||null }); }
     const catById = { ...(this._catById||{}) };
-    for (const cp of (customRes.data||[])) catById[cp.id] = { id:cp.id, name:cp.name, brand:cp.brand||'Added manually', year:cp.year, rating:null, ratingCount:null, gender:'', thumb:'', url:'', notes:{top:[],mid:[],base:[]}, reminds:[], manual:true };
+    for (const cp of (customRes.data||[])) catById[cp.id] = { id:cp.id, name:cp.name, brand:cp.brand||'Added manually', year:cp.year, rating:null, ratingCount:null, gender:'', thumb:cp.image_url||'', url:'', notes:{top:[],mid:[],base:[]}, reminds:[], manual:true };
     const userData = {};
     for (const n of (notesRes.data||[])) userData[n.perfume_id] = { note:n.note, remindsOf:n.reminds_of, pricePaid:n.price_paid, priceTarget:n.price_target };
     const customCats = (catsRes.data||[]).map(c => ({ id:c.id, name:c.name, sub:'your category', custom:true }));
@@ -921,8 +984,31 @@ class Component extends DCLogic {
   }
 
   // ── helpers ──
-  covers() { return [['#8E73C0','#C9B8E6'],['#5E4A93','#9B82C9'],['#7C5EAF','#B9A4DE'],['#9B6FB0','#D7BEE3'],['#6573C9','#98A4E6'],['#8A6BB5','#E3D4F0']]; }
+  covers() { return [['#8E73C0','#C9B8E6'],['#D8C09A','#C2A06E'],['#AEC196','#8DA471'],['#C0C2C9','#9FA3AD'],['#E2B6C4','#CB91A6']]; }
   coverCss(c) { return 'linear-gradient(135deg,'+c[0]+' 0%,'+c[1]+' 100%)'; }
+  coverBg(l) {
+    const scrim='linear-gradient(180deg,rgba(0,0,0,0) 38%,rgba(0,0,0,0.34) 100%)';
+    if (l && l.coverImage) return scrim+', url("'+l.coverImage+'")';
+    return scrim+', '+this.coverCss((l&&l.cover)||this.covers()[0]);
+  }
+  swatchBg(l) {
+    if (l && l.coverImage) return 'url("'+l.coverImage+'")';
+    return this.coverCss((l&&l.cover)||this.covers()[0]);
+  }
+  async _resizeImage(file, maxDim, mime, quality) {
+    const dataUrl = await new Promise((res,rej)=>{ const r=new FileReader(); r.onload=()=>res(r.result); r.onerror=rej; r.readAsDataURL(file); });
+    const img = await new Promise((res,rej)=>{ const im=new Image(); im.onload=()=>res(im); im.onerror=rej; im.src=dataUrl; });
+    let w=img.width, h=img.height; const scale=Math.min(1, maxDim/Math.max(w,h)); w=Math.round(w*scale); h=Math.round(h*scale);
+    const c=document.createElement('canvas'); c.width=w; c.height=h; c.getContext('2d').drawImage(img,0,0,w,h);
+    const blob = await new Promise(res=>c.toBlob(res, mime||'image/jpeg', quality||0.82));
+    return { blob, preview: dataUrl };
+  }
+  async _uploadImage(path, blob) {
+    const { error } = await this._sb.storage.from('images').upload(path, blob, { upsert:true, contentType:blob.type });
+    if (error) throw error;
+    const { data } = this._sb.storage.from('images').getPublicUrl(path);
+    return data.publicUrl + '?v=' + Date.now();
+  }
   tagInfo(tag) {
     if (tag==='toget') return {label:'To get',text:'#BE343A',dot:'#E5484D',bg:'#FDECEC',border:'#F3CBCB',glow:'rgba(229,72,77,0.10)'};
     if (tag==='travel') return {label:'Travel size',text:'#2560C0',dot:'#2F73E0',bg:'#EAF1FD',border:'#CFE0FB',glow:'rgba(47,115,224,0.10)'};
@@ -962,8 +1048,8 @@ class Component extends DCLogic {
     else this.setState({view:'home',activeListId:null});
     this.resetScroll();
   }
-  openDrawer(pid,lid) { this.setState({drawerPerfumeId:pid,drawerListId:lid||null,drawerEdit:false}); }
-  closeDrawer() { this.setState({drawerPerfumeId:null,drawerListId:null,drawerEdit:false}); }
+  openDrawer(pid,lid,fromSearch) { this.setState({drawerPerfumeId:pid,drawerListId:lid||null,drawerEdit:false,drawerFromSearch:!!fromSearch}); }
+  closeDrawer() { this.setState({drawerPerfumeId:null,drawerListId:null,drawerEdit:false,drawerFromSearch:false}); }
   // swipe-down to dismiss the drawer
   onGrabStart(e){ this._gy0=e.touches[0].clientY; this._gy=0; if(this._drawerSheet) this._drawerSheet.style.transition='none'; }
   onGrabMove(e){ if(this._gy0==null)return; const dy=e.touches[0].clientY-this._gy0; this._gy=dy; if(this._drawerSheet) this._drawerSheet.style.transform='translateY('+Math.max(0,dy)+'px)'; }
@@ -1014,10 +1100,10 @@ class Component extends DCLogic {
   }
   closeSheet() { this.setState({sheet:null}); }
   openAdd() { this.setState({sheet:'add',addTargetListId:this.state.activeListId,addQuery:''}); }
-  openManual() { this.setState({sheet:'manual',manualName:''}); }
+  openManual() { this._pendingBottleBlob=null; this.setState({sheet:'manual',manualName:'',manualBrand:'',manualYear:'',manualNote:'',manualPhoto:null}); }
   openSort() { this.setState({sheet:'sort'}); }
   openListMenu() { this.setState({sheet:'listmenu'}); }
-  openNewList(parent) { this.setState({sheet:'newlist',newParent:parent||null,newName:'',newCover:0}); }
+  openNewList(parent) { this._pendingCoverBlob=null; this.setState({sheet:'newlist',newParent:parent||null,newName:'',newCover:0,newCoverPhoto:null}); }
   addSubList() { this.openNewList(this.state.activeListId); }
   openNewCat() { this.setState({sheet:'newcat',newCatName:''}); }
   onAddQuery(e) { this.setState({addQuery:e.target.value}); }
@@ -1031,6 +1117,38 @@ class Component extends DCLogic {
   setNewCover(i) { this.setState({newCover:i}); }
   onNewCatName(e) { this.setState({newCatName:e.target.value}); }
   onManualName(e) { this.setState({manualName:e.target.value}); }
+  onManualBrand(e) { this.setState({manualBrand:e.target.value}); }
+  onManualYear(e) { this.setState({manualYear:e.target.value}); }
+  onManualNote(e) { this.setState({manualNote:e.target.value}); }
+  async onPickCoverPhoto(e) {
+    const file=e.target.files&&e.target.files[0]; e.target.value=''; if(!file) return;
+    this.setState({coverBusy:true});
+    try { const {blob,preview}=await this._resizeImage(file,1200,'image/jpeg',0.82); this._pendingCoverBlob=blob; this.setState({newCoverPhoto:preview,coverBusy:false}); }
+    catch(err){ this.setState({coverBusy:false}); this.toast('Could not read image'); }
+  }
+  removeCoverPhoto() { this._pendingCoverBlob=null; this.setState({newCoverPhoto:null}); }
+  async onPickManualPhoto(e) {
+    const file=e.target.files&&e.target.files[0]; e.target.value=''; if(!file) return;
+    this.setState({manualBusy:true});
+    try { const {blob,preview}=await this._resizeImage(file,700,'image/jpeg',0.85); this._pendingBottleBlob=blob; this.setState({manualPhoto:preview,manualBusy:false}); }
+    catch(err){ this.setState({manualBusy:false}); this.toast('Could not read image'); }
+  }
+  removeManualPhoto() { this._pendingBottleBlob=null; this.setState({manualPhoto:null}); }
+  changeCoverForList() { this._coverTargetListId=this.state.activeListId; this.setState({sheet:null}); if(this._coverInput) this._coverInput.click(); }
+  async onChangeCoverFile(e) {
+    const file=e.target.files&&e.target.files[0]; e.target.value=''; const lid=this._coverTargetListId; if(!file||!lid) return;
+    const l=this.state.lists[lid]; if(!l||!this._sb||!this.state.session) return;
+    this.toast('Uploading cover…');
+    try { const {blob}=await this._resizeImage(file,1200,'image/jpeg',0.82); const url=await this._uploadImage('covers/'+this.state.session.user.id+'/'+lid+'.jpg', blob); l.coverImage=url; this.forceUpdate(); await this._sb.from('lists').update({cover_image_url:url}).eq('id',lid); this.toast('Cover updated'); }
+    catch(err){ this.toast('Upload failed'); }
+  }
+  async onPickDrawerPhoto(e) {
+    const file=e.target.files&&e.target.files[0]; e.target.value=''; if(!file) return;
+    const pid=this.state.drawerPerfumeId, p=this.state.catById[pid]; if(!p||!p.manual||!this._sb||!this.state.session) return;
+    this.setState({drawerPhotoBusy:true});
+    try { const {blob}=await this._resizeImage(file,700,'image/jpeg',0.85); const url=await this._uploadImage('bottles/'+this.state.session.user.id+'/'+pid+'.jpg', blob); p.thumb=url; this.setState({drawerPhotoBusy:false}); this.forceUpdate(); await this._sb.from('custom_perfumes').update({image_url:url}).eq('id',pid); this.toast('Photo updated'); }
+    catch(err){ this.setState({drawerPhotoBusy:false}); this.toast('Upload failed'); }
+  }
   shareCurrent() { this.setState({sheet:null}); this.toast('Link copied'); }
   toast(m) { this.setState({toast:m}); clearTimeout(this._tt); this._tt=setTimeout(()=>this.setState({toast:null}),1900); }
 
@@ -1065,21 +1183,49 @@ class Component extends DCLogic {
       if (error) { l.entries=prev; this.forceUpdate(); this.toast('Sync error'); }
     }
   }
+  openPickList() { this.setState({sheet:'picklist'}); }
+  createListWithPerfume() { this._pendingCoverBlob=null; this.setState({pendingAddPerfumeId:this.state.drawerPerfumeId, sheet:'newlist', newParent:null, newName:'', newCover:0, newCoverPhoto:null}); }
+  async addDrawerToList(listId) {
+    const s=this.state, l=s.lists[listId], pid=s.drawerPerfumeId; if(!l||!pid) return;
+    if (l.entries.some(e=>e.perfumeId===pid)) { this.setState({sheet:null}); this.toast('Already in '+l.name); return; }
+    this.setState({sheet:null,drawerPerfumeId:null,drawerListId:null,drawerFromSearch:false});
+    l.entries.push({perfumeId:pid,tag:null}); this.forceUpdate();
+    this.toast('Added to '+l.name);
+    if (this._sb&&s.session) {
+      const {error}=await this._sb.from('list_entries').insert({list_id:l.id,user_id:s.session.user.id,perfume_id:pid,position:l.entries.length});
+      if (error) { l.entries=l.entries.filter(e=>e.perfumeId!==pid); this.forceUpdate(); this.toast('Sync error'); }
+    }
+  }
   async createList() {
     const s=this.state, nm=(s.newName||'').trim();
     if (!nm) { this.toast('Name your list first'); return; }
     const parent=s.newParent, section=parent?s.lists[parent].sectionId:s.activeSection;
     const cover=this.covers()[s.newCover];
-    this.setState({sheet:null});
+    const pendPid=s.pendingAddPerfumeId;
+    this.setState({sheet:null, pendingAddPerfumeId:null});
+    let newId=null;
     if (this._sb&&s.session) {
       const {data,error}=await this._sb.from('lists').insert({user_id:s.session.user.id,name:nm,section_id:section,parent_id:parent||null,cover_start:cover[0],cover_end:cover[1],sort_order:Object.keys(s.lists).length}).select().single();
       if (error) { this.toast('Error: '+error.message); return; }
-      s.lists[data.id]={id:data.id,name:nm,sectionId:section,parentId:parent||null,cover,entries:[]};
+      newId=data.id; s.lists[newId]={id:newId,name:nm,sectionId:section,parentId:parent||null,cover,entries:[]};
       this.forceUpdate();
     } else {
-      const id='tmp'+Date.now(); s.lists[id]={id,name:nm,sectionId:section,parentId:parent||null,cover,entries:[]}; this.forceUpdate();
+      newId='tmp'+Date.now(); s.lists[newId]={id:newId,name:nm,sectionId:section,parentId:parent||null,cover,entries:[]}; this.forceUpdate();
     }
-    this.toast('"'+nm+'" created');
+    // upload chosen cover photo (if any) now that we have the list id
+    if (this._pendingCoverBlob && s.lists[newId] && this._sb && s.session) {
+      const blob=this._pendingCoverBlob; this._pendingCoverBlob=null;
+      try { const url=await this._uploadImage('covers/'+s.session.user.id+'/'+newId+'.jpg', blob); s.lists[newId].coverImage=url; this.forceUpdate(); await this._sb.from('lists').update({cover_image_url:url}).eq('id',newId); }
+      catch(err){ this.toast('Cover upload failed'); }
+    }
+    if (pendPid && s.lists[newId]) {
+      s.lists[newId].entries.push({perfumeId:pendPid,tag:null});
+      this.setState({drawerPerfumeId:null,drawerListId:null,drawerFromSearch:false});
+      this.toast('Added to “'+nm+'”');
+      if (this._sb&&s.session) { await this._sb.from('list_entries').insert({list_id:newId,user_id:s.session.user.id,perfume_id:pendPid,position:0}); }
+    } else {
+      this.toast('"'+nm+'" created');
+    }
   }
   openRename() { const al=this.state.lists[this.state.activeListId]; this.setState({sheet:'renamelist',renameValue:al?al.name:''}); }
   onRenameValue(e) { this.setState({renameValue:e.target.value}); }
@@ -1129,19 +1275,26 @@ class Component extends DCLogic {
   async manualSave() {
     const s=this.state, nm=(s.manualName||'').trim();
     if (!nm) { this.toast('Name is required'); return; }
-    this.setState({sheet:null});
-    if (this._sb&&s.session) {
-      const {data,error}=await this._sb.from('custom_perfumes').insert({user_id:s.session.user.id,name:nm}).select().single();
-      if (error) { this.toast('Error: '+error.message); return; }
-      s.catById[data.id]={id:data.id,name:nm,brand:'Added manually',year:null,rating:null,ratingCount:null,gender:'',thumb:'',url:'',notes:{top:[],mid:[],base:[]},reminds:[],manual:true};
-      const l=s.lists[s.addTargetListId];
-      if (l) { await this._sb.from('list_entries').insert({list_id:l.id,user_id:s.session.user.id,perfume_id:data.id,position:l.entries.length}); l.entries.push({perfumeId:data.id,tag:null}); }
-      this.forceUpdate();
-    } else {
-      const id='m'+Date.now(); s.catById[id]={id,name:nm,brand:'Added manually',year:null,rating:null,ratingCount:null,gender:'',thumb:'',url:'',notes:{top:[],mid:[],base:[]},reminds:[],manual:true};
-      const l=s.lists[s.addTargetListId]; if (l) l.entries.push({perfumeId:id,tag:null}); this.forceUpdate();
+    const brand=(s.manualBrand||'').trim()||'Added manually';
+    const yi=parseInt((s.manualYear||'').replace(/[^\d]/g,''),10); const yr=isNaN(yi)?null:yi;
+    const note=(s.manualNote||'').trim();
+    const id='cp_'+((window.crypto&&crypto.randomUUID)?crypto.randomUUID():(Date.now()+Math.random().toString(16).slice(2)));
+    const blob=this._pendingBottleBlob; this._pendingBottleBlob=null;
+    const targetListId=s.addTargetListId;
+    this.setState({sheet:null, manualName:'',manualBrand:'',manualYear:'',manualNote:'',manualPhoto:null});
+    let imageUrl='';
+    if (blob && this._sb && s.session) { try { imageUrl=await this._uploadImage('bottles/'+s.session.user.id+'/'+id+'.jpg', blob); } catch(err){ this.toast('Image upload failed'); } }
+    s.catById[id]={id,name:nm,brand,year:yr,rating:null,ratingCount:null,gender:'',thumb:imageUrl,url:'',notes:{top:[],mid:[],base:[]},reminds:[],manual:true};
+    const l=s.lists[targetListId];
+    if (l) l.entries.push({perfumeId:id,tag:null});
+    this.forceUpdate();
+    if (this._sb && s.session) {
+      const {error}=await this._sb.from('custom_perfumes').insert({id,user_id:s.session.user.id,name:nm,brand,year:yr,image_url:imageUrl||null});
+      if (error) { this.toast('Save error: '+error.message); }
+      else if (l) { await this._sb.from('list_entries').insert({list_id:l.id,user_id:s.session.user.id,perfume_id:id,position:l.entries.length}); }
     }
-    this.toast('"'+nm+'" added');
+    if (note) await this.saveUserMeta(id,{note});
+    this.toast('“'+nm+'” added');
   }
 
   // ── renderVals ──
@@ -1150,7 +1303,7 @@ class Component extends DCLogic {
     const palettes={iris:{a:'#785EAF',d:'#5A4691',l:'#9B82C9',t:'#F1ECF9'},lavender:{a:'#7A6AD8',d:'#574BB0',l:'#A99BEF',t:'#EFEDFB'},plum:{a:'#8E5AA8',d:'#6E4283',l:'#B98ECD',t:'#F4ECF8'},periwinkle:{a:'#6573C9',d:'#4A57A8',l:'#98A4E6',t:'#EDEFFB'}};
     const pal=palettes[this.props.accent]||palettes.iris;
     const accentVarsCss='--accent:'+pal.a+';--accent-deep:'+pal.d+';--accent-light:'+pal.l+';--accent-tint:'+pal.t+';';
-    const blank={accentVarsCss,scrollRef:(el)=>{this._scroll=el;},showInitializing:s.appState==='initializing'||s.appState==='loading',showAuth:s.appState==='auth',showHome:false,showList:false,showSearch:false,showSettings:false,showFab:false,drawerOpen:false,showAddSheet:false,showManual:false,showNewList:false,showNewCat:false,showSort:false,showListMenu:false,showRenameList:false,showDeleteList:false,showSimAdd:false,simResults:[],simNoResults:false,simPrompt:false,simQuery:'',renameValue:'',deleteListName:'',deleteListWarning:'',toastVisible:false,loadError:s.loadError||'',...this._authVals(),homeTabs:[],activeCards:[],activeSecSub:'',activeSecCount:'',activeSectionEmpty:false,activeSectionHasCards:false,activeEmptyMsg:'',listModel:{d:{},accords:[],top:[],heart:[],base:[],similar:[]},addResults:[],searchResults:[],searchChips:[],newCovers:[],sortOptions:[],newName:'',newCatName:'',newContext:'',newTitle:'',addQuery:'',libQuery:'',addTitle:'',addNoResults:false,searchEmpty:true,searchHasResults:false,searchNoResults:false,searchCountLabel:'',catalogueCount:'',userEmail:'',userInitial:'',signOut:()=>this.signOut(),goHome:()=>this.goHome(),openSearch:()=>this.openSearch(),openSettings:()=>this.openSettings(),openNewCat:()=>this.openNewCat(),openNewListTop:()=>this.openNewList(null)};
+    const blank={accentVarsCss,scrollRef:(el)=>{this._scroll=el;},showInitializing:s.appState==='initializing'||s.appState==='loading',showAuth:s.appState==='auth',showHome:false,showList:false,showSearch:false,showSettings:false,showFab:false,drawerOpen:false,showAddSheet:false,showManual:false,showNewList:false,showNewCat:false,showSort:false,showListMenu:false,showRenameList:false,showDeleteList:false,showSimAdd:false,showPickList:false,pickListOptions:[],simResults:[],simNoResults:false,simPrompt:false,simQuery:'',renameValue:'',deleteListName:'',deleteListWarning:'',toastVisible:false,loadError:s.loadError||'',...this._authVals(),homeTabs:[],activeCards:[],activeSecSub:'',activeSecCount:'',activeSectionEmpty:false,activeSectionHasCards:false,activeEmptyMsg:'',listModel:{d:{},accords:[],top:[],heart:[],base:[],similar:[]},addResults:[],searchResults:[],searchChips:[],newCovers:[],sortOptions:[],newName:'',newCatName:'',newContext:'',newTitle:'',addQuery:'',libQuery:'',addTitle:'',addNoResults:false,searchEmpty:true,searchHasResults:false,searchNoResults:false,searchCountLabel:'',catalogueCount:'',userEmail:'',userInitial:'',signOut:()=>this.signOut(),goHome:()=>this.goHome(),openSearch:()=>this.openSearch(),openSettings:()=>this.openSettings(),openNewCat:()=>this.openNewCat(),openNewListTop:()=>this.openNewList(null),coverInputRef:(el)=>{this._coverInput=el;},onChangeCoverFile:(e)=>this.onChangeCoverFile(e)};
     if (s.appState!=='ready') return blank;
 
     const allLists=Object.values(lists), topLists=allLists.filter(l=>!l.parentId);
@@ -1163,7 +1316,7 @@ class Component extends DCLogic {
     const homeTabs=s.sections.map(sec=>{const active=sec.id===s.activeSection;return{name:sec.name,active,style:'flex:0 0 auto;padding:9px 16px;border-radius:999px;font-size:13.5px;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap;'+(active?'background:var(--accent);border:1px solid var(--accent);color:#fff;':'background:#F2F1F6;border:1px solid #F2F1F6;color:#6A6775;'),onSelect:()=>this.selectSection(sec.id)};});
     const activeSec=s.sections.find(x=>x.id===s.activeSection)||s.sections[0];
     const activeTop=topLists.filter(l=>l.sectionId===activeSec.id);
-    const activeCards=activeTop.map(l=>{const sc=allLists.filter(x=>x.parentId===l.id).length,fp=l.entries.length?pidOf(l.entries[0]):null,fi=fp?fp.thumb:'';let cl=l.entries.length+(l.entries.length===1?' perfume':' perfumes');if(sc)cl+=' · '+sc+(sc===1?' sub-list':' sub-lists');return{name:l.name,countLabel:cl,coverCss:this.coverCss(l.cover),thumbBg:l.entries.length===0?'var(--accent-tint)':'#fff',bottleEl:mkImg(fi,ST.card),bottleImg:fi,empty:l.entries.length===0,onOpen:()=>this.openList(l.id)};});
+    const activeCards=activeTop.map(l=>{const sc=allLists.filter(x=>x.parentId===l.id).length,fp=l.entries.length?pidOf(l.entries[0]):null,fi=fp?fp.thumb:'';let cl=l.entries.length+(l.entries.length===1?' perfume':' perfumes');if(sc)cl+=' · '+sc+(sc===1?' sub-list':' sub-lists');return{name:l.name,countLabel:cl,coverCss:this.coverCss(l.cover),hasCover:!!l.coverImage,coverBgCss:l.coverImage?('url("'+l.coverImage+'") center/cover no-repeat'):(l.entries.length===0?'var(--accent-tint)':'#fff'),thumbBg:l.entries.length===0?'var(--accent-tint)':'#fff',bottleEl:mkImg(fi,ST.card),bottleImg:fi,showBottle:!l.coverImage&&!!fi,showEmptyIcon:!l.coverImage&&l.entries.length===0,empty:l.entries.length===0,onOpen:()=>this.openList(l.id)};});
     const secPerf=activeTop.reduce((n,l)=>n+l.entries.length,0);
     const activeSecCount=activeTop.length+(activeTop.length===1?' list · ':' lists · ')+secPerf+(secPerf===1?' perfume':' perfumes');
     const emptyMsgs={owned:'Start by creating a list for your owned fragrances.',totry:'Save fragrances you want to discover or buy.',favnotes:'Group perfumes by ingredients you love.'};
@@ -1176,7 +1329,7 @@ class Component extends DCLogic {
     if (showList) {
       const al=lists[s.activeListId]; if (!al) return {...blank,showHome:true};
       const sec=s.sections.find(x=>x.id===al.sectionId)||{name:''};
-      const subLists=allLists.filter(x=>x.parentId===al.id).map(x=>({name:x.name,countLabel:x.entries.length+(x.entries.length===1?' perfume':' perfumes'),coverCss:this.coverCss(x.cover),onOpen:()=>this.openList(x.id)}));
+      const subLists=allLists.filter(x=>x.parentId===al.id).map(x=>({name:x.name,countLabel:x.entries.length+(x.entries.length===1?' perfume':' perfumes'),coverCss:this.swatchBg(x),onOpen:()=>this.openList(x.id)}));
       const sortLabels={added:'Date added',name:'Name',brand:'Brand',release:'Release'};
       const dirArrow=s.sortDir==='asc'?'↑':'↓';
       const rows=this.sortedEntries(al).map(e=>{
@@ -1186,13 +1339,13 @@ class Component extends DCLogic {
         const tagStyle=ti?('display:inline-flex;align-items:center;gap:5px;margin-top:7px;font-size:10.5px;font-weight:700;color:'+ti.text+';background:#fff;border:1px solid '+ti.border+';padding:3px 9px;border-radius:999px;'):'';
         return{name:p.name,house:p.brand||'—',img:p.thumb,imgEl:mkImg(p.thumb,ST.row),noImg:!p.thumb,thumbBg:'#FFFFFF',tag:e.tag||'',tagLabel:ti?ti.label:'',tagDot:ti?ti.dot:'',tagStyle,wrapStyle:ti?tagged:flat,onOpen:()=>this.openDrawer(p.id,al.id)};
       });
-      listModel={name:al.name,sectionName:sec.name,coverCss:this.coverCss(al.cover),countLabel:al.entries.length+(al.entries.length===1?' perfume':' perfumes'),hasSub:subLists.length>0,subLists,empty:al.entries.length===0,hasRows:al.entries.length>0,rows,sortLabel:sortLabels[s.sort]+' '+dirArrow};
+      listModel={name:al.name,sectionName:sec.name,coverCss:this.coverBg(al),countLabel:al.entries.length+(al.entries.length===1?' perfume':' perfumes'),hasSub:subLists.length>0,subLists,empty:al.entries.length===0,hasRows:al.entries.length>0,rows,sortLabel:sortLabels[s.sort]+' '+dirArrow};
     }
 
     // drawer
     const p=s.drawerPerfumeId?cat[s.drawerPerfumeId]:null;
     const drawerOpen=!!p;
-    let d={img:'',imgEl:null,noImg:true,name:'',house:'',metaLine:'',inList:false,accords:[],hasAccords:false,top:['—'],heart:['—'],base:['—'],showPrice:false,pricePaidLabel:'Not set',priceColor:'#B4B1C0',noteText:'',noteColor:'#B4B1C0',editing:false,notEditing:true,togetBtnStyle:'',travelBtnStyle:'',showSimilar:false,similarEmpty:false,similar:[],removeFromList:()=>{}};
+    let d={img:'',imgEl:null,noImg:true,name:'',house:'',metaLine:'',inList:false,accords:[],hasAccords:false,top:['—'],heart:['—'],base:['—'],showPrice:false,pricePaidLabel:'Not set',priceColor:'#B4B1C0',noteText:'',noteColor:'#B4B1C0',editing:false,notEditing:true,togetBtnStyle:'',travelBtnStyle:'',showSimilar:false,similarEmpty:false,similar:[],removeFromList:()=>{},fromSearch:false,notFromSearch:true,showNotes:true,canEditPhoto:false};
     if (drawerOpen) {
       const inList=!!s.drawerListId;
       let curTag=null;
@@ -1209,7 +1362,7 @@ class Component extends DCLogic {
       for (const it of [...datasetSim,...userSim]){if(it.id&&seen.has(it.id))continue;if(it.id)seen.add(it.id);merged.push({...it,removable:!!(it.id&&userSimIds.includes(it.id))});}
       const similar=merged.map(r=>({name:r.name,house:r.house,img:r.img,imgEl:mkImg(r.img,ST.sim),onOpen:r.id?(()=>this.openDrawer(r.id,s.drawerListId)):(()=>{}),showRemove:s.drawerEdit&&r.removable,onRemove:()=>this.removeSimilar(r.id)}));
       const fb=a=>(a&&a.length?a:['—']);
-      d={name:p.name,house:p.brand||'—',metaLine,img:p.thumb,imgEl:mkImg(p.thumb,ST.drawer),noImg:!p.thumb,inList,accords:p.accords||[],hasAccords:!!(p.accords&&p.accords.length),top:fb(p.notes.top),heart:fb(p.notes.mid),base:fb(p.notes.base),showPrice:isOwned,pricePaidLabel:meta.pricePaid||'Not set',priceColor:meta.pricePaid?'#1C1B22':'#B4B1C0',noteText:meta.note||'No personal notes yet. Tap edit to add.',noteColor:meta.note?'#3A3845':'#B4B1C0',editing:s.drawerEdit,notEditing:!s.drawerEdit,togetBtnStyle:bs+(curTag==='toget'?'border:1.5px solid #E5484D;background:#FDECEC;color:#BE343A;':'border:1.5px solid #ECEAF2;background:#fff;color:#6A6775;'),travelBtnStyle:bs+(curTag==='travel'?'border:1.5px solid #2F73E0;background:#EAF1FD;color:#2560C0;':'border:1.5px solid #ECEAF2;background:#fff;color:#6A6775;'),toggleToGet:()=>this.toggleTag(p.id,s.drawerListId,'toget'),toggleTravel:()=>this.toggleTag(p.id,s.drawerListId,'travel'),showSimilar:(similar.length>0||s.drawerEdit),similarEmpty:(s.drawerEdit&&similar.length===0),similar,removeFromList:()=>this.removeFromList()};
+      d={name:p.name,house:p.brand||'—',metaLine,img:p.thumb,imgEl:mkImg(p.thumb,ST.drawer),noImg:!p.thumb,inList,accords:p.accords||[],hasAccords:!!(p.accords&&p.accords.length),top:fb(p.notes.top),heart:fb(p.notes.mid),base:fb(p.notes.base),showPrice:isOwned,pricePaidLabel:meta.pricePaid||'Not set',priceColor:meta.pricePaid?'#1C1B22':'#B4B1C0',noteText:meta.note||'No personal notes yet. Tap edit to add.',noteColor:meta.note?'#3A3845':'#B4B1C0',editing:s.drawerEdit,notEditing:!s.drawerEdit,togetBtnStyle:bs+(curTag==='toget'?'border:1.5px solid #E5484D;background:#FDECEC;color:#BE343A;':'border:1.5px solid #ECEAF2;background:#fff;color:#6A6775;'),travelBtnStyle:bs+(curTag==='travel'?'border:1.5px solid #2F73E0;background:#EAF1FD;color:#2560C0;':'border:1.5px solid #ECEAF2;background:#fff;color:#6A6775;'),toggleToGet:()=>this.toggleTag(p.id,s.drawerListId,'toget'),toggleTravel:()=>this.toggleTag(p.id,s.drawerListId,'travel'),showSimilar:(similar.length>0||s.drawerEdit),similarEmpty:(s.drawerEdit&&similar.length===0),similar,removeFromList:()=>this.removeFromList(),fromSearch:s.drawerFromSearch,notFromSearch:!s.drawerFromSearch,showNotes:!s.drawerFromSearch,canEditPhoto:(s.drawerEdit&&!!p.manual)};
     }
 
     // add sheet
@@ -1221,6 +1374,16 @@ class Component extends DCLogic {
       const matched=s.catalogue.filter(p=>!q||p.name.toLowerCase().includes(q)||(p.brand||'').toLowerCase().includes(q));
       addResults=matched.slice(0,50).map(p=>{const already=al&&al.entries.some(e=>e.perfumeId===p.id);return{name:p.name,sub:(p.brand||'—')+'  ·  '+(p.year||'—'),img:p.thumb,imgEl:mkImg(p.thumb,ST.add),btnIcon:already?'check':'add',btnStyle:'width:34px;height:34px;border-radius:50%;border:none;flex:0 0 auto;display:flex;align-items:center;justify-content:center;cursor:pointer;'+(already?'background:#EAF6EE;color:#4F9D6B;':'background:var(--accent);color:#fff;'),onAdd:()=>this.addToList(p.id)};});
       addNoResults=!!(q&&matched.length===0);
+    }
+
+    // pick-list sheet (add searched perfume to an existing list)
+    let pickListOptions=[];
+    if (s.sheet==='picklist') {
+      pickListOptions=Object.values(lists).map(l=>{
+        const sec=s.sections.find(x=>x.id===l.sectionId)||{name:''};
+        const already=l.entries.some(e=>e.perfumeId===s.drawerPerfumeId);
+        return {name:l.name,meta:sec.name+'  ·  '+l.entries.length+(l.entries.length===1?' perfume':' perfumes'),already,notAlready:!already,nameColor:already?'#B4B1C0':'#1C1B22',onPick:()=>this.addDrawerToList(l.id)};
+      });
     }
 
     // similar-add sheet
@@ -1243,14 +1406,17 @@ class Component extends DCLogic {
       const noteHit=p=>p.notes&&(p.notes.top.concat(p.notes.mid,p.notes.base)).some(n=>n.toLowerCase().includes(lq));
       const matched=s.catalogue.filter(p=>p.name.toLowerCase().includes(lq)||(p.brand||'').toLowerCase().includes(lq)||noteHit(p));
       searchTotal=matched.length;
-      searchResults=matched.slice(0,60).map(p=>({name:p.name,sub:(p.brand||'—')+'  ·  '+(p.year||'—')+(p.rating?('  ·  ★ '+p.rating):''),img:p.thumb,imgEl:mkImg(p.thumb,ST.search),onOpen:()=>this.openDrawer(p.id,null)}));
+      searchResults=matched.slice(0,60).map(p=>({name:p.name,sub:(p.brand||'—')+'  ·  '+(p.year||'—')+(p.rating?('  ·  ★ '+p.rating):''),img:p.thumb,imgEl:mkImg(p.thumb,ST.search),onOpen:()=>this.openDrawer(p.id,null,true)}));
     }
     const searchChips=[{label:'Iris',color:'#D89EC4',onPick:()=>this.pickChip('iris')},{label:'Woody',color:'#6E523A',onPick:()=>this.pickChip('woody')},{label:'Amber',color:'#BA763E',onPick:()=>this.pickChip('amber')},{label:'Vanilla',color:'#E0C9A6',onPick:()=>this.pickChip('vanilla')},{label:'Citrus',color:'#E2C53A',onPick:()=>this.pickChip('citrus')},{label:'Rose',color:'#D98AA0',onPick:()=>this.pickChip('rose')},{label:'Oud',color:'#7A5A3A',onPick:()=>this.pickChip('oud')},{label:'Musk',color:'#9B82C9',onPick:()=>this.pickChip('musk')},{label:'Vetiver',color:'#72A67C',onPick:()=>this.pickChip('vetiver')}];
 
     // new list
     const newIsSub=!!s.newParent;
     const newContext=newIsSub?('Sub-list of '+(lists[s.newParent]?lists[s.newParent].name:'')):(activeSec?('Added to '+activeSec.name):'');
-    const newCovers=this.covers().map((c,i)=>({onPick:()=>this.setNewCover(i),style:'width:46px;height:46px;border-radius:13px;cursor:pointer;background-image:'+this.coverCss(c)+';'+(s.newCover===i?'border:2.5px solid var(--accent-deep);box-shadow:0 0 0 2px #fff inset;':'border:2.5px solid transparent;')}));
+    const newCovers=this.covers().map((c,i)=>({onPick:()=>this.setNewCover(i),style:'width:46px;height:46px;border-radius:13px;cursor:pointer;background-image:'+this.coverCss(c)+';'+((s.newCover===i&&!s.newCoverPhoto)?'border:2.5px solid var(--accent-deep);box-shadow:0 0 0 2px #fff inset;':'border:2.5px solid transparent;')}));
+    const newCoverHasPhoto=!!s.newCoverPhoto;
+    const newCoverTileBg=s.newCoverPhoto?('url("'+s.newCoverPhoto+'") center/cover no-repeat'):'#F4F1FA';
+    const newCoverTileBorder=s.newCoverPhoto?'2.5px solid var(--accent-deep)':'1.5px dashed #C9C4D8';
     const sortDefs=[{id:'added',label:'Date added'},{id:'name',label:'Name'},{id:'brand',label:'Brand name'},{id:'release',label:'Release year'}];
     const dirText={added:{asc:'Oldest first',desc:'Newest first'},name:{asc:'A → Z',desc:'Z → A'},brand:{asc:'A → Z',desc:'Z → A'},release:{asc:'Oldest first',desc:'Newest first'}};
     const sortOptions=sortDefs.map(o=>{const active=s.sort===o.id;return{label:o.label,active,color:active?'#1C1B22':'#3A3845',dirLabel:active?dirText[o.id][s.sortDir]:'',dirIcon:s.sortDir==='asc'?'arrow_upward':'arrow_downward',onPick:()=>this.setSort(o.id)};});
@@ -1265,6 +1431,8 @@ class Component extends DCLogic {
       homeTabs, activeSecSub:activeSec?activeSec.sub:'', activeSecCount, activeCards, activeSectionEmpty, activeSectionHasCards:activeTop.length>0, activeEmptyMsg,
       listModel, drawerOpen, d,
       drawerSheetRef:(el)=>{this._drawerSheet=el;}, onGrabStart:(e)=>this.onGrabStart(e), onGrabMove:(e)=>this.onGrabMove(e), onGrabEnd:()=>this.onGrabEnd(),
+      openPickList:()=>this.openPickList(), createListWithPerfume:()=>this.createListWithPerfume(),
+      showPickList:s.sheet==='picklist', pickListOptions,
       editNote:s.editNote, editPrice:s.editPrice, onEditNote:(e)=>this.onEditNote(e), onEditPrice:(e)=>this.onEditPrice(e),
       openEdit:()=>this.openEdit(), cancelEdit:()=>this.cancelEdit(), saveEdit:()=>this.saveEdit(), openSimAdd:()=>this.openSimAdd(),
       showSimAdd:s.sheet==='simadd', simQuery:s.simQuery, onSimQuery:(e)=>this.onSimQuery(e), simResults, simNoResults, simPrompt,
@@ -1291,6 +1459,16 @@ class Component extends DCLogic {
       openSort:()=>this.openSort(), openListMenu:()=>this.openListMenu(), shareCurrent:()=>this.shareCurrent(),
       openNewListTop:()=>this.openNewList(null), addSubList:()=>this.addSubList(), onNewName:(e)=>this.onNewName(e), createList:()=>this.createList(),
       onManualName:(e)=>this.onManualName(e), manualSave:()=>this.manualSave(),
+      onManualBrand:(e)=>this.onManualBrand(e), onManualYear:(e)=>this.onManualYear(e), onManualNote:(e)=>this.onManualNote(e),
+      manualBrand:s.manualBrand, manualYear:s.manualYear, manualNote:s.manualNote,
+      onPickManualPhoto:(e)=>this.onPickManualPhoto(e), removeManualPhoto:()=>this.removeManualPhoto(),
+      manualHasPhoto:!!s.manualPhoto, manualNoPhoto:!s.manualPhoto,
+      manualPhotoBg:s.manualPhoto?('url("'+s.manualPhoto+'") center/cover no-repeat'):'#F7F6FB',
+      manualPhotoBorder:s.manualPhoto?'2.5px solid var(--accent-deep)':'1.5px dashed #C9C4D8',
+      onPickCoverPhoto:(e)=>this.onPickCoverPhoto(e), removeCoverPhoto:()=>this.removeCoverPhoto(),
+      newCoverHasPhoto, newCoverNoPhoto:!s.newCoverPhoto, newCoverTileBg, newCoverTileBorder,
+      changeCoverForList:()=>this.changeCoverForList(), coverInputRef:(el)=>{this._coverInput=el;}, onChangeCoverFile:(e)=>this.onChangeCoverFile(e),
+      onPickDrawerPhoto:(e)=>this.onPickDrawerPhoto(e),
       ...this._authVals(),
       menuRename:()=>this.openRename(),
       menuDelete:()=>this.openDeleteConfirm(),
