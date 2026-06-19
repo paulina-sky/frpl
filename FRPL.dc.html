@@ -244,8 +244,12 @@
               </div>
               <div style="padding:0 16px;">
                 <sc-for list="{{ listModel.rows }}" as="row" hint-placeholder-count="4">
-                  <button onClick="{{ row.onOpen }}" style="{{ row.wrapStyle }}">
-                    <span class="ms" style="font-size:20px; color:#CBC8D6; flex:0 0 auto;">drag_indicator</span>
+                  <div style="position:relative; overflow:hidden;">
+                    <div style="position:absolute; top:0; right:0; bottom:1px; display:flex;">
+                      <button onClick="{{ row.onMore }}" style="width:75px; background:#9491A0; border:none; color:#fff; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px; cursor:pointer; font-family:inherit;"><span class="ms" style="font-size:21px;">more_horiz</span><span style="font-size:11px; font-weight:600;">More</span></button>
+                      <button onClick="{{ row.onArchive }}" style="width:75px; background:var(--accent); border:none; color:#fff; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px; cursor:pointer; font-family:inherit;"><span class="ms" style="font-size:21px;">{{ row.archiveIcon }}</span><span style="font-size:11px; font-weight:600;">{{ row.archiveLabel }}</span></button>
+                    </div>
+                    <button ref="{{ row.frontRef }}" onClick="{{ row.onOpen }}" onTouchStart="{{ row.onSwipeStart }}" onTouchMove="{{ row.onSwipeMove }}" onTouchEnd="{{ row.onSwipeEnd }}" style="{{ row.wrapStyle }}">
                     <span style="width:50px; height:50px; border-radius:13px; background:{{ row.thumbBg }}; display:flex; align-items:center; justify-content:center; flex:0 0 auto; overflow:hidden;">
                       <sc-if value="{{ row.img }}" hint-placeholder-val="">{{ row.imgEl }}</sc-if>
                       <sc-if value="{{ row.noImg }}" hint-placeholder-val=""><span class="ms" style="font-size:22px; color:var(--accent-light);">water_drop</span></sc-if>
@@ -260,7 +264,8 @@
                       </sc-if>
                     </span>
                     <span class="ms" style="font-size:21px; color:#CBC8D6; flex:0 0 auto;">chevron_right</span>
-                  </button>
+                    </button>
+                  </div>
                 </sc-for>
               </div>
             </sc-if>
@@ -398,7 +403,6 @@
                 <div style="font-size:22px; font-weight:700; color:#1C1B22; margin-top:4px; line-height:1.15;">{{ d.name }}</div>
                 <div style="font-size:12.5px; color:#6A6775; margin-top:7px; line-height:1.5;">{{ d.metaLine }}</div>
               </div>
-              <button onClick="{{ closeDrawer }}" style="position:absolute; top:14px; right:16px; width:32px; height:32px; border-radius:50%; background:#F2F1F6; border:none; color:#6A6775; display:flex; align-items:center; justify-content:center; cursor:pointer;"><span class="ms" style="font-size:20px;">close</span></button>
             </div>
 
             <sc-if value="{{ d.canEditPhoto }}" hint-placeholder-val="">
@@ -485,20 +489,16 @@
             <div style="height:14px;"></div>
           </div>
 
+          <sc-if value="{{ d.showFooter }}" hint-placeholder-val="">
           <div style="flex:0 0 auto; padding:14px 20px calc(18px + env(safe-area-inset-bottom,0px)); display:flex; gap:11px; align-items:center; background:#fff; border-top:1px solid #ECEAF2; box-shadow:0 -6px 18px rgba(20,16,32,0.06);">
             <sc-if value="{{ d.showAddToList }}" hint-placeholder-val="">
               <button onClick="{{ openPickList }}" style="flex:1; height:46px; border-radius:13px; background:var(--accent); border:none; color:#fff; font-size:14.5px; font-weight:600; cursor:pointer; font-family:inherit; display:flex; align-items:center; justify-content:center; gap:7px;"><span class="ms" style="font-size:19px;">playlist_add</span>Add to list</button>
             </sc-if>
             <sc-if value="{{ d.showListFooter }}" hint-placeholder-val="">
-              <sc-if value="{{ d.dirty }}" hint-placeholder-val="">
-                <button onClick="{{ saveEdit }}" style="flex:1; height:46px; border-radius:13px; background:var(--accent); border:none; color:#fff; font-size:14.5px; font-weight:700; cursor:pointer; font-family:inherit; display:flex; align-items:center; justify-content:center; gap:7px;"><span class="ms" style="font-size:19px;">check</span>Save changes</button>
-              </sc-if>
-              <sc-if value="{{ d.notDirty }}" hint-placeholder-val="{{ true }}">
-                <div style="flex:1; font-size:12.5px; color:#B4B1C0;">Tap a field to edit · changes are private</div>
-              </sc-if>
-              <button onClick="{{ d.removeFromList }}" aria-label="Remove from list" style="flex:0 0 auto; width:46px; height:46px; border-radius:13px; background:#fff; border:1px solid #ECEAF2; color:#6A6775; display:flex; align-items:center; justify-content:center; cursor:pointer;"><span class="ms" style="font-size:22px;">close</span></button>
+              <button onClick="{{ saveEdit }}" style="flex:1; height:46px; border-radius:13px; background:var(--accent); border:none; color:#fff; font-size:14.5px; font-weight:700; cursor:pointer; font-family:inherit; display:flex; align-items:center; justify-content:center; gap:7px;"><span class="ms" style="font-size:19px;">check</span>Save changes</button>
             </sc-if>
           </div>
+          </sc-if>
         </div>
       </sc-if>
 
@@ -506,10 +506,10 @@
       <sc-if value="{{ showPickList }}" hint-placeholder-val="">
         <div onClick="{{ closeSheet }}" style="position:absolute; inset:0; background:rgba(20,16,32,0.42); z-index:46; animation:fadeIn 180ms ease;"></div>
         <div style="position:absolute; left:0; right:0; bottom:0; height:74%; background:#fff; border-radius:26px 26px 0 0; z-index:47; display:flex; flex-direction:column; animation:sheetUp 300ms cubic-bezier(.2,.7,.2,1); box-shadow:0 -14px 44px rgba(20,16,32,0.24); overflow:hidden;">
-          <div style="flex:0 0 auto; display:flex; justify-content:center; padding:9px 0 3px;"><div style="width:38px; height:5px; border-radius:99px; background:#E2DEEC;"></div></div>
+          <div onTouchStart="{{ sheetGrabStart }}" onTouchMove="{{ sheetGrabMove }}" onTouchEnd="{{ sheetGrabEnd }}" style="flex:0 0 auto; display:flex; justify-content:center; padding:9px 0 3px; cursor:grab; touch-action:none;"><div style="width:38px; height:5px; border-radius:99px; background:#E2DEEC;"></div></div>
           <div style="flex:0 0 auto; display:flex; align-items:center; justify-content:space-between; padding:6px 20px 12px;">
             <div style="font-size:18px; font-weight:700; color:#1C1B22;">Add to list</div>
-            <button onClick="{{ closeSheet }}" style="width:32px; height:32px; border-radius:50%; background:#F2F1F6; border:none; color:#6A6775; display:flex; align-items:center; justify-content:center; cursor:pointer;"><span class="ms" style="font-size:20px;">close</span></button>
+            
           </div>
           <div style="flex:0 0 auto; padding:0 16px 10px;">
             <button onClick="{{ createListWithPerfume }}" style="width:100%; height:48px; border-radius:14px; background:#fff; border:1.5px dashed #D8D4E4; color:var(--accent); font-size:14.5px; font-weight:600; cursor:pointer; font-family:inherit; display:flex; align-items:center; justify-content:center; gap:8px;"><span class="ms" style="font-size:20px;">add</span>Create a new list</button>
@@ -533,10 +533,10 @@
       <sc-if value="{{ showSimAdd }}" hint-placeholder-val="">
         <div onClick="{{ closeSheet }}" style="position:absolute; inset:0; background:rgba(20,16,32,0.42); z-index:44; animation:fadeIn 180ms ease;"></div>
         <div style="position:absolute; left:0; right:0; bottom:0; height:80%; background:#fff; border-radius:26px 26px 0 0; z-index:45; display:flex; flex-direction:column; animation:sheetUp 300ms cubic-bezier(.2,.7,.2,1); box-shadow:0 -14px 44px rgba(20,16,32,0.24); overflow:hidden;">
-          <div style="flex:0 0 auto; display:flex; justify-content:center; padding:9px 0 3px;"><div style="width:38px; height:5px; border-radius:99px; background:#E2DEEC;"></div></div>
+          <div onTouchStart="{{ sheetGrabStart }}" onTouchMove="{{ sheetGrabMove }}" onTouchEnd="{{ sheetGrabEnd }}" style="flex:0 0 auto; display:flex; justify-content:center; padding:9px 0 3px; cursor:grab; touch-action:none;"><div style="width:38px; height:5px; border-radius:99px; background:#E2DEEC;"></div></div>
           <div style="flex:0 0 auto; display:flex; align-items:center; justify-content:space-between; padding:6px 20px 12px;">
             <div style="font-size:18px; font-weight:700; color:#1C1B22;">Add a similar scent</div>
-            <button onClick="{{ closeSheet }}" style="width:32px; height:32px; border-radius:50%; background:#F2F1F6; border:none; color:#6A6775; display:flex; align-items:center; justify-content:center; cursor:pointer;"><span class="ms" style="font-size:20px;">close</span></button>
+            
           </div>
           <div style="flex:0 0 auto; margin:0 20px 8px; display:flex; align-items:center; gap:10px; background:#F2F1F6; border-radius:14px; padding:13px 14px;">
             <span class="ms" style="font-size:21px; color:#9C99A8;">search</span>
@@ -567,10 +567,10 @@
       <sc-if value="{{ showAddSheet }}" hint-placeholder-val="">
         <div onClick="{{ closeSheet }}" style="position:absolute; inset:0; background:rgba(20,16,32,0.42); z-index:42; animation:fadeIn 180ms ease;"></div>
         <div style="position:absolute; left:0; right:0; bottom:0; height:80%; background:#fff; border-radius:26px 26px 0 0; z-index:43; display:flex; flex-direction:column; animation:sheetUp 300ms cubic-bezier(.2,.7,.2,1); box-shadow:0 -14px 44px rgba(20,16,32,0.24); overflow:hidden;">
-          <div style="flex:0 0 auto; display:flex; justify-content:center; padding:9px 0 3px;"><div style="width:38px; height:5px; border-radius:99px; background:#E2DEEC;"></div></div>
+          <div onTouchStart="{{ sheetGrabStart }}" onTouchMove="{{ sheetGrabMove }}" onTouchEnd="{{ sheetGrabEnd }}" style="flex:0 0 auto; display:flex; justify-content:center; padding:9px 0 3px; cursor:grab; touch-action:none;"><div style="width:38px; height:5px; border-radius:99px; background:#E2DEEC;"></div></div>
           <div style="flex:0 0 auto; display:flex; align-items:center; justify-content:space-between; padding:6px 20px 12px;">
             <div style="font-size:18px; font-weight:700; color:#1C1B22;">{{ addTitle }}</div>
-            <button onClick="{{ closeSheet }}" style="width:32px; height:32px; border-radius:50%; background:#F2F1F6; border:none; color:#6A6775; display:flex; align-items:center; justify-content:center; cursor:pointer;"><span class="ms" style="font-size:20px;">close</span></button>
+            
           </div>
           <div style="flex:0 0 auto; margin:0 20px 8px; display:flex; align-items:center; gap:10px; background:#F2F1F6; border-radius:14px; padding:13px 14px;">
             <span class="ms" style="font-size:21px; color:#9C99A8;">search</span>
@@ -601,7 +601,7 @@
       <sc-if value="{{ showManual }}" hint-placeholder-val="">
         <div onClick="{{ closeSheet }}" style="position:absolute; inset:0; background:rgba(20,16,32,0.42); z-index:44; animation:fadeIn 180ms ease;"></div>
         <div style="position:absolute; left:0; right:0; bottom:0; height:86%; background:#fff; border-radius:26px 26px 0 0; z-index:45; display:flex; flex-direction:column; animation:sheetUp 300ms cubic-bezier(.2,.7,.2,1); box-shadow:0 -14px 44px rgba(20,16,32,0.24); overflow:hidden;">
-          <div style="flex:0 0 auto; display:flex; justify-content:center; padding:9px 0 3px;"><div style="width:38px; height:5px; border-radius:99px; background:#E2DEEC;"></div></div>
+          <div onTouchStart="{{ sheetGrabStart }}" onTouchMove="{{ sheetGrabMove }}" onTouchEnd="{{ sheetGrabEnd }}" style="flex:0 0 auto; display:flex; justify-content:center; padding:9px 0 3px; cursor:grab; touch-action:none;"><div style="width:38px; height:5px; border-radius:99px; background:#E2DEEC;"></div></div>
           <div style="flex:0 0 auto; display:flex; align-items:center; gap:10px; padding:6px 20px 12px;">
             <button onClick="{{ openAdd }}" style="width:32px; height:32px; border-radius:50%; background:#F2F1F6; border:none; color:#6A6775; display:flex; align-items:center; justify-content:center; cursor:pointer;"><span class="ms" style="font-size:20px;">arrow_back_ios_new</span></button>
             <div style="font-size:18px; font-weight:700; color:#1C1B22;">Add manually</div>
@@ -614,6 +614,9 @@
                 <sc-if value="{{ manualNoPhoto }}" hint-placeholder-val="{{ true }}"><span style="display:flex; flex-direction:column; align-items:center; gap:4px; color:var(--accent);"><span class="ms" style="font-size:26px;">add_a_photo</span><span style="font-size:10px; font-weight:600;">Add photo</span></span></sc-if>
               </label>
             </div>
+            <sc-if value="{{ manualNoPhoto }}" hint-placeholder-val="{{ true }}">
+              <div style="text-align:center; margin:-8px 0 14px;"><button onClick="{{ pasteManualUrl }}" style="background:none; border:none; color:var(--accent); font-size:12.5px; font-weight:600; cursor:pointer; font-family:inherit; display:inline-flex; align-items:center; gap:5px;"><span class="ms" style="font-size:16px;">link</span>Paste image URL</button></div>
+            </sc-if>
             <sc-if value="{{ manualHasPhoto }}" hint-placeholder-val="">
               <div style="text-align:center; margin:-8px 0 14px;"><button onClick="{{ removeManualPhoto }}" style="background:none; border:none; color:#9C99A8; font-size:12px; font-weight:600; cursor:pointer; font-family:inherit;">Remove photo</button></div>
             </sc-if>
@@ -636,10 +639,10 @@
       <sc-if value="{{ showNewList }}" hint-placeholder-val="">
         <div onClick="{{ closeSheet }}" style="position:absolute; inset:0; background:rgba(20,16,32,0.42); z-index:46; animation:fadeIn 180ms ease;"></div>
         <div style="position:absolute; left:0; right:0; bottom:0; background:#fff; border-radius:26px 26px 0 0; z-index:47; display:flex; flex-direction:column; animation:sheetUp 300ms cubic-bezier(.2,.7,.2,1); box-shadow:0 -14px 44px rgba(20,16,32,0.24); overflow:hidden;">
-          <div style="display:flex; justify-content:center; padding:9px 0 3px;"><div style="width:38px; height:5px; border-radius:99px; background:#E2DEEC;"></div></div>
+          <div onTouchStart="{{ sheetGrabStart }}" onTouchMove="{{ sheetGrabMove }}" onTouchEnd="{{ sheetGrabEnd }}" style="display:flex; justify-content:center; padding:9px 0 3px; cursor:grab; touch-action:none;"><div style="width:38px; height:5px; border-radius:99px; background:#E2DEEC;"></div></div>
           <div style="display:flex; align-items:center; justify-content:space-between; padding:6px 20px 14px;">
             <div style="font-size:18px; font-weight:700; color:#1C1B22;">{{ newTitle }}</div>
-            <button onClick="{{ closeSheet }}" style="width:32px; height:32px; border-radius:50%; background:#F2F1F6; border:none; color:#6A6775; display:flex; align-items:center; justify-content:center; cursor:pointer;"><span class="ms" style="font-size:20px;">close</span></button>
+            
           </div>
           <div style="padding:0 20px;">
             <div style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; color:#9C99A8; margin-bottom:7px;">List name</div>
@@ -655,6 +658,7 @@
                 <sc-if value="{{ newCoverHasPhoto }}" hint-placeholder-val=""><span class="ms" style="font-size:18px; color:#fff; text-shadow:0 1px 3px rgba(0,0,0,0.5);">photo_camera</span></sc-if>
                 <sc-if value="{{ newCoverNoPhoto }}" hint-placeholder-val="{{ true }}"><span class="ms" style="font-size:22px; color:var(--accent);">add_a_photo</span></sc-if>
               </label>
+              <button onClick="{{ pasteNewCoverUrl }}" aria-label="Paste image URL" style="width:46px; height:46px; border-radius:13px; cursor:pointer; flex:0 0 auto; background:#F4F1FA; border:1.5px solid #ECEAF2; display:flex; align-items:center; justify-content:center; font-family:inherit;"><span class="ms" style="font-size:21px; color:var(--accent);">link</span></button>
             </div>
             <sc-if value="{{ newCoverHasPhoto }}" hint-placeholder-val="">
               <button onClick="{{ removeCoverPhoto }}" style="margin-top:10px; background:none; border:none; color:#9C99A8; font-size:12.5px; font-weight:600; cursor:pointer; font-family:inherit; display:flex; align-items:center; gap:5px; padding:0;"><span class="ms" style="font-size:16px;">close</span>Remove photo, use a colour</button>
@@ -670,10 +674,10 @@
       <sc-if value="{{ showNewCat }}" hint-placeholder-val="">
         <div onClick="{{ closeSheet }}" style="position:absolute; inset:0; background:rgba(20,16,32,0.42); z-index:46; animation:fadeIn 180ms ease;"></div>
         <div style="position:absolute; left:0; right:0; bottom:0; background:#fff; border-radius:26px 26px 0 0; z-index:47; display:flex; flex-direction:column; animation:sheetUp 300ms cubic-bezier(.2,.7,.2,1); box-shadow:0 -14px 44px rgba(20,16,32,0.24); overflow:hidden;">
-          <div style="display:flex; justify-content:center; padding:9px 0 3px;"><div style="width:38px; height:5px; border-radius:99px; background:#E2DEEC;"></div></div>
+          <div onTouchStart="{{ sheetGrabStart }}" onTouchMove="{{ sheetGrabMove }}" onTouchEnd="{{ sheetGrabEnd }}" style="display:flex; justify-content:center; padding:9px 0 3px; cursor:grab; touch-action:none;"><div style="width:38px; height:5px; border-radius:99px; background:#E2DEEC;"></div></div>
           <div style="display:flex; align-items:center; justify-content:space-between; padding:6px 20px 6px;">
             <div style="font-size:18px; font-weight:700; color:#1C1B22;">New category</div>
-            <button onClick="{{ closeSheet }}" style="width:32px; height:32px; border-radius:50%; background:#F2F1F6; border:none; color:#6A6775; display:flex; align-items:center; justify-content:center; cursor:pointer;"><span class="ms" style="font-size:20px;">close</span></button>
+            
           </div>
           <div style="padding:8px 20px 0;">
             <div style="display:flex; align-items:flex-start; gap:11px; margin-bottom:16px; padding:12px; background:#F7F6FB; border-radius:12px;">
@@ -693,7 +697,7 @@
       <sc-if value="{{ showSort }}" hint-placeholder-val="">
         <div onClick="{{ closeSheet }}" style="position:absolute; inset:0; background:rgba(20,16,32,0.42); z-index:48; animation:fadeIn 180ms ease;"></div>
         <div style="position:absolute; left:0; right:0; bottom:0; background:#fff; border-radius:26px 26px 0 0; z-index:49; animation:sheetUp 280ms cubic-bezier(.2,.7,.2,1); box-shadow:0 -14px 44px rgba(20,16,32,0.24); padding-bottom:26px;">
-          <div style="display:flex; justify-content:center; padding:9px 0 3px;"><div style="width:38px; height:5px; border-radius:99px; background:#E2DEEC;"></div></div>
+          <div onTouchStart="{{ sheetGrabStart }}" onTouchMove="{{ sheetGrabMove }}" onTouchEnd="{{ sheetGrabEnd }}" style="display:flex; justify-content:center; padding:9px 0 3px; cursor:grab; touch-action:none;"><div style="width:38px; height:5px; border-radius:99px; background:#E2DEEC;"></div></div>
           <div style="padding:6px 20px 4px;">
             <div style="font-size:18px; font-weight:700; color:#1C1B22;">Sort by</div>
             <div style="font-size:12px; color:#9C99A8; margin-top:3px;">Tap the active option again to reverse the order.</div>
@@ -717,7 +721,7 @@
       <sc-if value="{{ showListMenu }}" hint-placeholder-val="">
         <div onClick="{{ closeSheet }}" style="position:absolute; inset:0; background:rgba(20,16,32,0.42); z-index:48; animation:fadeIn 180ms ease;"></div>
         <div style="position:absolute; left:0; right:0; bottom:0; background:#fff; border-radius:26px 26px 0 0; z-index:49; animation:sheetUp 280ms cubic-bezier(.2,.7,.2,1); box-shadow:0 -14px 44px rgba(20,16,32,0.24); padding-bottom:26px;">
-          <div style="display:flex; justify-content:center; padding:9px 0 3px;"><div style="width:38px; height:5px; border-radius:99px; background:#E2DEEC;"></div></div>
+          <div onTouchStart="{{ sheetGrabStart }}" onTouchMove="{{ sheetGrabMove }}" onTouchEnd="{{ sheetGrabEnd }}" style="display:flex; justify-content:center; padding:9px 0 3px; cursor:grab; touch-action:none;"><div style="width:38px; height:5px; border-radius:99px; background:#E2DEEC;"></div></div>
           <div style="padding:8px 8px 0;">
             <button onClick="{{ menuRename }}" style="display:flex; align-items:center; gap:14px; width:100%; padding:15px 16px; background:none; border:none; cursor:pointer; font-family:inherit; text-align:left;"><span class="ms" style="font-size:22px; color:var(--accent);">edit</span><span style="font-size:15px; color:#1C1B22; font-weight:500;">Rename list</span></button>
             <button onClick="{{ openCoverEdit }}" style="display:flex; align-items:center; gap:14px; width:100%; padding:15px 16px; background:none; border:none; cursor:pointer; font-family:inherit; text-align:left;"><span class="ms" style="font-size:22px; color:var(--accent);">image</span><span style="font-size:15px; color:#1C1B22; font-weight:500;">Change cover</span></button>
@@ -731,7 +735,7 @@
       <sc-if value="{{ showCoverEdit }}" hint-placeholder-val="">
         <div onClick="{{ closeSheet }}" style="position:absolute; inset:0; background:rgba(20,16,32,0.42); z-index:48; animation:fadeIn 180ms ease;"></div>
         <div style="position:absolute; left:0; right:0; bottom:0; background:#fff; border-radius:26px 26px 0 0; z-index:49; animation:sheetUp 280ms cubic-bezier(.2,.7,.2,1); box-shadow:0 -14px 44px rgba(20,16,32,0.24); padding:0 22px calc(26px + env(safe-area-inset-bottom,0px));">
-          <div style="display:flex; justify-content:center; padding:9px 0 14px;"><div style="width:38px; height:5px; border-radius:99px; background:#E2DEEC;"></div></div>
+          <div onTouchStart="{{ sheetGrabStart }}" onTouchMove="{{ sheetGrabMove }}" onTouchEnd="{{ sheetGrabEnd }}" style="display:flex; justify-content:center; padding:9px 0 14px; cursor:grab; touch-action:none;"><div style="width:38px; height:5px; border-radius:99px; background:#E2DEEC;"></div></div>
           <div style="font-size:18px; font-weight:700; color:#1C1B22; margin-bottom:4px;">Change cover</div>
           <div style="font-size:13px; color:#9C99A8; margin-bottom:18px;">Pick a colour or upload a photo.</div>
           <div style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; color:#9C99A8; margin-bottom:9px;">Colour</div>
@@ -756,7 +760,7 @@
       <sc-if value="{{ showUrlInput }}" hint-placeholder-val="">
         <div onClick="{{ closeSheet }}" style="position:absolute; inset:0; background:rgba(20,16,32,0.42); z-index:50; animation:fadeIn 180ms ease;"></div>
         <div style="position:absolute; left:0; right:0; bottom:0; background:#fff; border-radius:26px 26px 0 0; z-index:51; animation:sheetUp 280ms cubic-bezier(.2,.7,.2,1); box-shadow:0 -14px 44px rgba(20,16,32,0.24); padding:0 22px calc(26px + env(safe-area-inset-bottom,0px));">
-          <div style="display:flex; justify-content:center; padding:9px 0 14px;"><div style="width:38px; height:5px; border-radius:99px; background:#E2DEEC;"></div></div>
+          <div onTouchStart="{{ sheetGrabStart }}" onTouchMove="{{ sheetGrabMove }}" onTouchEnd="{{ sheetGrabEnd }}" style="display:flex; justify-content:center; padding:9px 0 14px; cursor:grab; touch-action:none;"><div style="width:38px; height:5px; border-radius:99px; background:#E2DEEC;"></div></div>
           <div style="font-size:18px; font-weight:700; color:#1C1B22; margin-bottom:4px;">Paste image URL</div>
           <div style="font-size:13px; color:#9C99A8; margin-bottom:16px;">A direct link to an image (ending in .jpg, .png, .webp).</div>
           <input class="frpl-in" value="{{ urlValue }}" onChange="{{ onUrlValue }}" placeholder="https://…" type="url" inputmode="url" autocapitalize="off" style="width:100%; border:1.5px solid #ECEAF2; border-radius:13px; padding:14px 16px; color:#1C1B22; background:#fff;" />
@@ -765,10 +769,20 @@
       </sc-if>
 
       <!-- RENAME LIST -->
+      <sc-if value="{{ showRowMore }}" hint-placeholder-val="">
+        <div onClick="{{ closeSheet }}" style="position:absolute; inset:0; background:rgba(20,16,32,0.42); z-index:50; animation:fadeIn 180ms ease;"></div>
+        <div style="position:absolute; left:0; right:0; bottom:0; background:#fff; border-radius:26px 26px 0 0; z-index:51; animation:sheetUp 280ms cubic-bezier(.2,.7,.2,1); box-shadow:0 -14px 44px rgba(20,16,32,0.24); padding:0 8px calc(20px + env(safe-area-inset-bottom,0px));">
+          <div onTouchStart="{{ sheetGrabStart }}" onTouchMove="{{ sheetGrabMove }}" onTouchEnd="{{ sheetGrabEnd }}" style="display:flex; justify-content:center; padding:9px 0 6px; cursor:grab; touch-action:none;"><div style="width:38px; height:5px; border-radius:99px; background:#E2DEEC;"></div></div>
+          <button onClick="{{ rowMoveStart }}" style="display:flex; align-items:center; gap:14px; width:100%; padding:15px 16px; background:none; border:none; cursor:pointer; font-family:inherit; text-align:left;"><span class="ms" style="font-size:22px; color:var(--accent);">drive_file_move</span><span style="font-size:15px; color:#1C1B22; font-weight:500;">Move to another list</span></button>
+          <button onClick="{{ rowRemove }}" style="display:flex; align-items:center; gap:14px; width:100%; padding:15px 16px; background:none; border:none; cursor:pointer; font-family:inherit; text-align:left;"><span class="ms" style="font-size:22px; color:#C0353A;">delete_outline</span><span style="font-size:15px; color:#C0353A; font-weight:500;">Remove from list</span></button>
+        </div>
+      </sc-if>
+
+      <!-- RENAME LIST -->
       <sc-if value="{{ showRenameList }}" hint-placeholder-val="">
         <div onClick="{{ closeSheet }}" style="position:absolute; inset:0; background:rgba(20,16,32,0.42); z-index:48; animation:fadeIn 180ms ease;"></div>
         <div style="position:absolute; left:0; right:0; bottom:0; background:#fff; border-radius:26px 26px 0 0; z-index:49; animation:sheetUp 280ms cubic-bezier(.2,.7,.2,1); box-shadow:0 -14px 44px rgba(20,16,32,0.24); padding:0 22px 26px;">
-          <div style="display:flex; justify-content:center; padding:9px 0 14px;"><div style="width:38px; height:5px; border-radius:99px; background:#E2DEEC;"></div></div>
+          <div onTouchStart="{{ sheetGrabStart }}" onTouchMove="{{ sheetGrabMove }}" onTouchEnd="{{ sheetGrabEnd }}" style="display:flex; justify-content:center; padding:9px 0 14px; cursor:grab; touch-action:none;"><div style="width:38px; height:5px; border-radius:99px; background:#E2DEEC;"></div></div>
           <div style="font-size:18px; font-weight:700; color:#1C1B22; margin-bottom:14px;">Rename list</div>
           <input class="frpl-in" value="{{ renameValue }}" onChange="{{ onRenameValue }}" placeholder="List name" style="width:100%; border:1.5px solid #ECEAF2; border-radius:13px; padding:14px 16px; font-size:16px; color:#1C1B22; background:#fff;" />
           <button onClick="{{ saveRename }}" style="width:100%; height:50px; border-radius:13px; background:var(--accent); border:none; color:#fff; font-size:15px; font-weight:700; cursor:pointer; font-family:inherit; margin-top:14px;">Save</button>
@@ -779,7 +793,7 @@
       <sc-if value="{{ showDeleteList }}" hint-placeholder-val="">
         <div onClick="{{ closeSheet }}" style="position:absolute; inset:0; background:rgba(20,16,32,0.42); z-index:48; animation:fadeIn 180ms ease;"></div>
         <div style="position:absolute; left:0; right:0; bottom:0; background:#fff; border-radius:26px 26px 0 0; z-index:49; animation:sheetUp 280ms cubic-bezier(.2,.7,.2,1); box-shadow:0 -14px 44px rgba(20,16,32,0.24); padding:0 22px 26px;">
-          <div style="display:flex; justify-content:center; padding:9px 0 16px;"><div style="width:38px; height:5px; border-radius:99px; background:#E2DEEC;"></div></div>
+          <div onTouchStart="{{ sheetGrabStart }}" onTouchMove="{{ sheetGrabMove }}" onTouchEnd="{{ sheetGrabEnd }}" style="display:flex; justify-content:center; padding:9px 0 16px; cursor:grab; touch-action:none;"><div style="width:38px; height:5px; border-radius:99px; background:#E2DEEC;"></div></div>
           <div style="width:54px; height:54px; border-radius:50%; background:#FDECEC; display:flex; align-items:center; justify-content:center; margin:0 auto 14px;"><span class="ms" style="font-size:27px; color:#C0353A;">delete</span></div>
           <div style="font-size:18px; font-weight:700; color:#1C1B22; text-align:center; margin-bottom:7px;">Delete “{{ deleteListName }}”?</div>
           <div style="font-size:13.5px; color:#9C99A8; text-align:center; line-height:1.55; margin-bottom:22px;">{{ deleteListWarning }}</div>
@@ -937,7 +951,7 @@ class Component extends DCLogic {
 
     if (s.authMode === 'reset') {
       if (password.length < 6) { this.setState({ authError: 'Password must be at least 6 characters.' }); return; }
-      if (password !== s.authPassword2) { this.setState({ authError: 'Passwords don\u2019t match.' }); return; }
+      if (password !== s.authPassword2) { this.setState({ authError: 'Passwords don’t match.' }); return; }
       this.setState({ authLoading: true, authError: null });
       const { error } = await this._sb.auth.updateUser({ password });
       if (error) { this.setState({ authLoading: false, authError: error.message }); return; }
@@ -960,7 +974,7 @@ class Component extends DCLogic {
     if (password.length < 6) { this.setState({ authError: 'Password must be at least 6 characters.' }); return; }
 
     if (s.authMode === 'signup') {
-      if (password !== s.authPassword2) { this.setState({ authError: 'Passwords don\u2019t match.' }); return; }
+      if (password !== s.authPassword2) { this.setState({ authError: 'Passwords don’t match.' }); return; }
       this.setState({ authLoading: true, authError: null });
       const { data, error } = await this._sb.auth.signUp({ email, password, options: { emailRedirectTo: appUrl } });
       if (error) { this.setState({ authLoading: false, authError: error.message }); return; }
@@ -987,18 +1001,18 @@ class Component extends DCLogic {
     const subs = {
       signin: 'Sign in to your fragrance library.',
       signup: 'Pick an email and password to start your library.',
-      forgot: 'Enter your email and we\u2019ll send a reset link.',
+      forgot: 'Enter your email and we’ll send a reset link.',
       signup_sent: 'Almost there.',
       reset: 'Choose a new password for your account.'
     };
     const btn = { signin: 'Sign in', signup: 'Create account', forgot: 'Send reset link', signup_sent: 'Back to sign in', reset: 'Update password' };
-    const loadingBtn = { signin: 'Signing in\u2026', signup: 'Creating\u2026', forgot: 'Sending\u2026', reset: 'Updating\u2026' };
+    const loadingBtn = { signin: 'Signing in…', signup: 'Creating…', forgot: 'Sending…', reset: 'Updating…' };
     const isSent = m === 'signup_sent';
     return {
       authEmail: s.authEmail, authPassword: s.authPassword, authPassword2: s.authPassword2,
       authError: s.authError || '', authNotice: s.authNotice || '',
       authTitle: titles[m] || titles.signin, authSubtitle: subs[m] || subs.signin,
-      authBtnLabel: s.authLoading ? (loadingBtn[m] || 'Please wait\u2026') : (btn[m] || 'Continue'),
+      authBtnLabel: s.authLoading ? (loadingBtn[m] || 'Please wait…') : (btn[m] || 'Continue'),
       authShowEmail: (m === 'signin' || m === 'signup' || m === 'forgot') ? true : '',
       authShowPw: (m === 'signin' || m === 'signup' || m === 'reset') ? true : '',
       authShowPw2: (m === 'signup' || m === 'reset') ? true : '',
@@ -1138,11 +1152,14 @@ class Component extends DCLogic {
     this.toast('Removed');
   }
   closeSheet() { this.setState({sheet:null}); }
+  sheetGrabStart(e){ const t=e.touches[0]; this._sg={y0:t.clientY, panel:e.currentTarget.parentElement, dy:0, moved:false}; if(this._sg.panel) this._sg.panel.style.transition='none'; }
+  sheetGrabMove(e){ const sg=this._sg; if(!sg)return; const dy=e.touches[0].clientY-sg.y0; sg.dy=dy; if(Math.abs(dy)>4)sg.moved=true; if(sg.panel) sg.panel.style.transform='translateY('+Math.max(0,dy)+'px)'; }
+  sheetGrabEnd(){ const sg=this._sg; if(!sg)return; this._sg=null; const p=sg.panel; if(sg.dy>100){ this.closeSheet(); } else if(p){ p.style.transition='transform .24s cubic-bezier(.2,.7,.2,1)'; p.style.transform='translateY(0)'; } }
   openAdd() { this.setState({sheet:'add',addTargetListId:this.state.activeListId,addQuery:''}); }
-  openManual() { this._pendingBottleBlob=null; this.setState({sheet:'manual',manualName:'',manualBrand:'',manualYear:'',manualNote:'',manualPhoto:null}); }
+  openManual() { this._pendingBottleBlob=null; this._pendingBottleUrl=null; this.setState({sheet:'manual',manualName:'',manualBrand:'',manualYear:'',manualNote:'',manualPhoto:null}); }
   openSort() { this.setState({sheet:'sort'}); }
   openListMenu() { this.setState({sheet:'listmenu'}); }
-  openNewList(parent) { this._pendingCoverBlob=null; this.setState({sheet:'newlist',newParent:parent||null,newName:'',newCover:0,newCoverPhoto:null}); }
+  openNewList(parent) { this._pendingCoverBlob=null; this._pendingCoverUrl=null; this.setState({sheet:'newlist',newParent:parent||null,newName:'',newCover:0,newCoverPhoto:null}); }
   addSubList() { this.openNewList(this.state.activeListId); }
   openNewCat() { this.setState({sheet:'newcat',newCatName:''}); }
   onAddQuery(e) { this.setState({addQuery:e.target.value}); }
@@ -1161,18 +1178,20 @@ class Component extends DCLogic {
   onManualNote(e) { this.setState({manualNote:e.target.value}); }
   async onPickCoverPhoto(e) {
     const file=e.target.files&&e.target.files[0]; e.target.value=''; if(!file) return;
+    this._pendingCoverUrl=null;
     this.setState({coverBusy:true});
     try { const {blob,preview}=await this._resizeImage(file,1200,'image/jpeg',0.82); this._pendingCoverBlob=blob; this.setState({newCoverPhoto:preview,coverBusy:false}); }
     catch(err){ this.setState({coverBusy:false}); this.toast('Could not read image'); }
   }
-  removeCoverPhoto() { this._pendingCoverBlob=null; this.setState({newCoverPhoto:null}); }
+  removeCoverPhoto() { this._pendingCoverBlob=null; this._pendingCoverUrl=null; this.setState({newCoverPhoto:null}); }
   async onPickManualPhoto(e) {
     const file=e.target.files&&e.target.files[0]; e.target.value=''; if(!file) return;
+    this._pendingBottleUrl=null;
     this.setState({manualBusy:true});
     try { const {blob,preview}=await this._resizeImage(file,700,'image/jpeg',0.85); this._pendingBottleBlob=blob; this.setState({manualPhoto:preview,manualBusy:false}); }
     catch(err){ this.setState({manualBusy:false}); this.toast('Could not read image'); }
   }
-  removeManualPhoto() { this._pendingBottleBlob=null; this.setState({manualPhoto:null}); }
+  removeManualPhoto() { this._pendingBottleBlob=null; this._pendingBottleUrl=null; this.setState({manualPhoto:null}); }
   changeCoverForList() { this._coverTargetListId=this.state.activeListId; this.setState({sheet:null}); if(this._coverInput) this._coverInput.click(); }
   openCoverEdit() { this._coverTargetListId=this.state.activeListId; this.setState({sheet:'coveredit'}); }
   async applyCoverColor(i) {
@@ -1185,12 +1204,25 @@ class Component extends DCLogic {
   pasteCoverUrl() { this.openUrlSheet('cover'); }
   pastePerfumeUrl() { this.openUrlSheet('perfume'); }
   openUrlSheet(target) { this.setState({sheet:'urlinput', urlTarget:target, urlValue:''}); }
+  pasteNewCoverUrl() { this.openUrlSheet('newcover'); }
+  pasteManualUrl() { this.openUrlSheet('manual'); }
   onUrlValue(e) { this.setState({urlValue:e.target.value}); }
   async applyUrl() {
     const s=this.state, url=(s.urlValue||'').trim(), target=s.urlTarget; if(!url) return;
-    this.setState({sheet:null}); this.toast('Loading image…');
+    this.toast('Loading image…');
     const ok=await new Promise(res=>{ const im=new Image(); im.onload=()=>res(true); im.onerror=()=>res(false); im.src=url; setTimeout(()=>res(false),6000); });
-    if(!ok){ this.toast('Couldn\u2019t load that image URL'); return; }
+    if(!ok){ this.toast('Couldn’t load that image URL'); return; }
+    if(target==='newcover'){
+      this._pendingCoverBlob=null; this._pendingCoverUrl=url;
+      this.setState({sheet:'newlist', newCoverPhoto:url});
+      return;
+    }
+    if(target==='manual'){
+      this._pendingBottleBlob=null; this._pendingBottleUrl=url;
+      this.setState({sheet:'manual', manualPhoto:url});
+      return;
+    }
+    this.setState({sheet:null});
     if(target==='cover'){
       const lid=this._coverTargetListId, l=s.lists[lid]; if(!l) return;
       l.coverImage=url; this.forceUpdate();
@@ -1258,8 +1290,72 @@ class Component extends DCLogic {
       if (error) { l.entries=prev; this.forceUpdate(); this.toast('Sync error'); }
     }
   }
-  openPickList() { this.setState({sheet:'picklist'}); }
-  createListWithPerfume() { this._pendingCoverBlob=null; this.setState({pendingAddPerfumeId:this.state.drawerPerfumeId, sheet:'newlist', newParent:null, newName:'', newCover:0, newCoverPhoto:null}); }
+  openPickList() { this._moveTarget=null; this.setState({sheet:'picklist'}); }
+  // ── swipe-to-reveal on list rows ──
+  _setRowEl(key, el) { this._rowEls = this._rowEls || {}; if (el) this._rowEls[key] = el; }
+  closeSwipe() { const k=this._swipeOpen; if(!k) return; const el=this._rowEls&&this._rowEls[k]; if(el){ el.style.transition='transform .22s cubic-bezier(.2,.7,.2,1)'; el.style.transform='translateX(0)'; } this._swipeOpen=null; }
+  swipeStart(key, e) { const t=e.touches[0]; this._sw={key, x0:t.clientX, y0:t.clientY, dx:0, moved:false, vertical:false, base:(this._swipeOpen===key?-150:0)}; if(this._swipeOpen && this._swipeOpen!==key) this.closeSwipe(); }
+  swipeMove(e) {
+    const sw=this._sw; if(!sw) return; const t=e.touches[0];
+    const dx=t.clientX-sw.x0, dy=t.clientY-sw.y0;
+    if(!sw.moved){ if(Math.abs(dx)<6 && Math.abs(dy)<6) return; sw.vertical=Math.abs(dy)>Math.abs(dx); sw.moved=true; }
+    if(sw.vertical) return;
+    let x=sw.base+dx; if(x>0)x=0; if(x<-150)x=-150; sw.dx=x;
+    const el=this._rowEls&&this._rowEls[sw.key]; if(el){ el.style.transition='none'; el.style.transform='translateX('+x+'px)'; }
+  }
+  swipeEnd() {
+    const sw=this._sw; if(!sw) return; this._sw=null;
+    if(sw.vertical||!sw.moved) return;
+    const el=this._rowEls&&this._rowEls[sw.key];
+    const open=sw.dx<-70;
+    if(el){ el.style.transition='transform .22s cubic-bezier(.2,.7,.2,1)'; el.style.transform='translateX('+(open?-150:0)+'px)'; }
+    this._swipeOpen=open?sw.key:null;
+    this._suppressClick=true; setTimeout(()=>{this._suppressClick=false;},120);
+  }
+  rowTap(key, openFn) { if(this._suppressClick) return; if(this._swipeOpen){ const wasThis=this._swipeOpen===key; this.closeSwipe(); if(wasThis) return; } openFn(); }
+  async _moveEntry(pid, fromId, toId) {
+    const s=this.state, from=s.lists[fromId], to=s.lists[toId]; if(!from||!to) return;
+    const idx=from.entries.findIndex(e=>e.perfumeId===pid); if(idx<0) return;
+    const [ent]=from.entries.splice(idx,1); to.entries.push(ent); this.forceUpdate();
+    if(this._sb&&s.session){ await this._sb.from('list_entries').update({list_id:toId}).eq('list_id',fromId).eq('perfume_id',pid).eq('user_id',s.session.user.id); }
+  }
+  async _ensureArchivedSub(parentId) {
+    const s=this.state;
+    let arch=Object.values(s.lists).find(l=>l.parentId===parentId && l.name==='Archived');
+    if(arch) return arch;
+    const parent=s.lists[parentId]; if(!parent) return null;
+    const cover=this.covers()[3];
+    if(this._sb&&s.session){
+      const {data,error}=await this._sb.from('lists').insert({user_id:s.session.user.id,name:'Archived',section_id:parent.sectionId,parent_id:parentId,cover_start:cover[0],cover_end:cover[1],sort_order:Object.keys(s.lists).length}).select().single();
+      if(error){ this.toast('Could not create Archived'); return null; }
+      arch={id:data.id,name:'Archived',sectionId:parent.sectionId,parentId,cover,entries:[]};
+    } else { arch={id:'tmp'+Date.now(),name:'Archived',sectionId:parent.sectionId,parentId,cover,entries:[]}; }
+    s.lists[arch.id]=arch; this.forceUpdate(); return arch;
+  }
+  async rowArchive(pid, listId) {
+    this.closeSwipe();
+    const s=this.state, src=s.lists[listId]; if(!src) return;
+    if(src.name==='Archived' && src.parentId){ await this._moveEntry(pid, listId, src.parentId); this.toast('Restored'); return; }
+    const arch=await this._ensureArchivedSub(listId); if(!arch) return;
+    await this._moveEntry(pid, listId, arch.id); this.toast('Archived');
+  }
+  rowMore(pid, listId) { this._moreTarget={pid, listId}; this.closeSwipe(); this.setState({sheet:'rowmore'}); }
+  rowMoveStart() { const t=this._moreTarget; if(!t) return; this._moveTarget=t; this.setState({sheet:'picklist'}); }
+  async rowMoveTo(toId) {
+    const mv=this._moveTarget; this._moveTarget=null; this.setState({sheet:null}); if(!mv) return;
+    if(toId===mv.listId) return;
+    if(this.state.lists[toId] && this.state.lists[toId].entries.some(e=>e.perfumeId===mv.pid)){ await this._moveEntry(mv.pid, mv.listId, toId); this.toast('Moved'); return; }
+    await this._moveEntry(mv.pid, mv.listId, toId); this.toast('Moved to '+(this.state.lists[toId]?this.state.lists[toId].name:'list'));
+  }
+  async rowRemove() {
+    const t=this._moreTarget; if(!t) return; this.setState({sheet:null});
+    const s=this.state, l=s.lists[t.listId]; if(!l) return;
+    const prev=l.entries.slice();
+    l.entries=l.entries.filter(e=>e.perfumeId!==t.pid); this.forceUpdate();
+    this.toast('Removed from list');
+    if(this._sb){ const {error}=await this._sb.from('list_entries').delete().eq('list_id',t.listId).eq('perfume_id',t.pid); if(error){ l.entries=prev; this.forceUpdate(); this.toast('Sync error'); } }
+  }
+  createListWithPerfume() { this._pendingCoverBlob=null; this._pendingCoverUrl=null; this.setState({pendingAddPerfumeId:this.state.drawerPerfumeId, sheet:'newlist', newParent:null, newName:'', newCover:0, newCoverPhoto:null}); }
   async addDrawerToList(listId) {
     const s=this.state, l=s.lists[listId], pid=s.drawerPerfumeId; if(!l||!pid) return;
     if (l.entries.some(e=>e.perfumeId===pid)) { this.setState({sheet:null}); this.toast('Already in '+l.name); return; }
@@ -1288,7 +1384,11 @@ class Component extends DCLogic {
       newId='tmp'+Date.now(); s.lists[newId]={id:newId,name:nm,sectionId:section,parentId:parent||null,cover,entries:[]}; this.forceUpdate();
     }
     // upload chosen cover photo (if any) now that we have the list id
-    if (this._pendingCoverBlob && s.lists[newId] && this._sb && s.session) {
+    if (this._pendingCoverUrl && s.lists[newId]) {
+      const u=this._pendingCoverUrl; this._pendingCoverUrl=null;
+      s.lists[newId].coverImage=u; this.forceUpdate();
+      if (this._sb && s.session) await this._sb.from('lists').update({cover_image_url:u}).eq('id',newId);
+    } else if (this._pendingCoverBlob && s.lists[newId] && this._sb && s.session) {
       const blob=this._pendingCoverBlob; this._pendingCoverBlob=null;
       try { const url=await this._uploadImage('covers/'+s.session.user.id+'/'+newId+'.jpg', blob); s.lists[newId].coverImage=url; this.forceUpdate(); await this._sb.from('lists').update({cover_image_url:url}).eq('id',newId); }
       catch(err){ this.toast('Cover upload failed'); }
@@ -1307,7 +1407,7 @@ class Component extends DCLogic {
   async saveRename() {
     const s=this.state, al=s.lists[s.activeListId], nm=(s.renameValue||'').trim();
     if (!al) { this.setState({sheet:null}); return; }
-    if (!nm) { this.toast('Name can\u2019t be empty'); return; }
+    if (!nm) { this.toast('Name can’t be empty'); return; }
     al.name=nm; this.setState({sheet:null}); this.forceUpdate();
     if (this._sb&&s.session&&!String(al.id).startsWith('tmp')) {
       const {error}=await this._sb.from('lists').update({name:nm}).eq('id',al.id);
@@ -1356,10 +1456,11 @@ class Component extends DCLogic {
     const admin=!!this._isAdmin;
     const id=(admin?'cm_':'cp_')+((window.crypto&&crypto.randomUUID)?crypto.randomUUID():(Date.now()+Math.random().toString(16).slice(2)));
     const blob=this._pendingBottleBlob; this._pendingBottleBlob=null;
+    const pendUrl=this._pendingBottleUrl; this._pendingBottleUrl=null;
     const targetListId=s.addTargetListId;
     this.setState({sheet:null, manualName:'',manualBrand:'',manualYear:'',manualNote:'',manualPhoto:null});
-    let imageUrl='';
-    if (blob && this._sb && s.session) { try { imageUrl=await this._uploadImage('bottles/'+s.session.user.id+'/'+id+'.jpg', blob); } catch(err){ this.toast('Image upload failed'); } }
+    let imageUrl=pendUrl||'';
+    if (!imageUrl && blob && this._sb && s.session) { try { imageUrl=await this._uploadImage('bottles/'+s.session.user.id+'/'+id+'.jpg', blob); } catch(err){ this.toast('Image upload failed'); } }
     s.catById[id]={id,name:nm,brand,year:yr,rating:null,ratingCount:null,gender:'',thumb:imageUrl,url:'',notes:{top:[],mid:[],base:[]},reminds:[],manual:!admin,community:admin};
     if (s.catalogue && !s.catalogue.some(p=>p.id===id)) s.catalogue.push(s.catById[id]);
     const l=s.lists[targetListId];
@@ -1389,7 +1490,7 @@ class Component extends DCLogic {
     const palettes={iris:{a:'#785EAF',d:'#5A4691',l:'#9B82C9',t:'#F1ECF9'},lavender:{a:'#7A6AD8',d:'#574BB0',l:'#A99BEF',t:'#EFEDFB'},plum:{a:'#8E5AA8',d:'#6E4283',l:'#B98ECD',t:'#F4ECF8'},periwinkle:{a:'#6573C9',d:'#4A57A8',l:'#98A4E6',t:'#EDEFFB'}};
     const pal=palettes[this.props.accent]||palettes.iris;
     const accentVarsCss='--accent:'+pal.a+';--accent-deep:'+pal.d+';--accent-light:'+pal.l+';--accent-tint:'+pal.t+';';
-    const blank={accentVarsCss,scrollRef:(el)=>{this._scroll=el;},showInitializing:s.appState==='initializing'||s.appState==='loading',showAuth:s.appState==='auth',showHome:false,showList:false,showSearch:false,showSettings:false,showFab:false,drawerOpen:false,showAddSheet:false,showManual:false,showNewList:false,showNewCat:false,showSort:false,showListMenu:false,showRenameList:false,showDeleteList:false,showCoverEdit:false,showUrlInput:false,showSimAdd:false,showPickList:false,pickListOptions:[],simResults:[],simNoResults:false,simPrompt:false,simQuery:'',renameValue:'',deleteListName:'',deleteListWarning:'',toastVisible:false,loadError:s.loadError||'',...this._authVals(),homeTabs:[],activeCards:[],activeSecSub:'',activeSecCount:'',activeSectionEmpty:false,activeSectionHasCards:false,activeEmptyMsg:'',listModel:{d:{},accords:[],top:[],heart:[],base:[],similar:[]},addResults:[],searchResults:[],searchChips:[],newCovers:[],sortOptions:[],newName:'',newCatName:'',newContext:'',newTitle:'',addQuery:'',libQuery:'',addTitle:'',addNoResults:false,searchEmpty:true,searchHasResults:false,searchNoResults:false,searchCountLabel:'',catalogueCount:'',userEmail:'',userInitial:'',signOut:()=>this.signOut(),goHome:()=>this.goHome(),openSearch:()=>this.openSearch(),openSettings:()=>this.openSettings(),openNewCat:()=>this.openNewCat(),openNewListTop:()=>this.openNewList(null),coverInputRef:(el)=>{this._coverInput=el;},onChangeCoverFile:(e)=>this.onChangeCoverFile(e)};
+    const blank={accentVarsCss,scrollRef:(el)=>{this._scroll=el;},showInitializing:s.appState==='initializing'||s.appState==='loading',showAuth:s.appState==='auth',showHome:false,showList:false,showSearch:false,showSettings:false,showFab:false,drawerOpen:false,showAddSheet:false,showManual:false,showNewList:false,showNewCat:false,showSort:false,showListMenu:false,showRenameList:false,showDeleteList:false,showCoverEdit:false,showUrlInput:false,showRowMore:false,showSimAdd:false,showPickList:false,pickListOptions:[],simResults:[],simNoResults:false,simPrompt:false,simQuery:'',renameValue:'',deleteListName:'',deleteListWarning:'',toastVisible:false,loadError:s.loadError||'',...this._authVals(),homeTabs:[],activeCards:[],activeSecSub:'',activeSecCount:'',activeSectionEmpty:false,activeSectionHasCards:false,activeEmptyMsg:'',listModel:{d:{},accords:[],top:[],heart:[],base:[],similar:[]},addResults:[],searchResults:[],searchChips:[],newCovers:[],sortOptions:[],newName:'',newCatName:'',newContext:'',newTitle:'',addQuery:'',libQuery:'',addTitle:'',addNoResults:false,searchEmpty:true,searchHasResults:false,searchNoResults:false,searchCountLabel:'',catalogueCount:'',userEmail:'',userInitial:'',signOut:()=>this.signOut(),goHome:()=>this.goHome(),openSearch:()=>this.openSearch(),openSettings:()=>this.openSettings(),openNewCat:()=>this.openNewCat(),openNewListTop:()=>this.openNewList(null),coverInputRef:(el)=>{this._coverInput=el;},onChangeCoverFile:(e)=>this.onChangeCoverFile(e)};
     if (s.appState!=='ready') return blank;
 
     const allLists=Object.values(lists), topLists=allLists.filter(l=>!l.parentId);
@@ -1402,7 +1503,7 @@ class Component extends DCLogic {
     const homeTabs=s.sections.map(sec=>{const active=sec.id===s.activeSection;return{name:sec.name,active,style:'flex:0 0 auto;padding:9px 16px;border-radius:999px;font-size:13.5px;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap;'+(active?'background:var(--accent);border:1px solid var(--accent);color:#fff;':'background:#F2F1F6;border:1px solid #F2F1F6;color:#6A6775;'),onSelect:()=>this.selectSection(sec.id)};});
     const activeSec=s.sections.find(x=>x.id===s.activeSection)||s.sections[0];
     const activeTop=topLists.filter(l=>l.sectionId===activeSec.id);
-    const activeCards=activeTop.map(l=>{const sc=allLists.filter(x=>x.parentId===l.id).length,fp=l.entries.length?pidOf(l.entries[0]):null,fi=fp?fp.thumb:'';let cl=l.entries.length+(l.entries.length===1?' perfume':' perfumes');if(sc)cl+=' · '+sc+(sc===1?' sub-list':' sub-lists');return{name:l.name,countLabel:cl,coverCss:this.coverCss(l.cover),hasCover:!!l.coverImage,coverBgCss:l.coverImage?('url("'+l.coverImage+'") center/cover no-repeat'):this.coverCss(l.cover),thumbBg:l.entries.length===0?'var(--accent-tint)':'#fff',bottleEl:mkImg(fi,ST.card),bottleImg:fi,showBottle:false,showEmptyIcon:false,empty:l.entries.length===0,onOpen:()=>this.openList(l.id)};});
+    const activeCards=activeTop.map(l=>{const sc=allLists.filter(x=>x.parentId===l.id && !(x.name==='Archived' && x.entries.length===0)).length,fp=l.entries.length?pidOf(l.entries[0]):null,fi=fp?fp.thumb:'';let cl=l.entries.length+(l.entries.length===1?' perfume':' perfumes');if(sc)cl+=' · '+sc+(sc===1?' sub-list':' sub-lists');return{name:l.name,countLabel:cl,coverCss:this.coverCss(l.cover),hasCover:!!l.coverImage,coverBgCss:l.coverImage?('url("'+l.coverImage+'") center/cover no-repeat'):this.coverCss(l.cover),thumbBg:l.entries.length===0?'var(--accent-tint)':'#fff',bottleEl:mkImg(fi,ST.card),bottleImg:fi,showBottle:false,showEmptyIcon:false,empty:l.entries.length===0,onOpen:()=>this.openList(l.id)};});
     const secPerf=activeTop.reduce((n,l)=>n+l.entries.length,0);
     const activeSecCount=activeTop.length+(activeTop.length===1?' list · ':' lists · ')+secPerf+(secPerf===1?' perfume':' perfumes');
     const emptyMsgs={owned:'Start by creating a list for your owned fragrances.',totry:'Save fragrances you want to discover or buy.',favnotes:'Group perfumes by ingredients you love.'};
@@ -1415,15 +1516,16 @@ class Component extends DCLogic {
     if (showList) {
       const al=lists[s.activeListId]; if (!al) return {...blank,showHome:true};
       const sec=s.sections.find(x=>x.id===al.sectionId)||{name:''};
-      const subLists=allLists.filter(x=>x.parentId===al.id).map(x=>({name:x.name,countLabel:x.entries.length+(x.entries.length===1?' perfume':' perfumes'),coverCss:this.swatchBg(x),onOpen:()=>this.openList(x.id)}));
+      const subLists=allLists.filter(x=>x.parentId===al.id && !(x.name==='Archived' && x.entries.length===0)).map(x=>({name:x.name,countLabel:x.entries.length+(x.entries.length===1?' perfume':' perfumes'),coverCss:this.swatchBg(x),onOpen:()=>this.openList(x.id)}));
       const sortLabels={added:'Date added',name:'Name',brand:'Brand',release:'Release'};
       const dirArrow=s.sortDir==='asc'?'↑':'↓';
       const rows=this.sortedEntries(al).map(e=>{
         const p=pidOf(e),ti=this.tagInfo(e.tag);
-        const flat='display:flex;align-items:center;gap:12px;padding:13px 8px;background:none;border:none;border-bottom:1px solid #F2F1F6;width:100%;cursor:pointer;font-family:inherit;';
+        const flat='display:flex;align-items:center;gap:12px;padding:13px 8px;background:#fff;border:none;border-bottom:1px solid #F2F1F6;width:100%;cursor:pointer;font-family:inherit;position:relative;';
         const tagged=ti?('display:flex;align-items:center;gap:12px;padding:14px 12px;margin:8px 0;background:'+ti.bg+';border:1px solid '+ti.border+';border-radius:16px;width:100%;cursor:pointer;font-family:inherit;box-shadow:0 5px 14px -4px '+ti.glow+';'):'';
         const tagStyle=ti?('display:inline-flex;align-items:center;gap:5px;margin-top:7px;font-size:10.5px;font-weight:700;color:'+ti.text+';background:#fff;border:1px solid '+ti.border+';padding:3px 9px;border-radius:999px;'):'';
-        return{name:p.name,house:p.brand||'—',img:p.thumb,imgEl:mkImg(p.thumb,ST.row),noImg:!p.thumb,thumbBg:'#FFFFFF',tag:e.tag||'',tagLabel:ti?ti.label:'',tagDot:ti?ti.dot:'',tagStyle,wrapStyle:ti?tagged:flat,onOpen:()=>this.openDrawer(p.id,al.id)};
+        const isArch=al.name==='Archived'&&!!al.parentId;
+        return{name:p.name,house:p.brand||'—',img:p.thumb,imgEl:mkImg(p.thumb,ST.row),noImg:!p.thumb,thumbBg:'#FFFFFF',tag:e.tag||'',tagLabel:ti?ti.label:'',tagDot:ti?ti.dot:'',tagStyle,wrapStyle:(ti?tagged:flat)+'position:relative;transition:transform .22s cubic-bezier(.2,.7,.2,1);will-change:transform;touch-action:pan-y;',frontRef:(el)=>this._setRowEl(p.id,el),onSwipeStart:(ev)=>this.swipeStart(p.id,ev),onSwipeMove:(ev)=>this.swipeMove(ev),onSwipeEnd:()=>this.swipeEnd(),onOpen:()=>this.rowTap(p.id,()=>this.openDrawer(p.id,al.id)),onMore:()=>this.rowMore(p.id,al.id),onArchive:()=>this.rowArchive(p.id,al.id),archiveLabel:isArch?'Restore':'Archive',archiveIcon:isArch?'unarchive':'archive'};
       });
       listModel={name:al.name,sectionName:sec.name,coverCss:this.coverBg(al),countLabel:al.entries.length+(al.entries.length===1?' perfume':' perfumes'),hasSub:subLists.length>0,subLists,empty:al.entries.length===0,hasRows:al.entries.length>0,rows,sortLabel:sortLabels[s.sort]+' '+dirArrow};
     }
@@ -1431,7 +1533,7 @@ class Component extends DCLogic {
     // drawer
     const p=s.drawerPerfumeId?cat[s.drawerPerfumeId]:null;
     const drawerOpen=!!p;
-    let d={img:'',imgEl:null,noImg:true,name:'',house:'',metaLine:'',inList:false,fromSearch:false,accords:[],hasAccords:false,top:['—'],heart:['—'],base:['—'],showToGet:false,showNotesEdit:false,showPriceEdit:false,simControls:false,showAddToList:false,showListFooter:false,dirty:false,notDirty:true,togetBtnStyle:'',toggleToGet:()=>{},showSimilar:false,similarEmpty:false,similar:[],removeFromList:()=>{},canEditPhoto:false};
+    let d={img:'',imgEl:null,noImg:true,name:'',house:'',metaLine:'',inList:false,fromSearch:false,accords:[],hasAccords:false,top:['—'],heart:['—'],base:['—'],showToGet:false,showNotesEdit:false,showPriceEdit:false,simControls:false,showAddToList:false,showListFooter:false,showFooter:false,dirty:false,notDirty:true,togetBtnStyle:'',toggleToGet:()=>{},showSimilar:false,similarEmpty:false,similar:[],removeFromList:()=>{},canEditPhoto:false};
     if (drawerOpen) {
       const inList=!!s.drawerListId;
       let curTag=null;
@@ -1449,7 +1551,7 @@ class Component extends DCLogic {
       const similar=merged.map(r=>({name:r.name,house:r.house,img:r.img,imgEl:mkImg(r.img,ST.sim),onOpen:r.id?(()=>this.openDrawer(r.id,s.drawerListId)):(()=>{}),showRemove:inList&&r.removable,onRemove:()=>this.removeSimilar(r.id)}));
       const fb=a=>(a&&a.length?a:['—']);
       const noteDirty=(s.editNote||'')!==(meta.note||''); const priceDirty=isOwned&&((s.editPrice||'')!==(meta.pricePaid||'')); const isDirty=inList&&(noteDirty||priceDirty);
-      d={name:p.name,house:p.brand||'—',metaLine,img:p.thumb,imgEl:mkImg(p.thumb,ST.drawer),noImg:!p.thumb,inList,fromSearch:s.drawerFromSearch,accords:p.accords||[],hasAccords:!!(p.accords&&p.accords.length),top:fb(p.notes.top),heart:fb(p.notes.mid),base:fb(p.notes.base),showToGet:inList,showNotesEdit:inList,showPriceEdit:(inList&&isOwned),togetBtnStyle:bs+(curTag==='toget'?'border:1.5px solid #E5484D;background:#FDECEC;color:#BE343A;':'border:1.5px solid #ECEAF2;background:#fff;color:#6A6775;'),toggleToGet:()=>this.toggleTag(p.id,s.drawerListId,'toget'),showSimilar:(similar.length>0||inList),simControls:inList,similarEmpty:(inList&&similar.length===0),similar,removeFromList:()=>this.removeFromList(),showAddToList:s.drawerFromSearch,showListFooter:inList,dirty:isDirty,notDirty:!isDirty,canEditPhoto:(inList&&(!!p.manual||(!!p.community&&!!this._isAdmin)))};
+      d={name:p.name,house:p.brand||'—',metaLine,img:p.thumb,imgEl:mkImg(p.thumb,ST.drawer),noImg:!p.thumb,inList,fromSearch:s.drawerFromSearch,accords:p.accords||[],hasAccords:!!(p.accords&&p.accords.length),top:fb(p.notes.top),heart:fb(p.notes.mid),base:fb(p.notes.base),showToGet:inList,showNotesEdit:inList,showPriceEdit:(inList&&isOwned),togetBtnStyle:bs+(curTag==='toget'?'border:1.5px solid #E5484D;background:#FDECEC;color:#BE343A;':'border:1.5px solid #ECEAF2;background:#fff;color:#6A6775;'),toggleToGet:()=>this.toggleTag(p.id,s.drawerListId,'toget'),showSimilar:(similar.length>0||inList),simControls:inList,similarEmpty:(inList&&similar.length===0),similar,removeFromList:()=>this.removeFromList(),showAddToList:s.drawerFromSearch,showListFooter:isDirty,showFooter:(s.drawerFromSearch||isDirty),dirty:isDirty,notDirty:!isDirty,canEditPhoto:(inList&&(!!p.manual||(!!p.community&&!!this._isAdmin)))};
     }
 
     // add sheet
@@ -1466,10 +1568,12 @@ class Component extends DCLogic {
     // pick-list sheet (add searched perfume to an existing list)
     let pickListOptions=[];
     if (s.sheet==='picklist') {
-      pickListOptions=Object.values(lists).map(l=>{
+      const mv=this._moveTarget;
+      const pickPid=mv?mv.pid:s.drawerPerfumeId;
+      pickListOptions=Object.values(lists).filter(l=>!(mv&&l.id===mv.listId)).map(l=>{
         const sec=s.sections.find(x=>x.id===l.sectionId)||{name:''};
-        const already=l.entries.some(e=>e.perfumeId===s.drawerPerfumeId);
-        return {name:l.name,meta:sec.name+'  ·  '+l.entries.length+(l.entries.length===1?' perfume':' perfumes'),already,notAlready:!already,nameColor:already?'#B4B1C0':'#1C1B22',onPick:()=>this.addDrawerToList(l.id)};
+        const already=l.entries.some(e=>e.perfumeId===pickPid);
+        return {name:l.name,meta:sec.name+'  ·  '+l.entries.length+(l.entries.length===1?' perfume':' perfumes'),already,notAlready:!already,nameColor:already?'#B4B1C0':'#1C1B22',onPick:()=>(mv?this.rowMoveTo(l.id):this.addDrawerToList(l.id))};
       });
     }
 
@@ -1521,6 +1625,8 @@ class Component extends DCLogic {
       listModel, drawerOpen, d,
       drawerSheetRef:(el)=>{this._drawerSheet=el;}, onGrabStart:(e)=>this.onGrabStart(e), onGrabMove:(e)=>this.onGrabMove(e), onGrabEnd:()=>this.onGrabEnd(),
       openPickList:()=>this.openPickList(), createListWithPerfume:()=>this.createListWithPerfume(),
+      sheetGrabStart:(e)=>this.sheetGrabStart(e), sheetGrabMove:(e)=>this.sheetGrabMove(e), sheetGrabEnd:()=>this.sheetGrabEnd(),
+      showRowMore:s.sheet==='rowmore', rowMoveStart:()=>this.rowMoveStart(), rowRemove:()=>this.rowRemove(),
       showPickList:s.sheet==='picklist', pickListOptions,
       editNote:s.editNote, editPrice:s.editPrice, onEditNote:(e)=>this.onEditNote(e), onEditPrice:(e)=>this.onEditPrice(e),
       openEdit:()=>this.openEdit(), cancelEdit:()=>this.cancelEdit(), saveEdit:()=>this.saveEdit(), openSimAdd:()=>this.openSimAdd(),
@@ -1534,7 +1640,7 @@ class Component extends DCLogic {
       showRenameList:s.sheet==='renamelist', renameValue:s.renameValue, onRenameValue:(e)=>this.onRenameValue(e), saveRename:()=>this.saveRename(),
       showDeleteList:s.sheet==='deletelist', confirmDelete:()=>this.confirmDelete(),
       deleteListName:(lists[s.activeListId]&&lists[s.activeListId].name)||'this list',
-      deleteListWarning:(()=>{const al=lists[s.activeListId];if(!al)return'';const subs=allLists.filter(x=>x.parentId===al.id).length;const n=al.entries.length;const parts=[];if(n)parts.push(n+(n===1?' perfume':' perfumes'));if(subs)parts.push(subs+(subs===1?' sub-list':' sub-lists'));return parts.length?('This removes the list and its '+parts.join(' and ')+'. This can\u2019t be undone.'):'This can\u2019t be undone.';})(),
+      deleteListWarning:(()=>{const al=lists[s.activeListId];if(!al)return'';const subs=allLists.filter(x=>x.parentId===al.id).length;const n=al.entries.length;const parts=[];if(n)parts.push(n+(n===1?' perfume':' perfumes'));if(subs)parts.push(subs+(subs===1?' sub-list':' sub-lists'));return parts.length?('This removes the list and its '+parts.join(' and ')+'. This can’t be undone.'):'This can’t be undone.';})(),
       searchEmpty:!lq, searchHasResults:!!lq&&searchResults.length>0, searchNoResults:!!lq&&searchResults.length===0,
       searchResults, searchChips, searchCountLabel:this.fmtInt(searchTotal)+(searchTotal===1?' result':' results')+(searchTotal>searchResults.length?' · showing top 60':''), libQuery:s.libQuery,
       toastVisible:!!s.toast, toast:s.toast,
@@ -1555,6 +1661,7 @@ class Component extends DCLogic {
       manualPhotoBg:s.manualPhoto?('url("'+s.manualPhoto+'") center/cover no-repeat'):'#F7F6FB',
       manualPhotoBorder:s.manualPhoto?'2.5px solid var(--accent-deep)':'1.5px dashed #C9C4D8',
       onPickCoverPhoto:(e)=>this.onPickCoverPhoto(e), removeCoverPhoto:()=>this.removeCoverPhoto(),
+      pasteNewCoverUrl:()=>this.pasteNewCoverUrl(), pasteManualUrl:()=>this.pasteManualUrl(),
       newCoverHasPhoto, newCoverNoPhoto:!s.newCoverPhoto, newCoverTileBg, newCoverTileBorder,
       changeCoverForList:()=>this.changeCoverForList(), coverInputRef:(el)=>{this._coverInput=el;}, onChangeCoverFile:(e)=>this.onChangeCoverFile(e),
       openCoverEdit:()=>this.openCoverEdit(), showCoverEdit:s.sheet==='coveredit', coverEditSwatches, applyCoverColor:(i)=>this.applyCoverColor(i), webImageInfo:()=>this.webImageInfo(),
