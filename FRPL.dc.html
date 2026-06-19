@@ -159,6 +159,7 @@
               <div style="font-size:13px; color:#9C99A8;">{{ activeSecSub }}</div>
               <div style="display:flex; align-items:center; gap:10px;">
                 <div style="font-size:12px; color:var(--accent); font-weight:600;">{{ activeSecCount }}</div>
+                <button onClick="{{ toggleHomeView }}" aria-label="Switch view" style="width:30px; height:30px; border-radius:50%; border:1px solid #ECEAF2; background:#fff; color:#9C99A8; display:flex; align-items:center; justify-content:center; cursor:pointer; flex:0 0 auto;"><span class="ms" style="font-size:19px;">{{ homeViewIcon }}</span></button>
                 <button onClick="{{ openCatMenu }}" aria-label="Category options" style="width:30px; height:30px; border-radius:50%; border:1px solid #ECEAF2; background:#fff; color:#9C99A8; display:flex; align-items:center; justify-content:center; cursor:pointer; flex:0 0 auto;"><span class="ms" style="font-size:19px;">more_horiz</span></button>
               </div>
             </div>
@@ -190,6 +191,30 @@
                   <span class="ms" style="font-size:24px;">add</span>
                   <span style="font-size:12.5px; font-weight:600;">New list</span>
                 </button>
+              </div>
+            </sc-if>
+
+            <sc-if value="{{ showAllEmpty }}" hint-placeholder-val="">
+              <div style="padding:40px 20px 0; display:flex; flex-direction:column; align-items:center; gap:12px; text-align:center;">
+                <div style="width:60px; height:60px; border-radius:18px; background:var(--accent-tint); display:flex; align-items:center; justify-content:center;"><span class="ms" style="font-size:28px; color:var(--accent);">grid_view</span></div>
+                <div style="font-size:16px; font-weight:700; color:#1C1B22;">Nothing here yet</div>
+                <div style="font-size:13px; color:#9C99A8; line-height:1.55; max-width:230px;">Add perfumes to your lists and they'll all gather here.</div>
+              </div>
+            </sc-if>
+
+            <sc-if value="{{ showAllGrid }}" hint-placeholder-val="">
+              <div style="padding:2px 16px 0; display:grid; grid-template-columns:repeat(3,1fr); gap:8px;">
+                <sc-for list="{{ allPerfumes }}" as="g" hint-placeholder-count="6">
+                  <button onClick="{{ g.onOpen }}" style="text-align:center; border:none; background:none; padding:8px 4px 12px; cursor:pointer; font-family:inherit; display:flex; flex-direction:column; align-items:center;">
+                    <div style="position:relative; height:112px; width:100%; display:flex; align-items:center; justify-content:center;">
+                      <sc-if value="{{ g.img }}" hint-placeholder-val="">{{ g.imgEl }}</sc-if>
+                      <sc-if value="{{ g.noImg }}" hint-placeholder-val=""><span class="ms" style="font-size:46px; color:var(--accent-light);">water_drop</span></sc-if>
+                      <sc-if value="{{ g.toget }}" hint-placeholder-val=""><span style="position:absolute; top:2px; right:8px; width:9px; height:9px; border-radius:50%; background:#E5484D; border:2px solid #fff;"></span></sc-if>
+                    </div>
+                    <div style="font-size:12.5px; font-weight:600; color:#1C1B22; line-height:1.25; margin-top:8px; max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">{{ g.name }}</div>
+                    <div style="font-size:10.5px; color:#9C99A8; margin-top:2px; max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">{{ g.house }}</div>
+                  </button>
+                </sc-for>
               </div>
             </sc-if>
           </div>
@@ -865,7 +890,7 @@ class Component extends DCLogic {
       { id: 'favnotes', name: 'Notes', sub: 'by accord & ingredient' },
     ],
     userData: {},
-    view: 'home', activeSection: 'totry', activeListId: null,
+    view: 'home', activeSection: 'totry', activeListId: null, homeView: 'folders',
     drawerPerfumeId: null, drawerListId: null, drawerEdit: false, drawerFromSearch: false, pendingAddPerfumeId: null, editNote: '', editPrice: '', simQuery: '',
     sheet: null, addTargetListId: null,
     sort: 'added', sortDir: 'asc', addQuery: '', libQuery: '',
@@ -1172,6 +1197,7 @@ class Component extends DCLogic {
   openSearch() { this.setState({view:'search',libQuery:''}); this.resetScroll(); }
   openSettings() { this.setState({view:'settings'}); this.resetScroll(); }
   selectSection(id) { this.setState({activeSection:id}); this.resetScroll(); }
+  toggleHomeView() { this.setState({homeView:this.state.homeView==='folders'?'all':'folders'}); this.resetScroll(); }
   openList(id) { this.setState({view:'list',activeListId:id}); this.resetScroll(); }
   back() {
     const al=this.state.lists[this.state.activeListId];
@@ -1677,7 +1703,7 @@ class Component extends DCLogic {
     const palettes={iris:{a:'#785EAF',d:'#5A4691',l:'#9B82C9',t:'#F1ECF9'},lavender:{a:'#7A6AD8',d:'#574BB0',l:'#A99BEF',t:'#EFEDFB'},plum:{a:'#8E5AA8',d:'#6E4283',l:'#B98ECD',t:'#F4ECF8'},periwinkle:{a:'#6573C9',d:'#4A57A8',l:'#98A4E6',t:'#EDEFFB'}};
     const pal=palettes[this.props.accent]||palettes.iris;
     const accentVarsCss='--accent:'+pal.a+';--accent-deep:'+pal.d+';--accent-light:'+pal.l+';--accent-tint:'+pal.t+';';
-    const blank={accentVarsCss,scrollRef:(el)=>{this._scroll=el;},showInitializing:s.appState==='initializing'||s.appState==='loading',showAuth:s.appState==='auth',showHome:false,showList:false,showSearch:false,showSettings:false,showFab:false,drawerOpen:false,showAddSheet:false,showManual:false,showNewList:false,showNewCat:false,showSort:false,showListMenu:false,showRenameList:false,showDeleteList:false,showCoverEdit:false,showUrlInput:false,showRowMore:false,showCatMenu:false,showRenameCat:false,showDeleteCat:false,showSimAdd:false,showPickList:false,pickListOptions:[],simResults:[],simNoResults:false,simPrompt:false,simQuery:'',renameValue:'',deleteListName:'',deleteListWarning:'',toastVisible:false,loadError:s.loadError||'',...this._authVals(),homeTabs:[],activeCards:[],activeSecSub:'',activeSecCount:'',activeSectionEmpty:false,activeSectionHasCards:false,activeEmptyMsg:'',listModel:{d:{},accords:[],top:[],heart:[],base:[],similar:[]},addResults:[],searchResults:[],searchChips:[],newCovers:[],sortOptions:[],newName:'',newCatName:'',newContext:'',newTitle:'',addQuery:'',libQuery:'',addTitle:'',addNoResults:false,searchEmpty:true,searchHasResults:false,searchNoResults:false,searchCountLabel:'',catalogueCount:'',userEmail:'',userInitial:'',signOut:()=>this.signOut(),goHome:()=>this.goHome(),openSearch:()=>this.openSearch(),openSettings:()=>this.openSettings(),openNewCat:()=>this.openNewCat(),openNewListTop:()=>this.openNewList(null),coverInputRef:(el)=>{this._coverInput=el;},onChangeCoverFile:(e)=>this.onChangeCoverFile(e)};
+    const blank={accentVarsCss,scrollRef:(el)=>{this._scroll=el;},showInitializing:s.appState==='initializing'||s.appState==='loading',showAuth:s.appState==='auth',showHome:false,showList:false,showSearch:false,showSettings:false,showFab:false,drawerOpen:false,showAddSheet:false,showManual:false,showNewList:false,showNewCat:false,showSort:false,showListMenu:false,showRenameList:false,showDeleteList:false,showCoverEdit:false,showUrlInput:false,showRowMore:false,showCatMenu:false,showRenameCat:false,showDeleteCat:false,showSimAdd:false,showPickList:false,pickListOptions:[],simResults:[],simNoResults:false,simPrompt:false,simQuery:'',renameValue:'',deleteListName:'',deleteListWarning:'',toastVisible:false,loadError:s.loadError||'',...this._authVals(),homeTabs:[],homeViewIcon:'grid_view',showAllGrid:false,showAllEmpty:false,allPerfumes:[],activeCards:[],activeSecSub:'',activeSecCount:'',activeSectionEmpty:false,activeSectionHasCards:false,activeEmptyMsg:'',listModel:{d:{},accords:[],top:[],heart:[],base:[],similar:[]},addResults:[],searchResults:[],searchChips:[],newCovers:[],sortOptions:[],newName:'',newCatName:'',newContext:'',newTitle:'',addQuery:'',libQuery:'',addTitle:'',addNoResults:false,searchEmpty:true,searchHasResults:false,searchNoResults:false,searchCountLabel:'',catalogueCount:'',userEmail:'',userInitial:'',signOut:()=>this.signOut(),goHome:()=>this.goHome(),openSearch:()=>this.openSearch(),openSettings:()=>this.openSettings(),openNewCat:()=>this.openNewCat(),openNewListTop:()=>this.openNewList(null),coverInputRef:(el)=>{this._coverInput=el;},onChangeCoverFile:(e)=>this.onChangeCoverFile(e)};
     if (s.appState!=='ready') return blank;
 
     const allLists=Object.values(lists), topLists=allLists.filter(l=>!l.parentId);
@@ -1696,6 +1722,23 @@ class Component extends DCLogic {
     const emptyMsgs={owned:'Start by creating a list for your owned fragrances.',totry:'Save fragrances you want to discover or buy.',favnotes:'Group perfumes by ingredients you love.'};
     const activeSectionEmpty=activeTop.length===0;
     const activeEmptyMsg=emptyMsgs[activeSec.id]||'Create your first list in this category.';
+
+    // "All perfumes" view — every perfume across this section's lists & sub-lists (Archived excluded), deduped
+    const isAllView=s.homeView==='all';
+    const secListIds=new Set(allLists.filter(l=>l.sectionId===activeSec.id && !(l.name==='Archived' && l.parentId)).map(l=>l.id));
+    const seenP=new Set(); const allPerfumes=[];
+    for (const l of allLists) {
+      if (!secListIds.has(l.id)) continue;
+      for (const e of l.entries) {
+        if (seenP.has(e.perfumeId)) continue; seenP.add(e.perfumeId);
+        const p=pidOf(e); if(!p) continue;
+        const lid=l.id;
+        allPerfumes.push({name:p.name,house:p.brand||'—',img:p.thumb,imgEl:mkImg(p.thumb,ST.drawer),noImg:!p.thumb,toget:this.isToGet(p.id),onOpen:()=>this.openDrawer(p.id,lid)});
+      }
+    }
+    const showAllGrid=isAllView&&allPerfumes.length>0;
+    const showAllEmpty=isAllView&&allPerfumes.length===0;
+    const homeViewIcon=isAllView?'folder':'grid_view';
 
     // list view
     let listModel={hasSub:false,subLists:[],empty:false,hasRows:false,rows:[],sortLabel:'Date added',coverCss:'',name:'',sectionName:'',countLabel:''};
@@ -1809,7 +1852,8 @@ class Component extends DCLogic {
       accentVarsCss, scrollRef:(el)=>{this._scroll=el;},
       showInitializing:false, showAuth:false, loadError:'',
       showHome:s.view==='home', showList, showSearch:s.view==='search', showSettings:s.view==='settings', showFab:!!showList,
-      homeTabs, activeSecSub:activeSec?activeSec.sub:'', activeSecCount, activeCards, activeSectionEmpty, activeSectionHasCards:activeTop.length>0, activeEmptyMsg,
+      homeTabs, activeSecSub:activeSec?activeSec.sub:'', activeSecCount, activeCards, activeSectionEmpty:activeSectionEmpty&&!isAllView, activeSectionHasCards:activeTop.length>0&&!isAllView, activeEmptyMsg,
+      toggleHomeView:()=>this.toggleHomeView(), homeViewIcon, showAllGrid, showAllEmpty, allPerfumes,
       listModel, drawerOpen, d,
       drawerSheetRef:(el)=>{this._drawerSheet=el;}, onGrabStart:(e)=>this.onGrabStart(e), onGrabMove:(e)=>this.onGrabMove(e), onGrabEnd:()=>this.onGrabEnd(),
       openPickList:()=>this.openPickList(), createListWithPerfume:()=>this.createListWithPerfume(),
