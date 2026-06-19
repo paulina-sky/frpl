@@ -155,10 +155,12 @@
               <button onClick="{{ openNewCat }}" aria-label="New category" style="flex:0 0 auto; width:36px; height:36px; border-radius:50%; border:1.5px dashed #D5D0E2; background:#fff; color:var(--accent); display:flex; align-items:center; justify-content:center; cursor:pointer;"><span class="ms" style="font-size:20px;">add</span></button>
             </div>
 
-            <div style="display:flex; align-items:flex-end; justify-content:space-between; padding:14px 20px 12px;">
-              <div style="font-size:13px; color:#9C99A8;">{{ activeSecSub }}</div>
-              <div style="display:flex; align-items:center; gap:10px;">
-                <div style="font-size:12px; color:var(--accent); font-weight:600;">{{ activeSecCount }}</div>
+            <div style="display:flex; align-items:center; justify-content:space-between; padding:14px 20px 12px;">
+              <div style="font-size:13px; color:#9C99A8;">{{ activeCountLabel }}</div>
+              <div style="display:flex; align-items:center; gap:12px;">
+                <sc-if value="{{ showGridSort }}" hint-placeholder-val="">
+                  <button onClick="{{ openSort }}" style="display:flex; align-items:center; gap:4px; background:none; border:none; color:var(--accent); font-size:13px; font-weight:600; cursor:pointer; font-family:inherit;"><span class="ms" style="font-size:18px;">swap_vert</span>{{ gridSortLabel }}</button>
+                </sc-if>
                 <button onClick="{{ toggleHomeView }}" aria-label="Switch view" style="width:30px; height:30px; border-radius:50%; border:1px solid #ECEAF2; background:#fff; color:#9C99A8; display:flex; align-items:center; justify-content:center; cursor:pointer; flex:0 0 auto;"><span class="ms" style="font-size:19px;">{{ homeViewIcon }}</span></button>
               </div>
             </div>
@@ -1736,7 +1738,7 @@ class Component extends DCLogic {
     const palettes={iris:{a:'#785EAF',d:'#5A4691',l:'#9B82C9',t:'#F1ECF9'},lavender:{a:'#7A6AD8',d:'#574BB0',l:'#A99BEF',t:'#EFEDFB'},plum:{a:'#8E5AA8',d:'#6E4283',l:'#B98ECD',t:'#F4ECF8'},periwinkle:{a:'#6573C9',d:'#4A57A8',l:'#98A4E6',t:'#EDEFFB'}};
     const pal=palettes[this.props.accent]||palettes.iris;
     const accentVarsCss='--accent:'+pal.a+';--accent-deep:'+pal.d+';--accent-light:'+pal.l+';--accent-tint:'+pal.t+';';
-    const blank={accentVarsCss,scrollRef:(el)=>{this._scroll=el;},showInitializing:s.appState==='initializing'||s.appState==='loading',showAuth:s.appState==='auth',showHome:false,showList:false,showSearch:false,showSettings:false,showFab:false,drawerOpen:false,showAddSheet:false,showManual:false,showNewList:false,showNewCat:false,showSort:false,showListMenu:false,showRenameList:false,showDeleteList:false,showCoverEdit:false,showUrlInput:false,showRowMore:false,showCatMenu:false,showRenameCat:false,showDeleteCat:false,showSimAdd:false,showPickList:false,pickListOptions:[],simResults:[],simNoResults:false,simPrompt:false,simQuery:'',renameValue:'',deleteListName:'',deleteListWarning:'',toastVisible:false,loadError:s.loadError||'',...this._authVals(),homeTabs:[],homeViewIcon:'grid_view',showAllGrid:false,showAllEmpty:false,allPerfumes:[],activeCards:[],activeSecSub:'',activeSecCount:'',activeSectionEmpty:false,activeSectionHasCards:false,activeEmptyMsg:'',listModel:{d:{},accords:[],top:[],heart:[],base:[],similar:[]},addResults:[],searchResults:[],searchChips:[],newCovers:[],sortOptions:[],newName:'',newCatName:'',newContext:'',newTitle:'',addQuery:'',libQuery:'',addTitle:'',addNoResults:false,searchEmpty:true,searchHasResults:false,searchNoResults:false,searchCountLabel:'',catalogueCount:'',userEmail:'',userInitial:'',signOut:()=>this.signOut(),goHome:()=>this.goHome(),openSearch:()=>this.openSearch(),openSettings:()=>this.openSettings(),openNewCat:()=>this.openNewCat(),openNewListTop:()=>this.openNewList(null),coverInputRef:(el)=>{this._coverInput=el;},onChangeCoverFile:(e)=>this.onChangeCoverFile(e)};
+    const blank={accentVarsCss,scrollRef:(el)=>{this._scroll=el;},showInitializing:s.appState==='initializing'||s.appState==='loading',showAuth:s.appState==='auth',showHome:false,showList:false,showSearch:false,showSettings:false,showFab:false,drawerOpen:false,showAddSheet:false,showManual:false,showNewList:false,showNewCat:false,showSort:false,showListMenu:false,showRenameList:false,showDeleteList:false,showCoverEdit:false,showUrlInput:false,showRowMore:false,showCatMenu:false,showRenameCat:false,showDeleteCat:false,showSimAdd:false,showPickList:false,pickListOptions:[],simResults:[],simNoResults:false,simPrompt:false,simQuery:'',renameValue:'',deleteListName:'',deleteListWarning:'',toastVisible:false,loadError:s.loadError||'',...this._authVals(),homeTabs:[],homeViewIcon:'grid_view',showAllGrid:false,showAllEmpty:false,allPerfumes:[],showGridSort:false,gridSortLabel:'Date added',activeCountLabel:'',activeCards:[],activeSecSub:'',activeSecCount:'',activeSectionEmpty:false,activeSectionHasCards:false,activeEmptyMsg:'',listModel:{d:{},accords:[],top:[],heart:[],base:[],similar:[]},addResults:[],searchResults:[],searchChips:[],newCovers:[],sortOptions:[],newName:'',newCatName:'',newContext:'',newTitle:'',addQuery:'',libQuery:'',addTitle:'',addNoResults:false,searchEmpty:true,searchHasResults:false,searchNoResults:false,searchCountLabel:'',catalogueCount:'',userEmail:'',userInitial:'',signOut:()=>this.signOut(),goHome:()=>this.goHome(),openSearch:()=>this.openSearch(),openSettings:()=>this.openSettings(),openNewCat:()=>this.openNewCat(),openNewListTop:()=>this.openNewList(null),coverInputRef:(el)=>{this._coverInput=el;},onChangeCoverFile:(e)=>this.onChangeCoverFile(e)};
     if (s.appState!=='ready') return blank;
 
     const allLists=Object.values(lists), topLists=allLists.filter(l=>!l.parentId);
@@ -1751,7 +1753,8 @@ class Component extends DCLogic {
     const activeTop=topLists.filter(l=>l.sectionId===activeSec.id);
     const activeCards=activeTop.map(l=>{const sc=allLists.filter(x=>x.parentId===l.id && !(x.name==='Archived' && x.entries.length===0)).length,fp=l.entries.length?pidOf(l.entries[0]):null,fi=fp?fp.thumb:'';let cl=l.entries.length+(l.entries.length===1?' perfume':' perfumes');if(sc)cl+=' · '+sc+(sc===1?' sub-list':' sub-lists');return{name:l.name,countLabel:cl,coverCss:this.coverCss(l.cover),hasCover:!!l.coverImage,coverBgCss:l.coverImage?('url("'+l.coverImage+'") center/cover no-repeat'):this.coverCss(l.cover),thumbBg:l.entries.length===0?'var(--accent-tint)':'#fff',bottleEl:mkImg(fi,ST.card),bottleImg:fi,showBottle:false,showEmptyIcon:false,empty:l.entries.length===0,onOpen:()=>this.openList(l.id)};});
     const secPerf=activeTop.reduce((n,l)=>n+l.entries.length,0);
-    const activeSecCount=activeTop.length+(activeTop.length===1?' list · ':' lists · ')+secPerf+(secPerf===1?' perfume':' perfumes');
+    const foldersWord=activeTop.length===1?' folder':' folders';
+    const folderCountLabel=activeTop.length+foldersWord+' · '+secPerf+(secPerf===1?' perfume':' perfumes');
     const emptyMsgs={owned:'Start by creating a list for your owned fragrances.',totry:'Save fragrances you want to discover or buy.',favnotes:'Group perfumes by ingredients you love.'};
     const activeSectionEmpty=activeTop.length===0;
     const activeEmptyMsg=emptyMsgs[activeSec.id]||'Create your first list in this category.';
@@ -1766,12 +1769,22 @@ class Component extends DCLogic {
         if (seenP.has(e.perfumeId)) continue; seenP.add(e.perfumeId);
         const p=pidOf(e); if(!p) continue;
         const lid=l.id;
-        allPerfumes.push({name:p.name,house:p.brand||'—',img:p.thumb,imgEl:mkImg(p.thumb,ST.grid),noImg:!p.thumb,toget:this.isToGet(p.id),onPressStart:(e)=>this.pressStart(()=>this.openDrawer(p.id,lid),()=>this.gridLongPress(p.id,lid),e),onPressMove:(e)=>this.pressMove(e),onPressEnd:()=>this.pressEnd(),onPressCancel:()=>this.pressCancel()});
+        allPerfumes.push({name:p.name,house:p.brand||'—',year:p.year,img:p.thumb,imgEl:mkImg(p.thumb,ST.grid),noImg:!p.thumb,toget:this.isToGet(p.id),onPressStart:(e)=>this.pressStart(()=>this.openDrawer(p.id,lid),()=>this.gridLongPress(p.id,lid),e),onPressMove:(e)=>this.pressMove(e),onPressEnd:()=>this.pressEnd(),onPressCancel:()=>this.pressCancel()});
       }
     }
+    const k=s.sort, dir=s.sortDir;
+    if (k==='name') allPerfumes.sort((a,b)=>a.name.localeCompare(b.name));
+    else if (k==='brand') allPerfumes.sort((a,b)=>(a.house||'').localeCompare(b.house||''));
+    else if (k==='release') allPerfumes.sort((a,b)=>(a.year||0)-(b.year||0));
+    if (dir==='desc' && k!=='added') allPerfumes.reverse();
+    else if (dir==='desc' && k==='added') allPerfumes.reverse();
     const showAllGrid=isAllView&&allPerfumes.length>0;
     const showAllEmpty=isAllView&&allPerfumes.length===0;
     const homeViewIcon=isAllView?'folder':'grid_view';
+    const gridSortLabels={added:'Date added',name:'Name',brand:'Brand',release:'Release'};
+    const gridSortLabel=gridSortLabels[s.sort]||'Date added';
+    const gridCount=allPerfumes.length;
+    const activeCountLabel=isAllView?(gridCount+(gridCount===1?' perfume':' perfumes')):folderCountLabel;
 
     // list view
     let listModel={hasSub:false,subLists:[],empty:false,hasRows:false,rows:[],sortLabel:'Date added',coverCss:'',name:'',sectionName:'',countLabel:''};
@@ -1885,8 +1898,8 @@ class Component extends DCLogic {
       accentVarsCss, scrollRef:(el)=>{this._scroll=el;},
       showInitializing:false, showAuth:false, loadError:'',
       showHome:s.view==='home', showList, showSearch:s.view==='search', showSettings:s.view==='settings', showFab:!!showList,
-      homeTabs, activeSecSub:activeSec?activeSec.sub:'', activeSecCount, activeCards, activeSectionEmpty:activeSectionEmpty&&!isAllView, activeSectionHasCards:activeTop.length>0&&!isAllView, activeEmptyMsg,
-      toggleHomeView:()=>this.toggleHomeView(), homeViewIcon, showAllGrid, showAllEmpty, allPerfumes,
+      homeTabs, activeCountLabel, activeCards, activeSectionEmpty:activeSectionEmpty&&!isAllView, activeSectionHasCards:activeTop.length>0&&!isAllView, activeEmptyMsg,
+      toggleHomeView:()=>this.toggleHomeView(), homeViewIcon, showAllGrid, showAllEmpty, allPerfumes, showGridSort:isAllView&&allPerfumes.length>0, gridSortLabel,
       listModel, drawerOpen, d,
       drawerSheetRef:(el)=>{this._drawerSheet=el;}, onGrabStart:(e)=>this.onGrabStart(e), onGrabMove:(e)=>this.onGrabMove(e), onGrabEnd:()=>this.onGrabEnd(),
       openPickList:()=>this.openPickList(), createListWithPerfume:()=>this.createListWithPerfume(),
