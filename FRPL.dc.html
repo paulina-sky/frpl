@@ -903,17 +903,20 @@ class Component extends DCLogic {
     // Safety watchdog: if anything stalls during boot, never leave the user on a dead loading screen.
     this._bootWatchdog = setTimeout(() => {
       if (this.state.appState === 'initializing') this.setState({ appState: 'auth' });
-    }, 9000);
+      else if (this.state.appState === 'loading') this.setState({ appState: 'ready', loadError: 'Some data couldn\u2019t load. Pull to refresh.' });
+    }, 11000);
     // Wait for supabase-js (precached by the service worker) to be ready.
     let _t = 0;
     while (!window.supabase && _t++ < 60) await new Promise(r => setTimeout(r, 100));
     if (!window.supabase) {
       this.setState({ appState: 'auth', loadError: 'Could not load auth library. Please refresh.' });
+      this._blurSoon();
       return;
     }
     this._sb = window.supabase.createClient(
       'https://yutfzippzrnohfsobpcx.supabase.co',
-      'sb_publishable_AYyUlmTU8DS1OQLonzCU2A_eC5figBW'
+      'sb_publishable_AYyUlmTU8DS1OQLonzCU2A_eC5figBW',
+      { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true, storageKey: 'frpl-auth' } }
     );
     // A password-reset link lands here with a recovery token — never auto-enter the app in that case.
     this._recovery = /type=recovery/.test(window.location.hash + ' ' + window.location.search);
@@ -941,11 +944,12 @@ class Component extends DCLogic {
       this._sb.auth.getSession(),
       new Promise(r => setTimeout(() => r({ data: { session: null } }), 5000))
     ]);
-    if (this._recovery) { this.setState({ appState: 'auth', authMode: 'reset', authNotice: 'Set a new password below.' }); return; }
+    if (this._recovery) { this.setState({ appState: 'auth', authMode: 'reset', authNotice: 'Set a new password below.' }); this._blurSoon(); return; }
     if (!session) {
       // No session resolved. If one is cached locally, onAuthStateChange will pick it up;
       // otherwise show auth. Either way we never sit on a blank loading screen.
       this.setState({ appState: 'auth' });
+      this._blurSoon();
       return;
     }
     this.setState({ session, appState: 'loading' });
@@ -1035,6 +1039,12 @@ class Component extends DCLogic {
     return out;
   }
 
+  // Drop any focus the browser/PWA restored on reopen, so no input shows a blinking cursor until tapped.
+  _blurSoon() {
+    for (const ms of [0, 80, 250]) setTimeout(() => {
+      try { const a = document.activeElement; if (a && a.blur && (a.tagName === 'INPUT' || a.tagName === 'TEXTAREA')) a.blur(); } catch (_) {}
+    }, ms);
+  }
   // ── auth ──
   onAuthEmail(e) { const v = e.target.value; try { localStorage.setItem('frpl_last_email', v.trim()); } catch (_) {} this.setState({ authEmail: v, authError: null }); }
   onAuthPassword(e) { this.setState({ authPassword: e.target.value, authError: null }); }
