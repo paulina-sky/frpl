@@ -150,7 +150,7 @@
 
             <div class="appscroll" style="display:flex; align-items:center; gap:8px; overflow-x:auto; padding:20px 20px 2px;">
               <sc-for list="{{ homeTabs }}" as="t" hint-placeholder-count="3">
-                <button onClick="{{ t.onSelect }}" style="{{ t.style }}">{{ t.name }}</button>
+                <button onPointerDown="{{ t.onPressStart }}" onPointerMove="{{ t.onPressMove }}" onPointerUp="{{ t.onPressEnd }}" onPointerLeave="{{ t.onPressCancel }}" style="{{ t.style }}">{{ t.name }}</button>
               </sc-for>
               <button onClick="{{ openNewCat }}" aria-label="New category" style="flex:0 0 auto; width:36px; height:36px; border-radius:50%; border:1.5px dashed #D5D0E2; background:#fff; color:var(--accent); display:flex; align-items:center; justify-content:center; cursor:pointer;"><span class="ms" style="font-size:20px;">add</span></button>
             </div>
@@ -160,7 +160,6 @@
               <div style="display:flex; align-items:center; gap:10px;">
                 <div style="font-size:12px; color:var(--accent); font-weight:600;">{{ activeSecCount }}</div>
                 <button onClick="{{ toggleHomeView }}" aria-label="Switch view" style="width:30px; height:30px; border-radius:50%; border:1px solid #ECEAF2; background:#fff; color:#9C99A8; display:flex; align-items:center; justify-content:center; cursor:pointer; flex:0 0 auto;"><span class="ms" style="font-size:19px;">{{ homeViewIcon }}</span></button>
-                <button onClick="{{ openCatMenu }}" aria-label="Category options" style="width:30px; height:30px; border-radius:50%; border:1px solid #ECEAF2; background:#fff; color:#9C99A8; display:flex; align-items:center; justify-content:center; cursor:pointer; flex:0 0 auto;"><span class="ms" style="font-size:19px;">more_horiz</span></button>
               </div>
             </div>
 
@@ -205,8 +204,8 @@
             <sc-if value="{{ showAllGrid }}" hint-placeholder-val="">
               <div style="padding:4px 16px 0; display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px;">
                 <sc-for list="{{ allPerfumes }}" as="g" hint-placeholder-count="6">
-                  <button onClick="{{ g.onOpen }}" style="border:none; background:none; padding:10px 6px; cursor:pointer; font-family:inherit; display:flex; align-items:center; justify-content:center; position:relative; min-width:0;">
-                    <div style="position:relative; height:116px; width:100%; display:flex; align-items:center; justify-content:center;">
+                  <button onPointerDown="{{ g.onPressStart }}" onPointerMove="{{ g.onPressMove }}" onPointerUp="{{ g.onPressEnd }}" onPointerLeave="{{ g.onPressCancel }}" style="border:none; background:none; padding:10px 6px; cursor:pointer; font-family:inherit; display:flex; align-items:center; justify-content:center; position:relative; min-width:0; -webkit-touch-callout:none; -webkit-user-select:none; user-select:none; touch-action:pan-y;">
+                    <div style="position:relative; height:116px; width:100%; display:flex; align-items:center; justify-content:center; pointer-events:none;">
                       <sc-if value="{{ g.img }}" hint-placeholder-val="">{{ g.imgEl }}</sc-if>
                       <sc-if value="{{ g.noImg }}" hint-placeholder-val=""><span class="ms" style="font-size:46px; color:var(--accent-light);">water_drop</span></sc-if>
                       <sc-if value="{{ g.toget }}" hint-placeholder-val=""><span style="position:absolute; top:0; right:6px; width:9px; height:9px; border-radius:50%; background:#E5484D; border:2px solid #fff;"></span></sc-if>
@@ -835,6 +834,8 @@
         <div onClick="{{ closeSheet }}" style="position:absolute; inset:0; background:rgba(20,16,32,0.42); z-index:50; animation:fadeIn 180ms ease;"></div>
         <div style="position:absolute; left:0; right:0; bottom:0; background:#fff; border-radius:26px 26px 0 0; z-index:51; animation:sheetUp 280ms cubic-bezier(.2,.7,.2,1); box-shadow:0 -14px 44px rgba(20,16,32,0.24); padding:0 8px calc(20px + env(safe-area-inset-bottom,0px));">
           <div onTouchStart="{{ sheetGrabStart }}" onTouchMove="{{ sheetGrabMove }}" onTouchEnd="{{ sheetGrabEnd }}" style="display:flex; justify-content:center; padding:9px 0 6px; cursor:grab; touch-action:none;"><div style="width:38px; height:5px; border-radius:99px; background:#E2DEEC;"></div></div>
+          <div onTouchStart="{{ sheetGrabStart }}" onTouchMove="{{ sheetGrabMove }}" onTouchEnd="{{ sheetGrabEnd }}" style="display:flex; justify-content:center; padding:9px 0 6px; cursor:grab; touch-action:none;"><div style="width:38px; height:5px; border-radius:99px; background:#E2DEEC;"></div></div>
+          <button onClick="{{ moreArchive }}" style="display:flex; align-items:center; gap:14px; width:100%; padding:15px 16px; background:none; border:none; cursor:pointer; font-family:inherit; text-align:left;"><span class="ms" style="font-size:22px; color:var(--accent);">archive</span><span style="font-size:15px; color:#1C1B22; font-weight:500;">Archive</span></button>
           <button onClick="{{ rowMoveStart }}" style="display:flex; align-items:center; gap:14px; width:100%; padding:15px 16px; background:none; border:none; cursor:pointer; font-family:inherit; text-align:left;"><span class="ms" style="font-size:22px; color:var(--accent);">drive_file_move</span><span style="font-size:15px; color:#1C1B22; font-weight:500;">Move to another list</span></button>
           <button onClick="{{ rowRemove }}" style="display:flex; align-items:center; gap:14px; width:100%; padding:15px 16px; background:none; border:none; cursor:pointer; font-family:inherit; text-align:left;"><span class="ms" style="font-size:22px; color:#C0353A;">delete_outline</span><span style="font-size:15px; color:#C0353A; font-weight:500;">Remove from list</span></button>
         </div>
@@ -1551,6 +1552,30 @@ class Component extends DCLogic {
     await this._moveEntry(pid, listId, arch.id); this.toast('Archived');
   }
   rowMore(pid, listId) { this._moreTarget={pid, listId}; this.closeSwipe(); this.setState({sheet:'rowmore'}); }
+  // ── shared press arbiter: distinguishes tap · long-press · (future) drag ──
+  // Cancels the long-press timer once movement passes a threshold, so scrolling/dragging never
+  // fires a long-press. When we add drag-drop, the "moved" branch begins a drag instead.
+  pressStart(tapFn, longFn, e) {
+    const pt = e.touches ? e.touches[0] : e;
+    const st = { tapFn, longFn, x: pt.clientX, y: pt.clientY, moved: false, fired: false };
+    st.timer = setTimeout(() => { st.fired = true; if (navigator.vibrate) { try { navigator.vibrate(12); } catch(_){} } longFn(); }, 430);
+    this._press = st;
+  }
+  pressMove(e) {
+    const st = this._press; if (!st) return;
+    const pt = e.touches ? e.touches[0] : e;
+    if (Math.abs(pt.clientX - st.x) > 10 || Math.abs(pt.clientY - st.y) > 10) { st.moved = true; clearTimeout(st.timer); }
+  }
+  pressEnd() {
+    const st = this._press; if (!st) return; clearTimeout(st.timer); this._press = null;
+    if (!st.fired && !st.moved) st.tapFn();
+  }
+  pressCancel() { const st = this._press; if (!st) return; clearTimeout(st.timer); this._press = null; }
+  // grid long-press → actions sheet (Archive / Move / Remove)
+  gridLongPress(pid, listId) { this._moreTarget={pid, listId}; this.setState({sheet:'rowmore'}); }
+  async moreArchive() { const t=this._moreTarget; if(!t) return; this.setState({sheet:null}); await this.rowArchive(t.pid, t.listId); }
+  // chip long-press → category menu for THAT category
+  chipLongPress(sectionId) { this.setState({activeSection:sectionId, sheet:'catmenu'}); }
   rowMoveStart() { const t=this._moreTarget; if(!t) return; this._moveTarget=t; this.setState({sheet:'picklist'}); }
   async rowMoveTo(toId) {
     const mv=this._moveTarget; this._moveTarget=null; this.setState({sheet:null}); if(!mv) return;
@@ -1711,7 +1736,7 @@ class Component extends DCLogic {
     const ST={card:{height:76,width:'auto',maxWidth:64,objectFit:'contain'},grid:{maxHeight:104,maxWidth:'100%',width:'auto',objectFit:'contain'},row:{maxHeight:42,maxWidth:38,objectFit:'contain'},search:{maxHeight:40,maxWidth:36,objectFit:'contain'},add:{maxHeight:38,maxWidth:34,objectFit:'contain'},drawer:{maxHeight:108,maxWidth:80,objectFit:'contain'},sim:{maxHeight:54,maxWidth:44,objectFit:'contain'}};
 
     // home
-    const homeTabs=s.sections.map(sec=>{const active=sec.id===s.activeSection;return{name:sec.name,active,style:'flex:0 0 auto;padding:9px 16px;border-radius:999px;font-size:13.5px;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap;'+(active?'background:var(--accent);border:1px solid var(--accent);color:#fff;':'background:#F2F1F6;border:1px solid #F2F1F6;color:#6A6775;'),onSelect:()=>this.selectSection(sec.id)};});
+    const homeTabs=s.sections.map(sec=>{const active=sec.id===s.activeSection;return{name:sec.name,active,style:'flex:0 0 auto;padding:9px 16px;border-radius:999px;font-size:13.5px;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;'+(active?'background:var(--accent);border:1px solid var(--accent);color:#fff;':'background:#F2F1F6;border:1px solid #F2F1F6;color:#6A6775;'),onSelect:()=>this.selectSection(sec.id),onPressStart:(e)=>this.pressStart(()=>this.selectSection(sec.id),()=>this.chipLongPress(sec.id),e),onPressMove:(e)=>this.pressMove(e),onPressEnd:()=>this.pressEnd(),onPressCancel:()=>this.pressCancel()};});
     const activeSec=s.sections.find(x=>x.id===s.activeSection)||s.sections[0];
     const activeTop=topLists.filter(l=>l.sectionId===activeSec.id);
     const activeCards=activeTop.map(l=>{const sc=allLists.filter(x=>x.parentId===l.id && !(x.name==='Archived' && x.entries.length===0)).length,fp=l.entries.length?pidOf(l.entries[0]):null,fi=fp?fp.thumb:'';let cl=l.entries.length+(l.entries.length===1?' perfume':' perfumes');if(sc)cl+=' · '+sc+(sc===1?' sub-list':' sub-lists');return{name:l.name,countLabel:cl,coverCss:this.coverCss(l.cover),hasCover:!!l.coverImage,coverBgCss:l.coverImage?('url("'+l.coverImage+'") center/cover no-repeat'):this.coverCss(l.cover),thumbBg:l.entries.length===0?'var(--accent-tint)':'#fff',bottleEl:mkImg(fi,ST.card),bottleImg:fi,showBottle:false,showEmptyIcon:false,empty:l.entries.length===0,onOpen:()=>this.openList(l.id)};});
@@ -1731,7 +1756,7 @@ class Component extends DCLogic {
         if (seenP.has(e.perfumeId)) continue; seenP.add(e.perfumeId);
         const p=pidOf(e); if(!p) continue;
         const lid=l.id;
-        allPerfumes.push({name:p.name,house:p.brand||'—',img:p.thumb,imgEl:mkImg(p.thumb,ST.grid),noImg:!p.thumb,toget:this.isToGet(p.id),onOpen:()=>this.openDrawer(p.id,lid)});
+        allPerfumes.push({name:p.name,house:p.brand||'—',img:p.thumb,imgEl:mkImg(p.thumb,ST.grid),noImg:!p.thumb,toget:this.isToGet(p.id),onPressStart:(e)=>this.pressStart(()=>this.openDrawer(p.id,lid),()=>this.gridLongPress(p.id,lid),e),onPressMove:(e)=>this.pressMove(e),onPressEnd:()=>this.pressEnd(),onPressCancel:()=>this.pressCancel()});
       }
     }
     const showAllGrid=isAllView&&allPerfumes.length>0;
@@ -1856,7 +1881,7 @@ class Component extends DCLogic {
       drawerSheetRef:(el)=>{this._drawerSheet=el;}, onGrabStart:(e)=>this.onGrabStart(e), onGrabMove:(e)=>this.onGrabMove(e), onGrabEnd:()=>this.onGrabEnd(),
       openPickList:()=>this.openPickList(), createListWithPerfume:()=>this.createListWithPerfume(),
       sheetGrabStart:(e)=>this.sheetGrabStart(e), sheetGrabMove:(e)=>this.sheetGrabMove(e), sheetGrabEnd:()=>this.sheetGrabEnd(),
-      showRowMore:s.sheet==='rowmore', rowMoveStart:()=>this.rowMoveStart(), rowRemove:()=>this.rowRemove(),
+      showRowMore:s.sheet==='rowmore', rowMoveStart:()=>this.rowMoveStart(), rowRemove:()=>this.rowRemove(), moreArchive:()=>this.moreArchive(),
       showPickList:s.sheet==='picklist', pickListOptions,
       editNote:s.editNote, editPrice:s.editPrice, onEditNote:(e)=>this.onEditNote(e), onEditPrice:(e)=>this.onEditPrice(e),
       openEdit:()=>this.openEdit(), cancelEdit:()=>this.cancelEdit(), saveEdit:()=>this.saveEdit(), openSimAdd:()=>this.openSimAdd(),
