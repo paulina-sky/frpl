@@ -203,16 +203,14 @@
             </sc-if>
 
             <sc-if value="{{ showAllGrid }}" hint-placeholder-val="">
-              <div style="padding:2px 16px 0; display:grid; grid-template-columns:repeat(3,1fr); gap:8px;">
+              <div style="padding:4px 16px 0; display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px;">
                 <sc-for list="{{ allPerfumes }}" as="g" hint-placeholder-count="6">
-                  <button onClick="{{ g.onOpen }}" style="text-align:center; border:none; background:none; padding:8px 4px 12px; cursor:pointer; font-family:inherit; display:flex; flex-direction:column; align-items:center;">
-                    <div style="position:relative; height:112px; width:100%; display:flex; align-items:center; justify-content:center;">
+                  <button onClick="{{ g.onOpen }}" style="border:none; background:none; padding:10px 6px; cursor:pointer; font-family:inherit; display:flex; align-items:center; justify-content:center; position:relative; min-width:0;">
+                    <div style="position:relative; height:116px; width:100%; display:flex; align-items:center; justify-content:center;">
                       <sc-if value="{{ g.img }}" hint-placeholder-val="">{{ g.imgEl }}</sc-if>
                       <sc-if value="{{ g.noImg }}" hint-placeholder-val=""><span class="ms" style="font-size:46px; color:var(--accent-light);">water_drop</span></sc-if>
-                      <sc-if value="{{ g.toget }}" hint-placeholder-val=""><span style="position:absolute; top:2px; right:8px; width:9px; height:9px; border-radius:50%; background:#E5484D; border:2px solid #fff;"></span></sc-if>
+                      <sc-if value="{{ g.toget }}" hint-placeholder-val=""><span style="position:absolute; top:0; right:6px; width:9px; height:9px; border-radius:50%; background:#E5484D; border:2px solid #fff;"></span></sc-if>
                     </div>
-                    <div style="font-size:12.5px; font-weight:600; color:#1C1B22; line-height:1.25; margin-top:8px; max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">{{ g.name }}</div>
-                    <div style="font-size:10.5px; color:#9C99A8; margin-top:2px; max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">{{ g.house }}</div>
                   </button>
                 </sc-for>
               </div>
@@ -1710,7 +1708,7 @@ class Component extends DCLogic {
     const ud=(id)=>s.userData[id]||{};
     const pidOf=(e)=>cat[e.perfumeId];
     const mkImg=(src,sty)=>src?React.createElement('img',{src,alt:'',style:sty,onError:(e)=>{e.target.style.visibility='hidden';}}):null;
-    const ST={card:{height:76,width:'auto',maxWidth:64,objectFit:'contain'},row:{maxHeight:42,maxWidth:38,objectFit:'contain'},search:{maxHeight:40,maxWidth:36,objectFit:'contain'},add:{maxHeight:38,maxWidth:34,objectFit:'contain'},drawer:{maxHeight:108,maxWidth:80,objectFit:'contain'},sim:{maxHeight:54,maxWidth:44,objectFit:'contain'}};
+    const ST={card:{height:76,width:'auto',maxWidth:64,objectFit:'contain'},grid:{maxHeight:104,maxWidth:'100%',width:'auto',objectFit:'contain'},row:{maxHeight:42,maxWidth:38,objectFit:'contain'},search:{maxHeight:40,maxWidth:36,objectFit:'contain'},add:{maxHeight:38,maxWidth:34,objectFit:'contain'},drawer:{maxHeight:108,maxWidth:80,objectFit:'contain'},sim:{maxHeight:54,maxWidth:44,objectFit:'contain'}};
 
     // home
     const homeTabs=s.sections.map(sec=>{const active=sec.id===s.activeSection;return{name:sec.name,active,style:'flex:0 0 auto;padding:9px 16px;border-radius:999px;font-size:13.5px;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap;'+(active?'background:var(--accent);border:1px solid var(--accent);color:#fff;':'background:#F2F1F6;border:1px solid #F2F1F6;color:#6A6775;'),onSelect:()=>this.selectSection(sec.id)};});
@@ -1733,7 +1731,7 @@ class Component extends DCLogic {
         if (seenP.has(e.perfumeId)) continue; seenP.add(e.perfumeId);
         const p=pidOf(e); if(!p) continue;
         const lid=l.id;
-        allPerfumes.push({name:p.name,house:p.brand||'—',img:p.thumb,imgEl:mkImg(p.thumb,ST.drawer),noImg:!p.thumb,toget:this.isToGet(p.id),onOpen:()=>this.openDrawer(p.id,lid)});
+        allPerfumes.push({name:p.name,house:p.brand||'—',img:p.thumb,imgEl:mkImg(p.thumb,ST.grid),noImg:!p.thumb,toget:this.isToGet(p.id),onOpen:()=>this.openDrawer(p.id,lid)});
       }
     }
     const showAllGrid=isAllView&&allPerfumes.length>0;
