@@ -157,7 +157,10 @@
 
             <div style="display:flex; align-items:flex-end; justify-content:space-between; padding:14px 20px 12px;">
               <div style="font-size:13px; color:#9C99A8;">{{ activeSecSub }}</div>
-              <div style="font-size:12px; color:var(--accent); font-weight:600;">{{ activeSecCount }}</div>
+              <div style="display:flex; align-items:center; gap:10px;">
+                <div style="font-size:12px; color:var(--accent); font-weight:600;">{{ activeSecCount }}</div>
+                <button onClick="{{ openCatMenu }}" aria-label="Category options" style="width:30px; height:30px; border-radius:50%; border:1px solid #ECEAF2; background:#fff; color:#9C99A8; display:flex; align-items:center; justify-content:center; cursor:pointer; flex:0 0 auto;"><span class="ms" style="font-size:19px;">more_horiz</span></button>
+              </div>
             </div>
 
             <sc-if value="{{ activeSectionEmpty }}" hint-placeholder-val="">
@@ -280,6 +283,7 @@
               <div style="flex:1; display:flex; align-items:center; gap:10px; background:#F2F1F6; border-radius:14px; padding:12px 14px;">
                 <span class="ms" style="font-size:21px; color:#9C99A8;">search</span>
                 <input class="frpl-in" value="{{ libQuery }}" onChange="{{ onLibQuery }}" placeholder="Search 24,000+ perfumes…" style="flex:1; font-size:15px; color:#1C1B22;" />
+                <sc-if value="{{ hasLibQuery }}" hint-placeholder-val=""><button onClick="{{ clearLib }}" aria-label="Clear" style="width:22px; height:22px; border-radius:50%; background:#D8D5E0; border:none; color:#fff; display:flex; align-items:center; justify-content:center; cursor:pointer; flex:0 0 auto; padding:0;"><span class="ms" style="font-size:15px;">close</span></button></sc-if>
               </div>
             </div>
 
@@ -541,6 +545,7 @@
           <div style="flex:0 0 auto; margin:0 20px 8px; display:flex; align-items:center; gap:10px; background:#F2F1F6; border-radius:14px; padding:13px 14px;">
             <span class="ms" style="font-size:21px; color:#9C99A8;">search</span>
             <input class="frpl-in" value="{{ simQuery }}" onChange="{{ onSimQuery }}" placeholder="Search the catalogue…" style="flex:1; color:#1C1B22;" />
+            <sc-if value="{{ hasSimQuery }}" hint-placeholder-val=""><button onClick="{{ clearSim }}" aria-label="Clear" style="width:22px; height:22px; border-radius:50%; background:#D8D5E0; border:none; color:#fff; display:flex; align-items:center; justify-content:center; cursor:pointer; flex:0 0 auto; padding:0;"><span class="ms" style="font-size:15px;">close</span></button></sc-if>
           </div>
           <div class="appscroll" style="flex:1; overflow-y:auto; padding:0 16px;">
             <sc-for list="{{ simResults }}" as="r" hint-placeholder-count="5">
@@ -575,6 +580,7 @@
           <div style="flex:0 0 auto; margin:0 20px 8px; display:flex; align-items:center; gap:10px; background:#F2F1F6; border-radius:14px; padding:13px 14px;">
             <span class="ms" style="font-size:21px; color:#9C99A8;">search</span>
             <input class="frpl-in" value="{{ addQuery }}" onChange="{{ onAddQuery }}" placeholder="Search the catalogue…" style="flex:1; font-size:15px; color:#1C1B22;" />
+            <sc-if value="{{ hasAddQuery }}" hint-placeholder-val=""><button onClick="{{ clearAdd }}" aria-label="Clear" style="width:22px; height:22px; border-radius:50%; background:#D8D5E0; border:none; color:#fff; display:flex; align-items:center; justify-content:center; cursor:pointer; flex:0 0 auto; padding:0;"><span class="ms" style="font-size:15px;">close</span></button></sc-if>
           </div>
           <div class="appscroll" style="flex:1; overflow-y:auto; padding:0 16px;">
             <sc-for list="{{ addResults }}" as="r" hint-placeholder-count="5">
@@ -680,16 +686,49 @@
             
           </div>
           <div style="padding:8px 20px 0;">
-            <div style="display:flex; align-items:flex-start; gap:11px; margin-bottom:16px; padding:12px; background:#F7F6FB; border-radius:12px;">
-              <span class="ms" style="font-size:20px; color:var(--accent); flex:0 0 auto; margin-top:1px;">label</span>
-              <span style="font-size:13px; color:#6A6775; line-height:1.5;">Creates a new tab alongside To Try, Owned and Notes.</span>
-            </div>
             <div style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; color:#9C99A8; margin-bottom:7px;">Category name</div>
             <input class="frpl-in" value="{{ newCatName }}" onChange="{{ onNewCatName }}" placeholder="e.g. Gift ideas, Vintage, Travel" style="width:100%; border:1px solid #ECEAF2; border-radius:12px; padding:12px 14px; font-size:15px; color:#1C1B22; background:#fff;" />
           </div>
           <div style="padding:20px 20px 26px;">
             <button onClick="{{ createCat }}" style="width:100%; height:48px; border-radius:14px; background:var(--accent); border:none; color:#fff; font-size:15px; font-weight:600; cursor:pointer; font-family:inherit; box-shadow:0 6px 16px rgba(120,94,175,0.30);">Create category</button>
           </div>
+        </div>
+      </sc-if>
+
+      <!-- CATEGORY MENU -->
+      <sc-if value="{{ showCatMenu }}" hint-placeholder-val="">
+        <div onClick="{{ closeSheet }}" style="position:absolute; inset:0; background:rgba(20,16,32,0.42); z-index:50; animation:fadeIn 180ms ease;"></div>
+        <div style="position:absolute; left:0; right:0; bottom:0; background:#fff; border-radius:26px 26px 0 0; z-index:51; animation:sheetUp 280ms cubic-bezier(.2,.7,.2,1); box-shadow:0 -14px 44px rgba(20,16,32,0.24); padding:0 8px calc(20px + env(safe-area-inset-bottom,0px));">
+          <div onTouchStart="{{ sheetGrabStart }}" onTouchMove="{{ sheetGrabMove }}" onTouchEnd="{{ sheetGrabEnd }}" style="display:flex; justify-content:center; padding:9px 0 6px; cursor:grab; touch-action:none;"><div style="width:38px; height:5px; border-radius:99px; background:#E2DEEC;"></div></div>
+          <div style="font-size:13px; color:#9C99A8; padding:2px 16px 8px;">{{ catMenuTitle }}</div>
+          <button onClick="{{ openRenameCat }}" style="display:flex; align-items:center; gap:14px; width:100%; padding:15px 16px; background:none; border:none; cursor:pointer; font-family:inherit; text-align:left;"><span class="ms" style="font-size:22px; color:var(--accent);">edit</span><span style="font-size:15px; color:#1C1B22; font-weight:500;">Rename category</span></button>
+          <sc-if value="{{ catCanDelete }}" hint-placeholder-val="">
+            <button onClick="{{ openDeleteCat }}" style="display:flex; align-items:center; gap:14px; width:100%; padding:15px 16px; background:none; border:none; cursor:pointer; font-family:inherit; text-align:left;"><span class="ms" style="font-size:22px; color:#C0353A;">delete_outline</span><span style="font-size:15px; color:#C0353A; font-weight:500;">Delete category</span></button>
+          </sc-if>
+        </div>
+      </sc-if>
+
+      <!-- RENAME CATEGORY -->
+      <sc-if value="{{ showRenameCat }}" hint-placeholder-val="">
+        <div onClick="{{ closeSheet }}" style="position:absolute; inset:0; background:rgba(20,16,32,0.42); z-index:50; animation:fadeIn 180ms ease;"></div>
+        <div style="position:absolute; left:0; right:0; bottom:0; background:#fff; border-radius:26px 26px 0 0; z-index:51; animation:sheetUp 280ms cubic-bezier(.2,.7,.2,1); box-shadow:0 -14px 44px rgba(20,16,32,0.24); padding:0 20px calc(26px + env(safe-area-inset-bottom,0px));">
+          <div onTouchStart="{{ sheetGrabStart }}" onTouchMove="{{ sheetGrabMove }}" onTouchEnd="{{ sheetGrabEnd }}" style="display:flex; justify-content:center; padding:9px 0 14px; cursor:grab; touch-action:none;"><div style="width:38px; height:5px; border-radius:99px; background:#E2DEEC;"></div></div>
+          <div style="font-size:18px; font-weight:700; color:#1C1B22; margin-bottom:14px;">Rename category</div>
+          <input class="frpl-in" value="{{ renameValue }}" onChange="{{ onRenameValue }}" placeholder="Category name" style="width:100%; border:1.5px solid #ECEAF2; border-radius:13px; padding:14px 16px; font-size:16px; color:#1C1B22; background:#fff;" />
+          <button onClick="{{ saveRenameCat }}" style="width:100%; height:50px; border-radius:13px; background:var(--accent); border:none; color:#fff; font-size:15px; font-weight:700; cursor:pointer; font-family:inherit; margin-top:14px;">Save</button>
+        </div>
+      </sc-if>
+
+      <!-- DELETE CATEGORY -->
+      <sc-if value="{{ showDeleteCat }}" hint-placeholder-val="">
+        <div onClick="{{ closeSheet }}" style="position:absolute; inset:0; background:rgba(20,16,32,0.42); z-index:50; animation:fadeIn 180ms ease;"></div>
+        <div style="position:absolute; left:0; right:0; bottom:0; background:#fff; border-radius:26px 26px 0 0; z-index:51; animation:sheetUp 280ms cubic-bezier(.2,.7,.2,1); box-shadow:0 -14px 44px rgba(20,16,32,0.24); padding:0 20px calc(26px + env(safe-area-inset-bottom,0px));">
+          <div onTouchStart="{{ sheetGrabStart }}" onTouchMove="{{ sheetGrabMove }}" onTouchEnd="{{ sheetGrabEnd }}" style="display:flex; justify-content:center; padding:9px 0 16px; cursor:grab; touch-action:none;"><div style="width:38px; height:5px; border-radius:99px; background:#E2DEEC;"></div></div>
+          <div style="width:54px; height:54px; border-radius:50%; background:#FDECEC; display:flex; align-items:center; justify-content:center; margin:0 auto 14px;"><span class="ms" style="font-size:26px; color:#C0353A;">delete</span></div>
+          <div style="font-size:18px; font-weight:700; color:#1C1B22; text-align:center; margin-bottom:7px;">Delete “{{ catMenuName }}”?</div>
+          <div style="font-size:13.5px; color:#9C99A8; text-align:center; line-height:1.55; margin-bottom:20px;">{{ catDeleteWarning }}</div>
+          <button onClick="{{ confirmDeleteCat }}" style="width:100%; height:50px; border-radius:13px; background:#C0353A; border:none; color:#fff; font-size:15px; font-weight:700; cursor:pointer; font-family:inherit;">Delete category</button>
+          <button onClick="{{ closeSheet }}" style="width:100%; height:48px; border-radius:13px; background:none; border:none; color:#6A6775; font-size:14.5px; font-weight:600; cursor:pointer; font-family:inherit; margin-top:6px;">Cancel</button>
         </div>
       </sc-if>
 
@@ -837,7 +876,11 @@ class Component extends DCLogic {
 
   async componentDidMount() {
     this._loadCatalogue();
-    // Wait for supabase-js CDN script to finish loading (dynamic injection is async)
+    // Safety watchdog: if anything stalls during boot, never leave the user on a dead loading screen.
+    this._bootWatchdog = setTimeout(() => {
+      if (this.state.appState === 'initializing') this.setState({ appState: 'auth' });
+    }, 9000);
+    // Wait for supabase-js (precached by the service worker) to be ready.
     let _t = 0;
     while (!window.supabase && _t++ < 60) await new Promise(r => setTimeout(r, 100));
     if (!window.supabase) {
@@ -870,12 +913,25 @@ class Component extends DCLogic {
         this.setState({ session: null, appState: 'auth', lists: {}, userData: {}, sections: this._fixedSections(), view: 'home' });
       }
     });
-    const { data: { session } } = await this._sb.auth.getSession();
+    const { data: { session } } = await Promise.race([
+      this._sb.auth.getSession(),
+      new Promise(r => setTimeout(() => r({ data: { session: null } }), 5000))
+    ]);
     if (this._recovery) { this.setState({ appState: 'auth', authMode: 'reset', authNotice: 'Set a new password below.' }); return; }
-    if (!session) { this.setState({ appState: 'auth' }); return; }
+    if (!session) {
+      // No session resolved. If one is cached locally, onAuthStateChange will pick it up;
+      // otherwise show auth. Either way we never sit on a blank loading screen.
+      this.setState({ appState: 'auth' });
+      return;
+    }
     this.setState({ session, appState: 'loading' });
-    await this._awaitCatalogue();
-    await this.loadUserData();
+    try {
+      await this._awaitCatalogue();
+      await this.loadUserData();
+      this.setState({ appState: 'ready' });
+    } catch (err) {
+      this.setState({ appState: 'ready', loadError: 'Some data couldn\u2019t load. Pull to refresh.' });
+    }
     this.setState({ appState: 'ready' });
   }
 
@@ -906,7 +962,7 @@ class Component extends DCLogic {
   async loadUserData() {
     const sb = this._sb;
     const uid = this.state.session.user.id;
-    const [listsRes, entriesRes, catsRes, notesRes, customRes, profileRes, communityRes] = await Promise.all([
+    const [listsRes, entriesRes, catsRes, notesRes, customRes, profileRes, communityRes, prefsRes] = await Promise.all([
       sb.from('lists').select('*').order('created_at'),
       sb.from('list_entries').select('*').order('position'),
       sb.from('categories').select('*').order('sort_order'),
@@ -914,6 +970,7 @@ class Component extends DCLogic {
       sb.from('custom_perfumes').select('*'),
       sb.from('profiles').select('is_admin').eq('id', uid).maybeSingle(),
       sb.from('community_perfumes').select('*'),
+      sb.from('section_prefs').select('*'),
     ]);
     this._isAdmin = !!(profileRes && profileRes.data && profileRes.data.is_admin);
     const lists = {};
@@ -929,9 +986,29 @@ class Component extends DCLogic {
     const userData = {};
     for (const n of (notesRes.data||[])) userData[n.perfume_id] = { note:n.note, remindsOf:n.reminds_of, pricePaid:n.price_paid, priceTarget:n.price_target };
     const customCats = (catsRes.data||[]).map(c => ({ id:c.id, name:c.name, sub:'your category', custom:true }));
-    const sections = [...this._fixedSections(), ...customCats];
+    this._sectionPrefs = (prefsRes && prefsRes.data) ? prefsRes.data : [];
+    const sections = this._buildSections(this._sectionPrefs, customCats, lists);
     const activeSection = sections.find(s => s.id === this.state.activeSection) ? this.state.activeSection : 'totry';
     this.setState({ lists, userData, sections, catById, catalogue: [...(this._catalogue||[]), ...communityArr, ...customArr], activeSection });
+  }
+  _specialDefs() { return [
+    { id:'totry', name:'To Try', sub:'wishlist & discovery' },
+    { id:'owned', name:'Owned', sub:'in your possession' },
+    { id:'favnotes', name:'Notes', sub:'by accord & ingredient' },
+    { id:'toget', name:'To get', sub:'your shopping shortlist' },
+  ]; }
+  _buildSections(prefs, customCats, lists) {
+    const pmap={}; (prefs||[]).forEach(p=>{ pmap[p.section_id]=p; });
+    const hasToget=Object.values(lists||{}).some(l=>l.sectionId==='toget');
+    const out=[];
+    for (const def of this._specialDefs()) {
+      const pr=pmap[def.id];
+      if (pr && pr.deleted && def.id!=='totry') continue;
+      if (def.id==='toget' && !hasToget && !(pr && !pr.deleted)) continue;
+      out.push({ ...def, name:(pr&&pr.name)||def.name, special:true });
+    }
+    for (const c of (customCats||[])) out.push({ id:c.id, name:c.name, sub:'your category', custom:true });
+    return out;
   }
 
   // ── auth ──
@@ -1164,6 +1241,9 @@ class Component extends DCLogic {
   openNewCat() { this.setState({sheet:'newcat',newCatName:''}); }
   onAddQuery(e) { this.setState({addQuery:e.target.value}); }
   onLibQuery(e) { this.setState({libQuery:e.target.value}); }
+  clearLib() { this.setState({libQuery:''}); }
+  clearAdd() { this.setState({addQuery:''}); }
+  clearSim() { this.setState({simQuery:''}); }
   pickChip(v) { this.setState({libQuery:v}); }
   setSort(v) {
     if (this.state.sort === v) this.setState({ sortDir: this.state.sortDir === 'asc' ? 'desc' : 'asc' });
@@ -1256,7 +1336,36 @@ class Component extends DCLogic {
       await this._sb.from(table).update({image_url:url}).eq('id',pid); this.toast('Photo updated');
     } catch(err){ this.setState({drawerPhotoBusy:false}); this.toast('Upload failed'); }
   }
-  shareCurrent() { this.setState({sheet:null}); this.toast('Link copied'); }
+  async shareCurrent() {
+    this.setState({sheet:null});
+    const s=this.state, l=s.lists[s.activeListId];
+    let text;
+    if (l) {
+      const cat=this.state.catById||{};
+      const lines=l.entries.map(e=>{ const p=cat[e.perfumeId]; return p?('\u2022 '+p.name+(p.brand?(' \u2014 '+p.brand):'')):null; }).filter(Boolean);
+      text='My \u201C'+l.name+'\u201D list on FRPL'+(lines.length?(':\n'+lines.join('\n')):' (empty so far)');
+    } else {
+      text='FRPL \u2014 my fragrance journal';
+    }
+    // Prefer the native share sheet on mobile; fall back to clipboard.
+    try {
+      if (navigator.share) { await navigator.share({ title:'FRPL', text }); return; }
+    } catch(_) { /* user cancelled or unsupported — fall through to copy */ }
+    const ok=await this._copyText(text);
+    this.toast(ok?'List copied to clipboard':'Couldn\u2019t copy');
+  }
+  async _copyText(text) {
+    try {
+      if (navigator.clipboard && window.isSecureContext) { await navigator.clipboard.writeText(text); return true; }
+    } catch(_) {}
+    // Legacy fallback for non-secure contexts / older webviews
+    try {
+      const ta=document.createElement('textarea');
+      ta.value=text; ta.setAttribute('readonly',''); ta.style.position='absolute'; ta.style.left='-9999px';
+      document.body.appendChild(ta); ta.select(); ta.setSelectionRange(0, text.length);
+      const ok=document.execCommand('copy'); document.body.removeChild(ta); return ok;
+    } catch(_) { return false; }
+  }
   toast(m) { this.setState({toast:m}); clearTimeout(this._tt); this._tt=setTimeout(()=>this.setState({toast:null}),1900); }
 
   // ── mutations (all write through to Supabase) ──
@@ -1266,6 +1375,84 @@ class Component extends DCLogic {
     const newTag=en.tag===tag?null:tag;
     en.tag=newTag; this.forceUpdate();
     if (this._sb) { await this._sb.from('list_entries').update({tag:newTag}).eq('list_id',lid).eq('perfume_id',pid); }
+  }
+  // ── "To get" as an auto-managed category ──
+  _togetLists() { return Object.values(this.state.lists).filter(l=>l.sectionId==='toget'); }
+  isToGet(pid) { return this._togetLists().some(l=>l.entries.some(e=>e.perfumeId===pid)); }
+  async _ensureTogetList() {
+    const s=this.state; let list=this._togetLists()[0];
+    if (list) return list;
+    const cover=this.covers()[4];
+    if (this._sb && s.session) {
+      const {data,error}=await this._sb.from('lists').insert({user_id:s.session.user.id,name:'To get',section_id:'toget',parent_id:null,cover_start:cover[0],cover_end:cover[1],sort_order:Object.keys(s.lists).length}).select().single();
+      if (error) { this.toast('Could not create To get'); return null; }
+      list={id:data.id,name:'To get',sectionId:'toget',parentId:null,cover,entries:[]};
+    } else { list={id:'tmp'+Date.now(),name:'To get',sectionId:'toget',parentId:null,cover,entries:[]}; }
+    s.lists[list.id]=list; return list;
+  }
+  async toggleToGet(pid) {
+    const s=this.state;
+    if (this.isToGet(pid)) {
+      for (const l of this._togetLists()) {
+        if (l.entries.some(e=>e.perfumeId===pid)) {
+          l.entries=l.entries.filter(e=>e.perfumeId!==pid);
+          if (this._sb) await this._sb.from('list_entries').delete().eq('list_id',l.id).eq('perfume_id',pid);
+        }
+      }
+      this._rebuildSections(); this.forceUpdate(); this.toast('Removed from To get');
+    } else {
+      await this._setSectionPref('toget', {deleted:false});
+      const list=await this._ensureTogetList(); if (!list) return;
+      list.entries.push({perfumeId:pid,tag:null});
+      if (this._sb && s.session) await this._sb.from('list_entries').insert({list_id:list.id,user_id:s.session.user.id,perfume_id:pid,position:list.entries.length});
+      this._rebuildSections(); this.forceUpdate(); this.toast('Marked “To get”');
+    }
+  }
+  _rebuildSections() {
+    const customCats=this.state.sections.filter(x=>x.custom);
+    const sections=this._buildSections(this._sectionPrefs, customCats, this.state.lists);
+    const activeSection=sections.find(x=>x.id===this.state.activeSection)?this.state.activeSection:'totry';
+    this.setState({sections, activeSection});
+  }
+  async _setSectionPref(sectionId, patch) {
+    this._sectionPrefs = this._sectionPrefs || [];
+    let pr=this._sectionPrefs.find(p=>p.section_id===sectionId);
+    if (!pr) { pr={section_id:sectionId, name:null, deleted:false}; this._sectionPrefs.push(pr); }
+    Object.assign(pr, patch);
+    if (this._sb && this.state.session) {
+      await this._sb.from('section_prefs').upsert({user_id:this.state.session.user.id, section_id:sectionId, name:pr.name, deleted:!!pr.deleted}, {onConflict:'user_id,section_id'});
+    }
+  }
+  // ── category menu / rename / delete ──
+  openCatMenu() { const sec=this.state.sections.find(x=>x.id===this.state.activeSection); if(!sec) return; this.setState({sheet:'catmenu'}); }
+  openRenameCat() { const sec=this.state.sections.find(x=>x.id===this.state.activeSection); this.setState({sheet:'renamecat', renameValue:sec?sec.name:''}); }
+  async saveRenameCat() {
+    const s=this.state, nm=(s.renameValue||'').trim(); if(!nm){this.toast('Name can’t be empty');return;}
+    const sec=s.sections.find(x=>x.id===s.activeSection); if(!sec){this.setState({sheet:null});return;}
+    this.setState({sheet:null});
+    if (sec.custom) {
+      s.sections=s.sections.map(x=>x.id===sec.id?{...x,name:nm}:x); this.forceUpdate();
+      if (this._sb) await this._sb.from('categories').update({name:nm}).eq('id',sec.id);
+    } else {
+      await this._setSectionPref(sec.id, {name:nm}); this._rebuildSections();
+    }
+    this.toast('Renamed');
+  }
+  openDeleteCat() { this.setState({sheet:'deletecat'}); }
+  async confirmDeleteCat() {
+    const s=this.state, sec=s.sections.find(x=>x.id===s.activeSection); if(!sec||sec.id==='totry'){this.setState({sheet:null});return;}
+    this.setState({sheet:null, activeSection:'totry'});
+    const listIds=Object.values(s.lists).filter(l=>l.sectionId===sec.id).map(l=>l.id);
+    listIds.forEach(id=>{ delete s.lists[id]; });
+    if (sec.custom) {
+      s.sections=s.sections.filter(x=>x.id!==sec.id);
+      if (this._sb){ for(const id of listIds) await this._sb.from('lists').delete().eq('id',id); await this._sb.from('categories').delete().eq('id',sec.id); }
+    } else {
+      await this._setSectionPref(sec.id, {deleted:true});
+      if (this._sb){ for(const id of listIds) await this._sb.from('lists').delete().eq('id',id); }
+    }
+    this._rebuildSections(); this.forceUpdate();
+    this.toast('“'+sec.name+'” deleted');
   }
   async addToList(pid) {
     const s=this.state, l=s.lists[s.addTargetListId]; if (!l) return;
@@ -1490,7 +1677,7 @@ class Component extends DCLogic {
     const palettes={iris:{a:'#785EAF',d:'#5A4691',l:'#9B82C9',t:'#F1ECF9'},lavender:{a:'#7A6AD8',d:'#574BB0',l:'#A99BEF',t:'#EFEDFB'},plum:{a:'#8E5AA8',d:'#6E4283',l:'#B98ECD',t:'#F4ECF8'},periwinkle:{a:'#6573C9',d:'#4A57A8',l:'#98A4E6',t:'#EDEFFB'}};
     const pal=palettes[this.props.accent]||palettes.iris;
     const accentVarsCss='--accent:'+pal.a+';--accent-deep:'+pal.d+';--accent-light:'+pal.l+';--accent-tint:'+pal.t+';';
-    const blank={accentVarsCss,scrollRef:(el)=>{this._scroll=el;},showInitializing:s.appState==='initializing'||s.appState==='loading',showAuth:s.appState==='auth',showHome:false,showList:false,showSearch:false,showSettings:false,showFab:false,drawerOpen:false,showAddSheet:false,showManual:false,showNewList:false,showNewCat:false,showSort:false,showListMenu:false,showRenameList:false,showDeleteList:false,showCoverEdit:false,showUrlInput:false,showRowMore:false,showSimAdd:false,showPickList:false,pickListOptions:[],simResults:[],simNoResults:false,simPrompt:false,simQuery:'',renameValue:'',deleteListName:'',deleteListWarning:'',toastVisible:false,loadError:s.loadError||'',...this._authVals(),homeTabs:[],activeCards:[],activeSecSub:'',activeSecCount:'',activeSectionEmpty:false,activeSectionHasCards:false,activeEmptyMsg:'',listModel:{d:{},accords:[],top:[],heart:[],base:[],similar:[]},addResults:[],searchResults:[],searchChips:[],newCovers:[],sortOptions:[],newName:'',newCatName:'',newContext:'',newTitle:'',addQuery:'',libQuery:'',addTitle:'',addNoResults:false,searchEmpty:true,searchHasResults:false,searchNoResults:false,searchCountLabel:'',catalogueCount:'',userEmail:'',userInitial:'',signOut:()=>this.signOut(),goHome:()=>this.goHome(),openSearch:()=>this.openSearch(),openSettings:()=>this.openSettings(),openNewCat:()=>this.openNewCat(),openNewListTop:()=>this.openNewList(null),coverInputRef:(el)=>{this._coverInput=el;},onChangeCoverFile:(e)=>this.onChangeCoverFile(e)};
+    const blank={accentVarsCss,scrollRef:(el)=>{this._scroll=el;},showInitializing:s.appState==='initializing'||s.appState==='loading',showAuth:s.appState==='auth',showHome:false,showList:false,showSearch:false,showSettings:false,showFab:false,drawerOpen:false,showAddSheet:false,showManual:false,showNewList:false,showNewCat:false,showSort:false,showListMenu:false,showRenameList:false,showDeleteList:false,showCoverEdit:false,showUrlInput:false,showRowMore:false,showCatMenu:false,showRenameCat:false,showDeleteCat:false,showSimAdd:false,showPickList:false,pickListOptions:[],simResults:[],simNoResults:false,simPrompt:false,simQuery:'',renameValue:'',deleteListName:'',deleteListWarning:'',toastVisible:false,loadError:s.loadError||'',...this._authVals(),homeTabs:[],activeCards:[],activeSecSub:'',activeSecCount:'',activeSectionEmpty:false,activeSectionHasCards:false,activeEmptyMsg:'',listModel:{d:{},accords:[],top:[],heart:[],base:[],similar:[]},addResults:[],searchResults:[],searchChips:[],newCovers:[],sortOptions:[],newName:'',newCatName:'',newContext:'',newTitle:'',addQuery:'',libQuery:'',addTitle:'',addNoResults:false,searchEmpty:true,searchHasResults:false,searchNoResults:false,searchCountLabel:'',catalogueCount:'',userEmail:'',userInitial:'',signOut:()=>this.signOut(),goHome:()=>this.goHome(),openSearch:()=>this.openSearch(),openSettings:()=>this.openSettings(),openNewCat:()=>this.openNewCat(),openNewListTop:()=>this.openNewList(null),coverInputRef:(el)=>{this._coverInput=el;},onChangeCoverFile:(e)=>this.onChangeCoverFile(e)};
     if (s.appState!=='ready') return blank;
 
     const allLists=Object.values(lists), topLists=allLists.filter(l=>!l.parentId);
@@ -1520,7 +1707,7 @@ class Component extends DCLogic {
       const sortLabels={added:'Date added',name:'Name',brand:'Brand',release:'Release'};
       const dirArrow=s.sortDir==='asc'?'↑':'↓';
       const rows=this.sortedEntries(al).map(e=>{
-        const p=pidOf(e),ti=this.tagInfo(e.tag);
+        const p=pidOf(e),ti=this.tagInfo((al.sectionId!=='toget' && this.isToGet(p.id))?'toget':null);
         const flat='display:flex;align-items:center;gap:12px;padding:13px 8px;background:#fff;border:none;border-bottom:1px solid #F2F1F6;width:100%;cursor:pointer;font-family:inherit;position:relative;';
         const tagged=ti?('display:flex;align-items:center;gap:12px;padding:14px 12px;margin:8px 0;background:'+ti.bg+';border:1px solid '+ti.border+';border-radius:16px;width:100%;cursor:pointer;font-family:inherit;box-shadow:0 5px 14px -4px '+ti.glow+';'):'';
         const tagStyle=ti?('display:inline-flex;align-items:center;gap:5px;margin-top:7px;font-size:10.5px;font-weight:700;color:'+ti.text+';background:#fff;border:1px solid '+ti.border+';padding:3px 9px;border-radius:999px;'):'';
@@ -1551,7 +1738,8 @@ class Component extends DCLogic {
       const similar=merged.map(r=>({name:r.name,house:r.house,img:r.img,imgEl:mkImg(r.img,ST.sim),onOpen:r.id?(()=>this.openDrawer(r.id,s.drawerListId)):(()=>{}),showRemove:inList&&r.removable,onRemove:()=>this.removeSimilar(r.id)}));
       const fb=a=>(a&&a.length?a:['—']);
       const noteDirty=(s.editNote||'')!==(meta.note||''); const priceDirty=isOwned&&((s.editPrice||'')!==(meta.pricePaid||'')); const isDirty=inList&&(noteDirty||priceDirty);
-      d={name:p.name,house:p.brand||'—',metaLine,img:p.thumb,imgEl:mkImg(p.thumb,ST.drawer),noImg:!p.thumb,inList,fromSearch:s.drawerFromSearch,accords:p.accords||[],hasAccords:!!(p.accords&&p.accords.length),top:fb(p.notes.top),heart:fb(p.notes.mid),base:fb(p.notes.base),showToGet:inList,showNotesEdit:inList,showPriceEdit:(inList&&isOwned),togetBtnStyle:bs+(curTag==='toget'?'border:1.5px solid #E5484D;background:#FDECEC;color:#BE343A;':'border:1.5px solid #ECEAF2;background:#fff;color:#6A6775;'),toggleToGet:()=>this.toggleTag(p.id,s.drawerListId,'toget'),showSimilar:(similar.length>0||inList),simControls:inList,similarEmpty:(inList&&similar.length===0),similar,removeFromList:()=>this.removeFromList(),showAddToList:s.drawerFromSearch,showListFooter:isDirty,showFooter:(s.drawerFromSearch||isDirty),dirty:isDirty,notDirty:!isDirty,canEditPhoto:(inList&&(!!p.manual||(!!p.community&&!!this._isAdmin)))};
+      const isTG=this.isToGet(p.id);
+      d={name:p.name,house:p.brand||'—',metaLine,img:p.thumb,imgEl:mkImg(p.thumb,ST.drawer),noImg:!p.thumb,inList,fromSearch:s.drawerFromSearch,accords:p.accords||[],hasAccords:!!(p.accords&&p.accords.length),top:fb(p.notes.top),heart:fb(p.notes.mid),base:fb(p.notes.base),showToGet:true,showNotesEdit:inList,showPriceEdit:(inList&&isOwned),togetBtnStyle:bs+(isTG?'border:1.5px solid #E5484D;background:#FDECEC;color:#BE343A;':'border:1.5px solid #ECEAF2;background:#fff;color:#6A6775;'),toggleToGet:()=>this.toggleToGet(p.id),showSimilar:(similar.length>0||inList),simControls:inList,similarEmpty:(inList&&similar.length===0),similar,removeFromList:()=>this.removeFromList(),showAddToList:s.drawerFromSearch,showListFooter:isDirty,showFooter:(s.drawerFromSearch||isDirty),dirty:isDirty,notDirty:!isDirty,canEditPhoto:(inList&&(!!p.manual||(!!p.community&&!!this._isAdmin)))};
     }
 
     // add sheet
@@ -1648,9 +1836,15 @@ class Component extends DCLogic {
       userEmail, userInitial, signOut:()=>this.signOut(),
       goHome:()=>this.goHome(), openSearch:()=>this.openSearch(), openSettings:()=>this.openSettings(),
       openNewCat:()=>this.openNewCat(), onNewCatName:(e)=>this.onNewCatName(e), createCat:()=>this.createCat(),
+      openCatMenu:()=>this.openCatMenu(), showCatMenu:s.sheet==='catmenu', catMenuTitle:(activeSec?activeSec.name:''), catMenuName:(activeSec?activeSec.name:''), catCanDelete:(activeSec&&activeSec.id!=='totry'),
+      openRenameCat:()=>this.openRenameCat(), saveRenameCat:()=>this.saveRenameCat(), showRenameCat:s.sheet==='renamecat',
+      openDeleteCat:()=>this.openDeleteCat(), confirmDeleteCat:()=>this.confirmDeleteCat(), showDeleteCat:s.sheet==='deletecat',
+      catDeleteWarning:(()=>{const sec=activeSec;if(!sec)return'';const ls=allLists.filter(l=>l.sectionId===sec.id);const np=ls.reduce((n,l)=>n+l.entries.length,0);const parts=[];if(ls.length)parts.push(ls.length+(ls.length===1?' list':' lists'));if(np)parts.push(np+(np===1?' perfume':' perfumes'));return parts.length?('This removes the tab and its '+parts.join(' and ')+'. The perfumes themselves stay in the catalogue.'):'This removes the tab. It has no lists yet.';})(),
       back:()=>this.back(), closeDrawer:()=>this.closeDrawer(),
       openAdd:()=>this.openAdd(), openManual:()=>this.openManual(), closeSheet:()=>this.closeSheet(),
       onAddQuery:(e)=>this.onAddQuery(e), onLibQuery:(e)=>this.onLibQuery(e),
+      hasLibQuery:!!s.libQuery, hasAddQuery:!!s.addQuery, hasSimQuery:!!s.simQuery,
+      clearLib:()=>this.clearLib(), clearAdd:()=>this.clearAdd(), clearSim:()=>this.clearSim(),
       openSort:()=>this.openSort(), openListMenu:()=>this.openListMenu(), shareCurrent:()=>this.shareCurrent(),
       openNewListTop:()=>this.openNewList(null), addSubList:()=>this.addSubList(), onNewName:(e)=>this.onNewName(e), createList:()=>this.createList(),
       onManualName:(e)=>this.onManualName(e), manualSave:()=>this.manualSave(),
