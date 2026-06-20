@@ -436,7 +436,7 @@
                   <div style="font-size:22px; font-weight:700; color:#1C1B22; margin-top:4px; line-height:1.15;">{{ d.name }}</div>
                   <div style="font-size:12.5px; color:#6A6775; margin-top:7px; line-height:1.5;">{{ d.metaLine }}</div>
                   <sc-if value="{{ d.canEditDetails }}" hint-placeholder-val="">
-                    <button onClick="{{ openEditDetails }}" style="margin-top:9px; display:inline-flex; align-items:center; gap:5px; background:none; border:none; padding:0; color:var(--accent); font-size:12.5px; font-weight:600; cursor:pointer; font-family:inherit;"><span class="ms" style="font-size:16px;">edit</span>Edit details</button>
+                    <button onClick="{{ openEditDetails }}" style="margin-top:9px; display:inline-flex; align-items:center; gap:5px; background:none; border:none; padding:0; color:var(--accent); font-size:12.5px; font-weight:600; cursor:pointer; font-family:inherit;"><span class="ms" style="font-size:16px;">edit</span>Edit</button>
                   </sc-if>
                 </div>
               </div>
@@ -473,7 +473,7 @@
                         <div style="font-size:11.5px; color:#9C99A8; margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ sim.house }}</div>
                       </button>
                       <sc-if value="{{ sim.showRemove }}" hint-placeholder-val="">
-                        <button onClick="{{ sim.onRemove }}" aria-label="Remove" style="position:absolute; top:-7px; right:-7px; width:24px; height:24px; border-radius:50%; background:#C0353A; border:2px solid #fff; color:#fff; display:flex; align-items:center; justify-content:center; cursor:pointer; box-shadow:0 2px 6px rgba(0,0,0,0.2);"><span class="ms" style="font-size:15px;">close</span></button>
+                        <button onClick="{{ sim.onRemove }}" aria-label="Remove" style="position:absolute; top:-6px; right:-6px; width:22px; height:22px; border-radius:50%; background:#EFEDF3; border:1.5px solid #fff; color:#9C99A8; display:flex; align-items:center; justify-content:center; cursor:pointer; box-shadow:0 1px 4px rgba(20,16,32,0.12);"><span class="ms" style="font-size:14px;">close</span></button>
                       </sc-if>
                     </div>
                   </sc-for>
@@ -491,6 +491,7 @@
               </div>
             </sc-if>
 
+            <sc-if value="{{ d.hasPyramid }}" hint-placeholder-val="">
             <div style="padding:18px 20px 4px;">
               <div style="font-size:11px; font-weight:700; letter-spacing:0.06em; text-transform:uppercase; color:#9C99A8;">Notes pyramid</div>
               <div style="display:flex; flex-direction:column; gap:13px; margin-top:13px;">
@@ -508,6 +509,7 @@
                 </div>
               </div>
             </div>
+            </sc-if>
 
             <div style="height:14px;"></div>
           </div>
@@ -554,12 +556,12 @@
 
       <!-- ADD SIMILAR SHEET -->
       <sc-if value="{{ showSimAdd }}" hint-placeholder-val="">
-        <div onClick="{{ closeSheet }}" style="position:absolute; inset:0; background:rgba(20,16,32,0.42); z-index:44; animation:fadeIn 180ms ease;"></div>
-        <div style="position:absolute; left:0; right:0; bottom:0; height:80%; background:#fff; border-radius:26px 26px 0 0; z-index:45; display:flex; flex-direction:column; animation:sheetUp 300ms cubic-bezier(.2,.7,.2,1); box-shadow:0 -14px 44px rgba(20,16,32,0.24); overflow:hidden;">
+        <div style="position:absolute; inset:0; background:rgba(20,16,32,0.55); z-index:44; animation:fadeIn 180ms ease;"></div>
+        <div style="position:absolute; left:0; right:0; bottom:0; max-height:91%; height:91%; background:#fff; border-radius:26px 26px 0 0; z-index:45; display:flex; flex-direction:column; animation:sheetUp 300ms cubic-bezier(.2,.7,.2,1); box-shadow:0 -14px 44px rgba(20,16,32,0.24); overflow:hidden;">
           <div onTouchStart="{{ sheetGrabStart }}" onTouchMove="{{ sheetGrabMove }}" onTouchEnd="{{ sheetGrabEnd }}" style="flex:0 0 auto; display:flex; justify-content:center; padding:9px 0 3px; cursor:grab; touch-action:none;"><div style="width:38px; height:5px; border-radius:99px; background:#E2DEEC;"></div></div>
-          <div style="flex:0 0 auto; display:flex; align-items:center; justify-content:space-between; padding:6px 20px 12px;">
+          <div style="flex:0 0 auto; display:flex; align-items:center; gap:10px; padding:6px 16px 12px;">
+            <button onClick="{{ closeSheet }}" aria-label="Back" style="width:34px; height:34px; border-radius:50%; background:#F4F1FA; border:none; color:#6A6775; display:flex; align-items:center; justify-content:center; cursor:pointer; flex:0 0 auto;"><span class="ms" style="font-size:21px;">arrow_back</span></button>
             <div style="font-size:18px; font-weight:700; color:#1C1B22;">Add a similar scent</div>
-            
           </div>
           <div style="flex:0 0 auto; margin:0 20px 8px; display:flex; align-items:center; gap:10px; background:#F2F1F6; border-radius:14px; padding:13px 14px;">
             <span class="ms" style="font-size:21px; color:#9C99A8;">search</span>
@@ -922,7 +924,7 @@ class Component extends DCLogic {
     ],
     userData: {},
     view: 'home', activeSection: 'totry', activeListId: null, homeView: 'folders',
-    drawerPerfumeId: null, drawerListId: null, drawerEdit: false, drawerFromSearch: false, pendingAddPerfumeId: null, editNote: '', simQuery: '', notesExpanded: false, similarExpanded: false,
+    drawerPerfumeId: null, drawerListId: null, drawerEdit: false, drawerFromSearch: false, pendingAddPerfumeId: null, editNote: '', simQuery: '', notesExpanded: false, similarExpanded: false, simTouched: false,
     edName: '', edBrand: '', edYear: '', edPerfumer: '', edPhoto: '',
     sheet: null, addTargetListId: null,
     sort: 'added', sortDir: 'asc', addQuery: '', libQuery: '',
@@ -1251,7 +1253,7 @@ class Component extends DCLogic {
     const m=this.state.userData[pid]||{};
     if (fromSimilar) { this._drawerStack=this._drawerStack||[]; this._drawerStack.push({pid:this.state.drawerPerfumeId,lid:this.state.drawerListId,fromSearch:this.state.drawerFromSearch}); }
     else { this._drawerStack=[]; }
-    this.setState({drawerPerfumeId:pid,drawerListId:lid||null,drawerEdit:false,drawerFromSearch:!!fromSearch,editNote:m.note||'',notesExpanded:!!(m.note&&m.note.trim()),similarExpanded:false});
+    this.setState({drawerPerfumeId:pid,drawerListId:lid||null,drawerEdit:false,drawerFromSearch:!!fromSearch,editNote:m.note||'',notesExpanded:!!(m.note&&m.note.trim()),similarExpanded:false,simTouched:false});
   }
   drawerBack() {
     const st=this._drawerStack&&this._drawerStack.pop();
@@ -1318,7 +1320,9 @@ class Component extends DCLogic {
   }
   async saveEdit() {
     const pid = this.state.drawerPerfumeId;
-    await this.saveUserMeta(pid, { note: (this.state.editNote || '').trim() });
+    const note = (this.state.editNote || '').trim();
+    await this.saveUserMeta(pid, { note });
+    this.setState({ notesExpanded: !!note, simTouched: false });
     this.toast('Saved');
   }
   openSimAdd() { this.setState({ sheet: 'simadd', simQuery: '' }); }
@@ -1328,13 +1332,14 @@ class Component extends DCLogic {
     const ids = this._userSimilarIds(pid);
     if (simId !== pid && !ids.includes(simId)) ids.push(simId);
     await this.saveUserMeta(pid, { remindsOf: JSON.stringify(ids) });
-    this.setState({ sheet: null });
+    this.setState({ sheet: null, similarExpanded: true, simTouched: true });
     this.toast('Similar scent added');
   }
   async removeSimilar(simId) {
     const pid = this.state.drawerPerfumeId;
     const ids = this._userSimilarIds(pid).filter(x => x !== simId);
     await this.saveUserMeta(pid, { remindsOf: ids.length ? JSON.stringify(ids) : null });
+    this.setState({ simTouched: true });
     this.toast('Removed');
   }
   closeSheet() { this.setState({sheet:null}); }
@@ -1885,7 +1890,7 @@ class Component extends DCLogic {
     // drawer
     const p=s.drawerPerfumeId?cat[s.drawerPerfumeId]:null;
     const drawerOpen=!!p;
-    let d={img:'',imgEl:null,noImg:true,name:'',house:'',metaLine:'',inList:false,fromSearch:false,accords:[],hasAccords:false,top:['—'],heart:['—'],base:['—'],showBack:false,noBack:true,showHeart:true,noHeart:false,toggleHeart:()=>{},heartFill:'0',heartColor:'#C4C1CE',heartBg:'#F4F1FA',canEditDetails:false,notesOpen:false,notesCTA:false,showSimilar:false,simCTA:false,similar:[],similarEmpty:false,showAddToList:false,showListFooter:false,showFooter:false,dirty:false,notDirty:true,removeFromList:()=>{},canEditPhoto:false};
+    let d={img:'',imgEl:null,noImg:true,name:'',house:'',metaLine:'',inList:false,fromSearch:false,accords:[],hasAccords:false,top:['—'],heart:['—'],base:['—'],showBack:false,noBack:true,showHeart:true,noHeart:false,toggleHeart:()=>{},heartFill:'0',heartColor:'#C4C1CE',heartBg:'#F4F1FA',canEditDetails:false,hasPyramid:false,notesOpen:false,notesCTA:false,showSimilar:false,simCTA:false,similar:[],similarEmpty:false,showAddToList:false,showListFooter:false,showFooter:false,dirty:false,notDirty:true,removeFromList:()=>{},canEditPhoto:false};
     if (drawerOpen) {
       const inList=!!s.drawerListId;
       let curTag=null;
@@ -1902,9 +1907,10 @@ class Component extends DCLogic {
       for (const it of [...datasetSim,...userSim]){if(it.id&&seen.has(it.id))continue;if(it.id)seen.add(it.id);merged.push({...it,removable:!!(it.id&&userSimIds.includes(it.id))});}
       const similar=merged.map(r=>({name:r.name,house:r.house,img:r.img,imgEl:mkImg(r.img,ST.sim),onOpen:r.id?(()=>this.openDrawer(r.id,s.drawerListId,false,true)):(()=>{}),showRemove:inList&&r.removable,onRemove:()=>this.removeSimilar(r.id)}));
       const fb=a=>(a&&a.length?a:['—']);
-      const noteDirty=(s.editNote||'')!==(meta.note||''); const isDirty=inList&&noteDirty;
+      const noteDirty=(s.editNote||'')!==(meta.note||''); const isDirty=inList&&(noteDirty||!!s.simTouched);
       const isTG=this.isToGet(p.id);
       const editable=inList&&!s.drawerFromSearch;
+      const hasPyramid=!!((p.notes.top&&p.notes.top.length)||(p.notes.mid&&p.notes.mid.length)||(p.notes.base&&p.notes.base.length));
       const hasNote=!!(meta.note&&meta.note.trim());
       const notesOpen=editable&&(hasNote||s.notesExpanded);
       const notesCTA=editable&&!notesOpen;
@@ -1917,7 +1923,7 @@ class Component extends DCLogic {
       const canAddToList=s.drawerFromSearch||showBack;
       d={name:p.name,house:p.brand||'—',metaLine,img:p.thumb,imgEl:mkImg(p.thumb,ST.drawer),noImg:!p.thumb,inList,fromSearch:s.drawerFromSearch,accords:p.accords||[],hasAccords:!!(p.accords&&p.accords.length),top:fb(p.notes.top),heart:fb(p.notes.mid),base:fb(p.notes.base),
         showBack,noBack:!showBack,showHeart,noHeart:!showHeart,toggleHeart:()=>this.toggleToGet(p.id),heartFill:heartActive?'1':'0',heartColor:heartActive?'#E5484D':'#C4C1CE',heartBg:heartActive?'#FDECEC':'#F4F1FA',
-        canEditDetails,
+        canEditDetails,hasPyramid,
         notesOpen,notesCTA,
         showSimilar:simOpen,simCTA,similar,similarEmpty:(simOpen&&similar.length===0),
         removeFromList:()=>this.removeFromList(),showAddToList:canAddToList,showListFooter:isDirty,showFooter:(canAddToList||isDirty),dirty:isDirty,notDirty:!isDirty,canEditPhoto:(editable&&(!!p.manual||(!!p.community&&!!this._isAdmin)))};
