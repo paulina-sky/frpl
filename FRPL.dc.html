@@ -210,7 +210,6 @@
                     <div style="position:relative; height:116px; width:100%; display:flex; align-items:center; justify-content:center; pointer-events:none;">
                       <sc-if value="{{ g.img }}" hint-placeholder-val="">{{ g.imgEl }}</sc-if>
                       <sc-if value="{{ g.noImg }}" hint-placeholder-val=""><span class="ms" style="font-size:46px; color:var(--accent-light);">water_drop</span></sc-if>
-                      <sc-if value="{{ g.toget }}" hint-placeholder-val=""><span style="position:absolute; top:0; right:6px; width:9px; height:9px; border-radius:50%; background:#E5484D; border:2px solid #fff;"></span></sc-if>
                     </div>
                   </button>
                 </sc-for>
@@ -964,14 +963,21 @@ class Component extends DCLogic {
       if ((event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') && session) {
         if (this._recovery || this.state.authMode === 'reset') return;
         if (this.state.appState !== 'ready') {
-          this.setState({ session, appState: 'loading' });
-          await this._awaitCatalogue();
-          await this.loadUserData();
-          this.setState({ appState: 'ready' });
+          this.setState({ session });
+          const hyd = this._hydrateFromCache(session.user.id);
+          if (!hyd) this.setState({ appState: 'loading' });
+          try {
+            await this._awaitCatalogue();
+            await this.loadUserData();
+            this.setState({ appState: 'ready' });
+          } catch (e) {
+            if (!hyd) this.setState({ appState: 'ready', loadError: 'Some data couldn\u2019t load. Pull to refresh.' });
+          }
         } else {
           this.setState({ session });
         }
       } else if (event === 'SIGNED_OUT') {
+        try { localStorage.removeItem(this._dataCacheKey(this.state.session && this.state.session.user ? this.state.session.user.id : '')); } catch (_) {}
         this.setState({ session: null, appState: 'auth', lists: {}, userData: {}, sections: this._fixedSections(), view: 'home' });
       }
     });
@@ -987,15 +993,20 @@ class Component extends DCLogic {
       this._blurSoon();
       return;
     }
-    this.setState({ session, appState: 'loading' });
+    this.setState({ session });
+    // Paint instantly from the locally-cached snapshot so your lists never vanish on reopen,
+    // even if the network is slow or briefly unreachable. Then refresh from the server below.
+    const hydrated = this._hydrateFromCache(session.user.id);
+    if (!hydrated) this.setState({ appState: 'loading' });
     try {
       await this._awaitCatalogue();
       await this.loadUserData();
       this.setState({ appState: 'ready' });
     } catch (err) {
-      this.setState({ appState: 'ready', loadError: 'Some data couldn\u2019t load. Pull to refresh.' });
+      // Network failed — keep the cached data on screen rather than blanking the app.
+      if (!hydrated) this.setState({ appState: 'ready', loadError: 'Some data couldn\u2019t load. Pull to refresh.' });
     }
-    this.setState({ appState: 'ready' });
+    this._blurSoon();
   }
 
   _loadCatalogue() {
@@ -1025,7 +1036,7 @@ class Component extends DCLogic {
   async loadUserData() {
     const sb = this._sb;
     const uid = this.state.session.user.id;
-    const [listsRes, entriesRes, catsRes, notesRes, customRes, profileRes, communityRes, prefsRes] = await Promise.all([
+    const fetchAll = Promise.all([
       sb.from('lists').select('*').order('created_at'),
       sb.from('list_entries').select('*').order('position'),
       sb.from('categories').select('*').order('sort_order'),
@@ -1034,6 +1045,10 @@ class Component extends DCLogic {
       sb.from('profiles').select('is_admin').eq('id', uid).maybeSingle(),
       sb.from('community_perfumes').select('*'),
       sb.from('section_prefs').select('*'),
+    ]);
+    const [listsRes, entriesRes, catsRes, notesRes, customRes, profileRes, communityRes, prefsRes] = await Promise.race([
+      fetchAll,
+      new Promise((_, rej) => setTimeout(() => rej(new Error('network timeout')), 9000))
     ]);
     this._isAdmin = !!(profileRes && profileRes.data && profileRes.data.is_admin);
     const lists = {};
@@ -1053,6 +1068,23 @@ class Component extends DCLogic {
     const sections = this._buildSections(this._sectionPrefs, customCats, lists);
     const activeSection = sections.find(s => s.id === this.state.activeSection) ? this.state.activeSection : 'totry';
     this.setState({ lists, userData, sections, catById, catalogue: [...(this._catalogue||[]), ...communityArr, ...customArr], activeSection });
+    // Persist a lightweight snapshot for instant boot next time.
+    this._persistDataCache(uid, { lists, userData, sections, communityArr, customArr, isAdmin: this._isAdmin });
+  }
+  _dataCacheKey(uid) { return 'frpl-data-' + (uid || 'anon'); }
+  _persistDataCache(uid, payload) { try { localStorage.setItem(this._dataCacheKey(uid), JSON.stringify(payload)); } catch (_) {} }
+  _readDataCache(uid) { try { const r = localStorage.getItem(this._dataCacheKey(uid)); return r ? JSON.parse(r) : null; } catch (_) { return null; } }
+  _hydrateFromCache(uid) {
+    const c = this._readDataCache(uid); if (!c || !c.lists) return false;
+    const catById = { ...(this._catById || {}) };
+    const community = c.communityArr || [], custom = c.customArr || [];
+    for (const cp of community) catById[cp.id] = cp;
+    for (const cp of custom) catById[cp.id] = cp;
+    this._isAdmin = !!c.isAdmin;
+    const sections = c.sections || this._fixedSections();
+    const activeSection = sections.find(x => x.id === this.state.activeSection) ? this.state.activeSection : 'totry';
+    this.setState({ lists: c.lists, userData: c.userData || {}, sections, catById, catalogue: [...(this._catalogue||[]), ...community, ...custom], activeSection, appState: 'ready' });
+    return true;
   }
   _specialDefs() { return [
     { id:'totry', name:'To Try', sub:'wishlist & discovery' },
@@ -1850,7 +1882,7 @@ class Component extends DCLogic {
         if (seenP.has(e.perfumeId)) continue; seenP.add(e.perfumeId);
         const p=pidOf(e); if(!p) continue;
         const lid=l.id;
-        allPerfumes.push({name:p.name,house:p.brand||'—',year:p.year,img:p.thumb,imgEl:mkImg(p.thumb,ST.grid),noImg:!p.thumb,toget:this.isToGet(p.id),onPressStart:(e)=>this.pressStart(()=>this.openDrawer(p.id,lid),()=>this.gridLongPress(p.id,lid),e),onPressMove:(e)=>this.pressMove(e),onPressEnd:()=>this.pressEnd(),onPressCancel:()=>this.pressCancel()});
+        allPerfumes.push({name:p.name,house:p.brand||'—',year:p.year,img:p.thumb,imgEl:mkImg(p.thumb,ST.grid),noImg:!p.thumb,onPressStart:(e)=>this.pressStart(()=>this.openDrawer(p.id,lid),()=>this.gridLongPress(p.id,lid),e),onPressMove:(e)=>this.pressMove(e),onPressEnd:()=>this.pressEnd(),onPressCancel:()=>this.pressCancel()});
       }
     }
     const k=s.sort, dir=s.sortDir;
@@ -1877,7 +1909,7 @@ class Component extends DCLogic {
       const sortLabels={added:'Date added',name:'Name',brand:'Brand',release:'Release'};
       const dirArrow=s.sortDir==='asc'?'↑':'↓';
       const rows=this.sortedEntries(al).map(e=>{
-        const p=pidOf(e),ti=this.tagInfo((al.sectionId!=='toget' && this.isToGet(p.id))?'toget':null);
+        const p=pidOf(e),ti=this.tagInfo(e.tag||null);
         const flat='display:flex;align-items:center;gap:12px;padding:13px 8px;background:#fff;border:none;border-bottom:1px solid #F2F1F6;width:100%;cursor:pointer;font-family:inherit;position:relative;';
         const tagged=ti?('display:flex;align-items:center;gap:12px;padding:14px 12px;margin:8px 0;background:'+ti.bg+';border:1px solid '+ti.border+';border-radius:16px;width:100%;cursor:pointer;font-family:inherit;box-shadow:0 5px 14px -4px '+ti.glow+';'):'';
         const tagStyle=ti?('display:inline-flex;align-items:center;gap:5px;margin-top:7px;font-size:10.5px;font-weight:700;color:'+ti.text+';background:#fff;border:1px solid '+ti.border+';padding:3px 9px;border-radius:999px;'):'';
