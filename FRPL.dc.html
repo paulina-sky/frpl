@@ -463,7 +463,7 @@
             <sc-if value="{{ d.showSimilar }}" hint-placeholder-val="">
               <div style="padding:18px 20px 4px;">
                 <div style="font-size:11px; font-weight:700; letter-spacing:0.06em; text-transform:uppercase; color:#9C99A8;">Similar scents</div>
-                <div class="appscroll" style="display:flex; gap:11px; overflow-x:auto; margin-top:12px; padding-bottom:2px;">
+                <div class="appscroll" style="display:flex; gap:11px; overflow-x:auto; margin-top:12px; padding:10px 10px 4px 2px;">
                   <sc-for list="{{ d.similar }}" as="sim" hint-placeholder-count="2">
                     <div style="position:relative; flex:0 0 auto;">
                       <button onClick="{{ sim.onOpen }}" style="width:138px; text-align:left; background:#fff; border:1px solid #ECEAF2; border-radius:14px; padding:12px; cursor:pointer; font-family:inherit;">
@@ -472,7 +472,7 @@
                         <div style="font-size:11.5px; color:#9C99A8; margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ sim.house }}</div>
                       </button>
                       <sc-if value="{{ sim.showRemove }}" hint-placeholder-val="">
-                        <button onClick="{{ sim.onRemove }}" aria-label="Remove" style="position:absolute; top:-6px; right:-6px; width:22px; height:22px; border-radius:50%; background:#EFEDF3; border:1.5px solid #fff; color:#9C99A8; display:flex; align-items:center; justify-content:center; cursor:pointer; box-shadow:0 1px 4px rgba(20,16,32,0.12);"><span class="ms" style="font-size:14px;">close</span></button>
+                        <button onClick="{{ sim.onRemove }}" aria-label="Remove" style="position:absolute; top:-9px; right:-9px; width:30px; height:30px; border-radius:50%; background:#fff; border:1px solid #ECEAF2; color:#1C1B22; display:flex; align-items:center; justify-content:center; cursor:pointer; box-shadow:0 2px 8px rgba(20,16,32,0.16);"><span class="ms" style="font-size:18px;">close</span></button>
                       </sc-if>
                     </div>
                   </sc-for>
@@ -1062,7 +1062,7 @@ class Component extends DCLogic {
     const customArr = (customRes.data||[]).map(cp => ({ id:cp.id, name:cp.name, brand:cp.brand||'Added manually', year:cp.year, perfumers:cp.perfumer?cp.perfumer.split(',').map(x=>x.trim()).filter(Boolean):[], gender:'', thumb:cp.image_url||'', url:'', notes:{top:[],mid:[],base:[]}, reminds:[], manual:true }));
     for (const cp of customArr) catById[cp.id] = cp;
     const userData = {};
-    for (const n of (notesRes.data||[])) userData[n.perfume_id] = { note:n.note, remindsOf:n.reminds_of, pricePaid:n.price_paid, priceTarget:n.price_target };
+    for (const n of (notesRes.data||[])) userData[n.perfume_id] = { note:n.note, remindsOf:n.reminds_of, hiddenSim:n.hidden_sim, pricePaid:n.price_paid, priceTarget:n.price_target };
     const customCats = (catsRes.data||[]).map(c => ({ id:c.id, name:c.name, sub:'your category', custom:true }));
     this._sectionPrefs = (prefsRes && prefsRes.data) ? prefsRes.data : [];
     const sections = this._buildSections(this._sectionPrefs, customCats, lists);
@@ -1303,6 +1303,21 @@ class Component extends DCLogic {
   onGrabEnd(){ if(this._gy0==null)return; const sheet=this._drawerSheet; if(this._gy>110){ this.closeDrawer(); } else if(sheet){ sheet.style.transition='transform 220ms cubic-bezier(.2,.7,.2,1)'; sheet.style.transform='translateY(0)'; } this._gy0=null; this._gy=0; }
 
   // ── perfume editing ──
+  _hiddenSim(pid) {
+    const m = this.state.userData[pid];
+    if (!m || !m.hiddenSim) return [];
+    try { const a = JSON.parse(m.hiddenSim); return Array.isArray(a) ? a : []; } catch (_) { return []; }
+  }
+  async removeSimilarItem(key, id) {
+    const pid = this.state.drawerPerfumeId;
+    let ids = this._userSimilarIds(pid);
+    if (id) ids = ids.filter(x => x !== id);
+    const hidden = this._hiddenSim(pid);
+    if (key && !hidden.includes(key)) hidden.push(key);
+    await this.saveUserMeta(pid, { remindsOf: ids.length ? JSON.stringify(ids) : null, hiddenSim: hidden.length ? JSON.stringify(hidden) : null });
+    this.setState({ simTouched: true });
+    this.toast('Removed');
+  }
   _userSimilarIds(pid) {
     const m = this.state.userData[pid];
     if (!m || !m.remindsOf) return [];
@@ -1314,7 +1329,7 @@ class Component extends DCLogic {
     s.userData[pid] = next;
     this.forceUpdate();
     if (this._sb && s.session) {
-      const row = { user_id: s.session.user.id, perfume_id: pid, note: next.note || null, reminds_of: next.remindsOf || null, price_paid: next.pricePaid || null, price_target: next.priceTarget || null, updated_at: new Date().toISOString() };
+      const row = { user_id: s.session.user.id, perfume_id: pid, note: next.note || null, reminds_of: next.remindsOf || null, hidden_sim: next.hiddenSim || null, price_paid: next.pricePaid || null, price_target: next.priceTarget || null, updated_at: new Date().toISOString() };
       const { error } = await this._sb.from('user_perfume_notes').upsert(row, { onConflict: 'user_id,perfume_id' });
       if (error) this.toast('Save error: ' + error.message);
     }
@@ -1935,9 +1950,10 @@ class Component extends DCLogic {
       const userSimIds=this._userSimilarIds(p.id);
       const datasetSim=this.resolveReminds(p.reminds);
       const userSim=userSimIds.map(id=>{const cp=cat[id];return cp?{id,name:cp.name,house:cp.brand,img:cp.thumb}:null;}).filter(Boolean);
+      const hiddenSet=new Set(this._hiddenSim(p.id));
       const seen=new Set();const merged=[];
-      for (const it of [...datasetSim,...userSim]){if(it.id&&seen.has(it.id))continue;if(it.id)seen.add(it.id);merged.push({...it,removable:!!(it.id&&userSimIds.includes(it.id))});}
-      const similar=merged.map(r=>({name:r.name,house:r.house,img:r.img,imgEl:mkImg(r.img,ST.sim),onOpen:r.id?(()=>this.openDrawer(r.id,s.drawerListId,false,true)):(()=>{}),showRemove:inList&&r.removable,onRemove:()=>this.removeSimilar(r.id)}));
+      for (const it of [...datasetSim,...userSim]){const key=it.id||('name:'+it.name);if(it.id&&seen.has(it.id))continue;if(it.id)seen.add(it.id);if(hiddenSet.has(key))continue;merged.push({...it,key,removable:true});}
+      const similar=merged.map(r=>({name:r.name,house:r.house,img:r.img,imgEl:mkImg(r.img,ST.sim),onOpen:r.id?(()=>this.openDrawer(r.id,s.drawerListId,false,true)):(()=>{}),showRemove:inList&&r.removable,onRemove:()=>this.removeSimilarItem(r.key,r.id)}));
       const fb=a=>(a&&a.length?a:['—']);
       const noteDirty=(s.editNote||'')!==(meta.note||''); const isDirty=inList&&(noteDirty||!!s.simTouched);
       const isTG=this.isToGet(p.id);
