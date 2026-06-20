@@ -1,5 +1,5 @@
 // FRPL Service Worker — caches app shell + perfume catalogue
-const CACHE = 'frpl-v37';
+const CACHE = 'frpl-v39';
 const SUPABASE_JS = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js';
 const PRECACHE = [
   './FRPL.dc.html',
