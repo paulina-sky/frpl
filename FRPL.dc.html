@@ -19,7 +19,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,300,0,0">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,300,0..1,0">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <style>
   * { box-sizing: border-box; }
@@ -415,61 +415,55 @@
         <div ref="{{ drawerSheetRef }}" style="position:absolute; left:0; right:0; bottom:0; max-height:91%; background:#fff; border-radius:26px 26px 0 0; z-index:41; display:flex; flex-direction:column; animation:sheetUp 300ms cubic-bezier(.2,.7,.2,1); box-shadow:0 -14px 44px rgba(20,16,32,0.24); overflow:hidden;">
           <div onTouchStart="{{ onGrabStart }}" onTouchMove="{{ onGrabMove }}" onTouchEnd="{{ onGrabEnd }}" style="flex:0 0 auto; display:flex; justify-content:center; padding:11px 0 9px; cursor:grab; touch-action:none;"><div style="width:38px; height:5px; border-radius:99px; background:#E2DEEC;"></div></div>
           <div class="appscroll" style="overflow-y:auto; flex:1;">
-            <div style="position:relative; padding:16px 20px 18px; background:#fff; border-bottom:1px solid #ECEAF2; display:flex; align-items:center; gap:16px;">
-              <div style="position:relative; width:92px; height:110px; display:flex; align-items:center; justify-content:center; flex:0 0 auto;">
-                <sc-if value="{{ d.img }}" hint-placeholder-val="">{{ d.imgEl }}</sc-if>
-                <sc-if value="{{ d.noImg }}" hint-placeholder-val=""><span class="ms" style="font-size:54px; color:var(--accent-light);">water_drop</span></sc-if>
-                <sc-if value="{{ d.canEditPhoto }}" hint-placeholder-val="">
-                  <label style="position:absolute; inset:0; display:flex; align-items:flex-end; justify-content:center; cursor:pointer;">
-                    <input type="file" accept="image/*" onChange="{{ onPickDrawerPhoto }}" style="position:absolute; inset:0; opacity:0; cursor:pointer; font-size:0;" />
-                    <span style="font-size:10px; font-weight:700; color:#fff; background:var(--accent); padding:3px 9px; border-radius:999px; display:flex; align-items:center; gap:3px;"><span class="ms" style="font-size:13px;">photo_camera</span>Photo</span>
-                  </label>
+            <div style="position:relative; padding:8px 16px 16px; background:#fff; border-bottom:1px solid #ECEAF2;">
+              <div style="display:flex; align-items:center; justify-content:space-between; min-height:34px;">
+                <sc-if value="{{ d.showBack }}" hint-placeholder-val="">
+                  <button onClick="{{ drawerBack }}" aria-label="Back" style="width:34px; height:34px; border-radius:50%; background:#F4F1FA; border:none; color:#6A6775; display:flex; align-items:center; justify-content:center; cursor:pointer;"><span class="ms" style="font-size:21px;">arrow_back</span></button>
                 </sc-if>
+                <sc-if value="{{ d.noBack }}" hint-placeholder-val="{{ true }}"><span style="width:34px; height:34px;"></span></sc-if>
+                <sc-if value="{{ d.showHeart }}" hint-placeholder-val="{{ true }}">
+                  <button onClick="{{ d.toggleHeart }}" aria-label="Wishlist" style="width:38px; height:38px; border-radius:50%; background:{{ d.heartBg }}; border:none; display:flex; align-items:center; justify-content:center; cursor:pointer;"><span class="ms" style="font-size:22px; color:{{ d.heartColor }}; font-variation-settings:'FILL' {{ d.heartFill }};">favorite</span></button>
+                </sc-if>
+                <sc-if value="{{ d.noHeart }}" hint-placeholder-val=""><span style="width:38px; height:38px;"></span></sc-if>
               </div>
-              <div style="flex:1; min-width:0;">
-                <div style="font-size:11px; font-weight:700; letter-spacing:0.05em; text-transform:uppercase; color:var(--accent-deep);">{{ d.house }}</div>
-                <div style="font-size:22px; font-weight:700; color:#1C1B22; margin-top:4px; line-height:1.15;">{{ d.name }}</div>
-                <div style="font-size:12.5px; color:#6A6775; margin-top:7px; line-height:1.5;">{{ d.metaLine }}</div>
+              <div style="display:flex; align-items:center; gap:16px; padding:2px 4px 0;">
+                <div style="position:relative; width:92px; height:110px; display:flex; align-items:center; justify-content:center; flex:0 0 auto;">
+                  <sc-if value="{{ d.img }}" hint-placeholder-val="">{{ d.imgEl }}</sc-if>
+                  <sc-if value="{{ d.noImg }}" hint-placeholder-val=""><span class="ms" style="font-size:54px; color:var(--accent-light);">water_drop</span></sc-if>
+                </div>
+                <div style="flex:1; min-width:0;">
+                  <div style="font-size:11px; font-weight:700; letter-spacing:0.05em; text-transform:uppercase; color:var(--accent-deep);">{{ d.house }}</div>
+                  <div style="font-size:22px; font-weight:700; color:#1C1B22; margin-top:4px; line-height:1.15;">{{ d.name }}</div>
+                  <div style="font-size:12.5px; color:#6A6775; margin-top:7px; line-height:1.5;">{{ d.metaLine }}</div>
+                  <sc-if value="{{ d.canEditDetails }}" hint-placeholder-val="">
+                    <button onClick="{{ openEditDetails }}" style="margin-top:9px; display:inline-flex; align-items:center; gap:5px; background:none; border:none; padding:0; color:var(--accent); font-size:12.5px; font-weight:600; cursor:pointer; font-family:inherit;"><span class="ms" style="font-size:16px;">edit</span>Edit details</button>
+                  </sc-if>
+                </div>
               </div>
             </div>
 
-            <sc-if value="{{ d.canEditPhoto }}" hint-placeholder-val="">
-              <div style="padding:14px 20px 0;">
-                <button onClick="{{ pastePerfumeUrl }}" style="width:100%; height:42px; border-radius:12px; background:var(--accent-tint); border:none; color:var(--accent-deep); font-size:13.5px; font-weight:600; cursor:pointer; font-family:inherit; display:flex; align-items:center; justify-content:center; gap:7px;"><span class="ms" style="font-size:18px;">link</span>Paste image URL</button>
+            <sc-if value="{{ d.notesCTA }}" hint-placeholder-val="">
+              <div style="display:flex; justify-content:flex-end; padding:16px 20px 0;">
+                <button onClick="{{ expandNotes }}" style="display:inline-flex; align-items:center; gap:5px; background:none; border:none; padding:4px 0; color:var(--accent); font-size:13.5px; font-weight:600; cursor:pointer; font-family:inherit;"><span class="ms" style="font-size:18px;">add</span>Your Notes</button>
               </div>
             </sc-if>
 
-            <sc-if value="{{ d.showToGet }}" hint-placeholder-val="">
-              <div style="display:flex; gap:10px; padding:16px 20px 2px;">
-                <button onClick="{{ d.toggleToGet }}" style="{{ d.togetBtnStyle }}"><span class="ms" style="font-size:18px;">flag</span>To get</button>
-              </div>
-            </sc-if>
-
-            <sc-if value="{{ d.showNotesEdit }}" hint-placeholder-val="">
+            <sc-if value="{{ d.notesOpen }}" hint-placeholder-val="">
               <div style="padding:18px 20px 4px;">
                 <div style="font-size:11px; font-weight:700; letter-spacing:0.06em; text-transform:uppercase; color:#9C99A8;">Your notes <span style="font-weight:600; color:#C6C2D2; letter-spacing:0;">· private</span></div>
-                <textarea class="frpl-in" value="{{ editNote }}" onChange="{{ onEditNote }}" placeholder="Add a private note — how it wears, when you reach for it…" rows="3" style="margin-top:10px; width:100%; box-sizing:border-box; resize:none; background:#F7F6FB; border:1px solid #ECEAF2; border-radius:14px; padding:13px 15px; line-height:1.55; color:#3A3845;"></textarea>
+                <textarea class="frpl-in" value="{{ editNote }}" onChange="{{ onEditNote }}" ref="{{ noteRef }}" placeholder="Add a private note — how it wears, when you reach for it…" rows="2" style="margin-top:10px; width:100%; box-sizing:border-box; resize:none; overflow:hidden; background:#F7F6FB; border:1px solid #ECEAF2; border-radius:14px; padding:13px 15px; line-height:1.55; color:#3A3845;"></textarea>
               </div>
             </sc-if>
 
-            <sc-if value="{{ d.showPriceEdit }}" hint-placeholder-val="">
-              <div style="padding:14px 20px 4px;">
-                <div style="font-size:11px; font-weight:700; letter-spacing:0.06em; text-transform:uppercase; color:#9C99A8;">Price paid</div>
-                <input class="frpl-in" value="{{ editPrice }}" onChange="{{ onEditPrice }}" placeholder="e.g. €120" style="margin-top:10px; width:100%; box-sizing:border-box; background:#F7F6FB; border:1px solid #ECEAF2; border-radius:14px; padding:13px 15px; color:#1C1B22;" />
+            <sc-if value="{{ d.simCTA }}" hint-placeholder-val="">
+              <div style="display:flex; justify-content:flex-end; padding:14px 20px 0;">
+                <button onClick="{{ expandSimilar }}" style="display:inline-flex; align-items:center; gap:5px; background:none; border:none; padding:4px 0; color:var(--accent); font-size:13.5px; font-weight:600; cursor:pointer; font-family:inherit;"><span class="ms" style="font-size:18px;">add</span>Similar scent</button>
               </div>
             </sc-if>
 
             <sc-if value="{{ d.showSimilar }}" hint-placeholder-val="">
               <div style="padding:18px 20px 4px;">
-                <div style="display:flex; align-items:center; justify-content:space-between;">
-                  <div style="font-size:11px; font-weight:700; letter-spacing:0.06em; text-transform:uppercase; color:#9C99A8;">Similar scents</div>
-                  <sc-if value="{{ d.simControls }}" hint-placeholder-val="">
-                    <button onClick="{{ openSimAdd }}" style="display:flex; align-items:center; gap:4px; background:var(--accent-tint); border:none; color:var(--accent-deep); font-size:12px; font-weight:700; padding:6px 12px; border-radius:999px; cursor:pointer; font-family:inherit;"><span class="ms" style="font-size:16px;">add</span>Add</button>
-                  </sc-if>
-                </div>
-                <sc-if value="{{ d.similarEmpty }}" hint-placeholder-val="">
-                  <div style="margin-top:12px; font-size:13px; color:#B4B1C0; line-height:1.5;">No similar scents linked yet. Tap Add to connect one.</div>
-                </sc-if>
+                <div style="font-size:11px; font-weight:700; letter-spacing:0.06em; text-transform:uppercase; color:#9C99A8;">Similar scents</div>
                 <div class="appscroll" style="display:flex; gap:11px; overflow-x:auto; margin-top:12px; padding-bottom:2px;">
                   <sc-for list="{{ d.similar }}" as="sim" hint-placeholder-count="2">
                     <div style="position:relative; flex:0 0 auto;">
@@ -483,6 +477,7 @@
                       </sc-if>
                     </div>
                   </sc-for>
+                  <button onClick="{{ openSimAdd }}" aria-label="Add similar scent" style="flex:0 0 auto; width:138px; min-height:122px; border:1.5px dashed #D8D4E4; background:#FAF9FC; border-radius:14px; cursor:pointer; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; color:var(--accent); font-family:inherit;"><span class="ms" style="font-size:24px;">add</span><span style="font-size:12.5px; font-weight:600;">Similar scent</span></button>
                 </div>
               </div>
             </sc-if>
@@ -656,11 +651,46 @@
             <div style="display:flex; flex-direction:column; gap:14px;">
               <div><div style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; color:#9C99A8; margin-bottom:6px;">House / Brand</div><input class="frpl-in" value="{{ manualBrand }}" onChange="{{ onManualBrand }}" placeholder="House" style="width:100%; border:1px solid #ECEAF2; border-radius:11px; padding:11px 13px; color:#1C1B22; background:#fff;" /></div>
               <div><div style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; color:#9C99A8; margin-bottom:6px;">Release Year</div><input class="frpl-in" value="{{ manualYear }}" onChange="{{ onManualYear }}" inputmode="numeric" placeholder="2026" style="width:100%; border:1px solid #ECEAF2; border-radius:11px; padding:11px 13px; color:#1C1B22; background:#fff;" /></div>
-              <div><div style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; color:#9C99A8; margin-bottom:6px;">Your notes</div><textarea class="frpl-in" value="{{ manualNote }}" onChange="{{ onManualNote }}" placeholder="First impressions, longevity, where you wore it…" rows="3" style="width:100%; border:1px solid #ECEAF2; border-radius:11px; padding:11px 13px; color:#1C1B22; background:#fff; resize:none; box-sizing:border-box;"></textarea></div>
+              <div><div style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; color:#9C99A8; margin-bottom:6px;">Perfumer</div><input class="frpl-in" value="{{ manualPerfumer }}" onChange="{{ onManualPerfumer }}" placeholder="e.g. Alberto Morillas" style="width:100%; border:1px solid #ECEAF2; border-radius:11px; padding:11px 13px; color:#1C1B22; background:#fff;" /></div>
             </div>
           </div>
           <div style="flex:0 0 auto; padding:12px 20px 26px; border-top:1px solid #F2F1F6;">
             <button onClick="{{ manualSave }}" style="width:100%; height:48px; border-radius:14px; background:var(--accent); border:none; color:#fff; font-size:15px; font-weight:600; cursor:pointer; font-family:inherit; box-shadow:0 6px 16px rgba(120,94,175,0.30);">Save perfume</button>
+          </div>
+        </div>
+      </sc-if>
+
+      <!-- EDIT PERFUME DETAILS (admin) -->
+      <sc-if value="{{ showEditDetails }}" hint-placeholder-val="">
+        <div onClick="{{ closeSheet }}" style="position:absolute; inset:0; background:rgba(20,16,32,0.42); z-index:44; animation:fadeIn 180ms ease;"></div>
+        <div style="position:absolute; left:0; right:0; bottom:0; height:88%; background:#fff; border-radius:26px 26px 0 0; z-index:45; display:flex; flex-direction:column; animation:sheetUp 300ms cubic-bezier(.2,.7,.2,1); box-shadow:0 -14px 44px rgba(20,16,32,0.24); overflow:hidden;">
+          <div onTouchStart="{{ sheetGrabStart }}" onTouchMove="{{ sheetGrabMove }}" onTouchEnd="{{ sheetGrabEnd }}" style="flex:0 0 auto; display:flex; justify-content:center; padding:9px 0 3px; cursor:grab; touch-action:none;"><div style="width:38px; height:5px; border-radius:99px; background:#E2DEEC;"></div></div>
+          <div style="flex:0 0 auto; display:flex; align-items:center; gap:10px; padding:6px 20px 12px;">
+            <button onClick="{{ closeSheet }}" style="width:32px; height:32px; border-radius:50%; background:#F2F1F6; border:none; color:#6A6775; display:flex; align-items:center; justify-content:center; cursor:pointer;"><span class="ms" style="font-size:20px;">arrow_back_ios_new</span></button>
+            <div style="font-size:18px; font-weight:700; color:#1C1B22;">Edit perfume details</div>
+          </div>
+          <div class="appscroll" style="flex:1; overflow-y:auto; padding:4px 20px 0;">
+            <div style="display:flex; justify-content:center; margin:2px 0 12px;">
+              <label style="width:96px; height:96px; border-radius:24px; cursor:pointer; position:relative; overflow:hidden; display:flex; align-items:center; justify-content:center; background:{{ edPhotoBg }}; border:{{ edPhotoBorder }};">
+                <input type="file" accept="image/*" onChange="{{ onPickEdPhoto }}" style="position:absolute; inset:0; opacity:0; cursor:pointer; font-size:0;" />
+                <sc-if value="{{ edHasPhoto }}" hint-placeholder-val=""><span class="ms" style="font-size:22px; color:#fff; text-shadow:0 1px 3px rgba(0,0,0,0.5);">photo_camera</span></sc-if>
+                <sc-if value="{{ edNoPhoto }}" hint-placeholder-val="{{ true }}"><span style="display:flex; flex-direction:column; align-items:center; gap:4px; color:var(--accent);"><span class="ms" style="font-size:26px;">add_a_photo</span><span style="font-size:10px; font-weight:600;">Add photo</span></span></sc-if>
+              </label>
+            </div>
+            <div style="display:flex; align-items:center; justify-content:center; gap:18px; margin-bottom:18px;">
+              <button onClick="{{ pasteEdPhotoUrl }}" style="background:none; border:none; color:var(--accent); font-size:12.5px; font-weight:600; cursor:pointer; font-family:inherit; display:inline-flex; align-items:center; gap:5px;"><span class="ms" style="font-size:16px;">link</span>Paste URL</button>
+              <sc-if value="{{ edHasPhoto }}" hint-placeholder-val=""><button onClick="{{ removeEdPhoto }}" style="background:none; border:none; color:#9C99A8; font-size:12.5px; font-weight:600; cursor:pointer; font-family:inherit;">Remove photo</button></sc-if>
+            </div>
+            <div style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; color:#9C99A8; margin-bottom:6px;">Name <span style="color:#C0353A;">*</span></div>
+            <input class="frpl-in" value="{{ edName }}" onChange="{{ onEdName }}" placeholder="Perfume name" style="width:100%; border:1px solid #ECEAF2; border-radius:11px; padding:11px 13px; color:#1C1B22; background:#fff; margin-bottom:14px;" />
+            <div style="display:flex; flex-direction:column; gap:14px;">
+              <div><div style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; color:#9C99A8; margin-bottom:6px;">House / Brand</div><input class="frpl-in" value="{{ edBrand }}" onChange="{{ onEdBrand }}" placeholder="House" style="width:100%; border:1px solid #ECEAF2; border-radius:11px; padding:11px 13px; color:#1C1B22; background:#fff;" /></div>
+              <div><div style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; color:#9C99A8; margin-bottom:6px;">Release Year</div><input class="frpl-in" value="{{ edYear }}" onChange="{{ onEdYear }}" inputmode="numeric" placeholder="2026" style="width:100%; border:1px solid #ECEAF2; border-radius:11px; padding:11px 13px; color:#1C1B22; background:#fff;" /></div>
+              <div><div style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; color:#9C99A8; margin-bottom:6px;">Perfumer</div><input class="frpl-in" value="{{ edPerfumer }}" onChange="{{ onEdPerfumer }}" placeholder="e.g. Alberto Morillas" style="width:100%; border:1px solid #ECEAF2; border-radius:11px; padding:11px 13px; color:#1C1B22; background:#fff;" /></div>
+            </div>
+          </div>
+          <div style="flex:0 0 auto; padding:12px 20px 26px; border-top:1px solid #F2F1F6;">
+            <button onClick="{{ saveEditDetails }}" style="width:100%; height:48px; border-radius:14px; background:var(--accent); border:none; color:#fff; font-size:15px; font-weight:600; cursor:pointer; font-family:inherit; box-shadow:0 6px 16px rgba(120,94,175,0.30);">Save changes</button>
           </div>
         </div>
       </sc-if>
@@ -892,11 +922,12 @@ class Component extends DCLogic {
     ],
     userData: {},
     view: 'home', activeSection: 'totry', activeListId: null, homeView: 'folders',
-    drawerPerfumeId: null, drawerListId: null, drawerEdit: false, drawerFromSearch: false, pendingAddPerfumeId: null, editNote: '', editPrice: '', simQuery: '',
+    drawerPerfumeId: null, drawerListId: null, drawerEdit: false, drawerFromSearch: false, pendingAddPerfumeId: null, editNote: '', simQuery: '', notesExpanded: false, similarExpanded: false,
+    edName: '', edBrand: '', edYear: '', edPerfumer: '', edPhoto: '',
     sheet: null, addTargetListId: null,
     sort: 'added', sortDir: 'asc', addQuery: '', libQuery: '',
     newName: '', newCover: 0, newParent: null, newCoverPhoto: null, coverBusy: false,
-    manualName: '', manualBrand: '', manualYear: '', manualNote: '', manualPhoto: null, manualBusy: false, drawerPhotoBusy: false,
+    manualName: '', manualBrand: '', manualYear: '', manualPerfumer: '', manualPhoto: null, manualBusy: false, drawerPhotoBusy: false,
     newCatName: '', renameValue: '', urlValue: '', urlTarget: null, toast: null,
   };
 
@@ -1008,10 +1039,10 @@ class Component extends DCLogic {
     for (const e of (entriesRes.data||[])) { if (lists[e.list_id]) lists[e.list_id].entries.push({ perfumeId:e.perfume_id, tag:e.tag||null }); }
     const catById = { ...(this._catById||{}) };
     // Shared, admin-curated catalogue — searchable by everyone
-    const communityArr = (communityRes && communityRes.data ? communityRes.data : []).map(cp => ({ id:cp.id, name:cp.name, brand:cp.brand||'', year:cp.year, rating:null, ratingCount:null, gender:'', thumb:cp.image_url||'', url:'', accords:cp.accords||[], notes:{top:cp.notes_top||[],mid:cp.notes_mid||[],base:cp.notes_base||[]}, reminds:[], community:true }));
+    const communityArr = (communityRes && communityRes.data ? communityRes.data : []).map(cp => ({ id:cp.id, name:cp.name, brand:cp.brand||'', year:cp.year, perfumers:cp.perfumer?cp.perfumer.split(',').map(x=>x.trim()).filter(Boolean):[], gender:'', thumb:cp.image_url||'', url:'', accords:cp.accords||[], notes:{top:cp.notes_top||[],mid:cp.notes_mid||[],base:cp.notes_base||[]}, reminds:[], community:true }));
     for (const cp of communityArr) catById[cp.id] = cp;
     // This user's private manual perfumes
-    const customArr = (customRes.data||[]).map(cp => ({ id:cp.id, name:cp.name, brand:cp.brand||'Added manually', year:cp.year, rating:null, ratingCount:null, gender:'', thumb:cp.image_url||'', url:'', notes:{top:[],mid:[],base:[]}, reminds:[], manual:true }));
+    const customArr = (customRes.data||[]).map(cp => ({ id:cp.id, name:cp.name, brand:cp.brand||'Added manually', year:cp.year, perfumers:cp.perfumer?cp.perfumer.split(',').map(x=>x.trim()).filter(Boolean):[], gender:'', thumb:cp.image_url||'', url:'', notes:{top:[],mid:[],base:[]}, reminds:[], manual:true }));
     for (const cp of customArr) catById[cp.id] = cp;
     const userData = {};
     for (const n of (notesRes.data||[])) userData[n.perfume_id] = { note:n.note, remindsOf:n.reminds_of, pricePaid:n.price_paid, priceTarget:n.price_target };
@@ -1025,7 +1056,7 @@ class Component extends DCLogic {
     { id:'totry', name:'To Try', sub:'wishlist & discovery' },
     { id:'owned', name:'Owned', sub:'in your possession' },
     { id:'favnotes', name:'Notes', sub:'by accord & ingredient' },
-    { id:'toget', name:'To get', sub:'your shopping shortlist' },
+    { id:'toget', name:'♥ Wishlist', sub:'your shopping shortlist' },
   ]; }
   _buildSections(prefs, customCats, lists) {
     const pmap={}; (prefs||[]).forEach(p=>{ pmap[p.section_id]=p; });
@@ -1216,8 +1247,22 @@ class Component extends DCLogic {
     else this.setState({view:'home',activeListId:null});
     this.resetScroll();
   }
-  openDrawer(pid,lid,fromSearch) { const m=this.state.userData[pid]||{}; this.setState({drawerPerfumeId:pid,drawerListId:lid||null,drawerEdit:false,drawerFromSearch:!!fromSearch,editNote:m.note||'',editPrice:m.pricePaid||''}); }
-  closeDrawer() { this.setState({drawerPerfumeId:null,drawerListId:null,drawerEdit:false,drawerFromSearch:false}); }
+  openDrawer(pid,lid,fromSearch,fromSimilar) {
+    const m=this.state.userData[pid]||{};
+    if (fromSimilar) { this._drawerStack=this._drawerStack||[]; this._drawerStack.push({pid:this.state.drawerPerfumeId,lid:this.state.drawerListId,fromSearch:this.state.drawerFromSearch}); }
+    else { this._drawerStack=[]; }
+    this.setState({drawerPerfumeId:pid,drawerListId:lid||null,drawerEdit:false,drawerFromSearch:!!fromSearch,editNote:m.note||'',notesExpanded:!!(m.note&&m.note.trim()),similarExpanded:false});
+  }
+  drawerBack() {
+    const st=this._drawerStack&&this._drawerStack.pop();
+    if (!st||!st.pid) { this.closeDrawer(); return; }
+    const m=this.state.userData[st.pid]||{};
+    this.setState({drawerPerfumeId:st.pid,drawerListId:st.lid||null,drawerFromSearch:!!st.fromSearch,editNote:m.note||'',notesExpanded:!!(m.note&&m.note.trim()),similarExpanded:false});
+  }
+  expandNotes() { this.setState({notesExpanded:true}); }
+  expandSimilar() { this.setState({similarExpanded:true}); }
+  noteRef(el) { if (el) { el.style.height='auto'; el.style.height=Math.min(el.scrollHeight,420)+'px'; } }
+  closeDrawer() { this._drawerStack=[]; this.setState({drawerPerfumeId:null,drawerListId:null,drawerEdit:false,drawerFromSearch:false}); }
   // swipe-down to dismiss the drawer
   onGrabStart(e){ this._gy0=e.touches[0].clientY; this._gy=0; if(this._drawerSheet) this._drawerSheet.style.transition='none'; }
   onGrabMove(e){ if(this._gy0==null)return; const dy=e.touches[0].clientY-this._gy0; this._gy=dy; if(this._drawerSheet) this._drawerSheet.style.transform='translateY('+Math.max(0,dy)+'px)'; }
@@ -1240,13 +1285,40 @@ class Component extends DCLogic {
       if (error) this.toast('Save error: ' + error.message);
     }
   }
-  openEdit() { const m = this.state.userData[this.state.drawerPerfumeId] || {}; this.setState({ drawerEdit: true, editNote: m.note || '', editPrice: m.pricePaid || '' }); }
+  openEdit() { const m = this.state.userData[this.state.drawerPerfumeId] || {}; this.setState({ drawerEdit: true, editNote: m.note || '' }); }
   cancelEdit() { this.setState({ drawerEdit: false }); }
   onEditNote(e) { this.setState({ editNote: e.target.value }); }
-  onEditPrice(e) { this.setState({ editPrice: e.target.value }); }
+  // ── edit perfume details (admin, manual/community perfumes) ──
+  openEditDetails() {
+    const p=this.state.catById[this.state.drawerPerfumeId]; if(!p) return;
+    this._edPhotoBlob=null; this._edPhotoUrl=null;
+    this.setState({sheet:'editdetails', edName:p.name||'', edBrand:(p.brand&&p.brand!=='Added manually')?p.brand:'', edYear:p.year?String(p.year):'', edPerfumer:(p.perfumers&&p.perfumers.length?p.perfumers.join(', '):''), edPhoto:p.thumb||''});
+  }
+  onEdName(e){this.setState({edName:e.target.value});}
+  onEdBrand(e){this.setState({edBrand:e.target.value});}
+  onEdYear(e){this.setState({edYear:e.target.value});}
+  onEdPerfumer(e){this.setState({edPerfumer:e.target.value});}
+  async onPickEdPhoto(e){ const f=e.target.files&&e.target.files[0]; e.target.value=''; if(!f) return; try{ const {blob,preview}=await this._resizeImage(f,700,'image/jpeg',0.85); this._edPhotoBlob=blob; this._edPhotoUrl=null; this.setState({edPhoto:preview}); }catch(_){ this.toast('Could not read image'); } }
+  removeEdPhoto(){ this._edPhotoBlob=null; this._edPhotoUrl=null; this.setState({edPhoto:''}); }
+  pasteEdPhotoUrl(){ this.openUrlSheet('editdetails'); }
+  async saveEditDetails(){
+    const s=this.state, p=s.catById[s.drawerPerfumeId]; if(!p) return;
+    const name=(s.edName||'').trim(); if(!name){ this.toast('Name is required'); return; }
+    const brand=(s.edBrand||'').trim();
+    const yi=parseInt((s.edYear||'').replace(/[^\d]/g,''),10); const yr=isNaN(yi)?null:yi;
+    const perfumer=(s.edPerfumer||'').trim();
+    this.setState({sheet:null});
+    let thumb=s.edPhoto||'';
+    if(this._edPhotoBlob && this._sb && s.session){ try{ thumb=await this._uploadImage('bottles/'+s.session.user.id+'/'+p.id+'.jpg', this._edPhotoBlob); }catch(_){ this.toast('Image upload failed'); } }
+    this._edPhotoBlob=null;
+    p.name=name; p.brand=brand||p.brand; p.year=yr; p.perfumers=perfumer?perfumer.split(',').map(x=>x.trim()).filter(Boolean):[]; p.thumb=thumb;
+    this.forceUpdate();
+    if(this._sb){ const table=p.community?'community_perfumes':'custom_perfumes'; await this._sb.from(table).update({name,brand:brand||null,year:yr,perfumer:perfumer||null,image_url:thumb||null}).eq('id',p.id); }
+    this.toast('Details updated');
+  }
   async saveEdit() {
     const pid = this.state.drawerPerfumeId;
-    await this.saveUserMeta(pid, { note: (this.state.editNote || '').trim(), pricePaid: (this.state.editPrice || '').trim() });
+    await this.saveUserMeta(pid, { note: (this.state.editNote || '').trim() });
     this.toast('Saved');
   }
   openSimAdd() { this.setState({ sheet: 'simadd', simQuery: '' }); }
@@ -1270,7 +1342,7 @@ class Component extends DCLogic {
   sheetGrabMove(e){ const sg=this._sg; if(!sg)return; const dy=e.touches[0].clientY-sg.y0; sg.dy=dy; if(Math.abs(dy)>4)sg.moved=true; if(sg.panel) sg.panel.style.transform='translateY('+Math.max(0,dy)+'px)'; }
   sheetGrabEnd(){ const sg=this._sg; if(!sg)return; this._sg=null; const p=sg.panel; if(sg.dy>100){ this.closeSheet(); } else if(p){ p.style.transition='transform .24s cubic-bezier(.2,.7,.2,1)'; p.style.transform='translateY(0)'; } }
   openAdd() { this.setState({sheet:'add',addTargetListId:this.state.activeListId,addQuery:''}); }
-  openManual() { this._pendingBottleBlob=null; this._pendingBottleUrl=null; this.setState({sheet:'manual',manualName:'',manualBrand:'',manualYear:'',manualNote:'',manualPhoto:null}); }
+  openManual() { this._pendingBottleBlob=null; this._pendingBottleUrl=null; this.setState({sheet:'manual',manualName:'',manualBrand:'',manualYear:'',manualPerfumer:'',manualPhoto:null}); }
   openSort() { this.setState({sheet:'sort'}); }
   openListMenu() { this.setState({sheet:'listmenu'}); }
   openNewList(parent) { this._pendingCoverBlob=null; this._pendingCoverUrl=null; this.setState({sheet:'newlist',newParent:parent||null,newName:'',newCover:0,newCoverPhoto:null}); }
@@ -1292,7 +1364,7 @@ class Component extends DCLogic {
   onManualName(e) { this.setState({manualName:e.target.value}); }
   onManualBrand(e) { this.setState({manualBrand:e.target.value}); }
   onManualYear(e) { this.setState({manualYear:e.target.value}); }
-  onManualNote(e) { this.setState({manualNote:e.target.value}); }
+  onManualPerfumer(e) { this.setState({manualPerfumer:e.target.value}); }
   async onPickCoverPhoto(e) {
     const file=e.target.files&&e.target.files[0]; e.target.value=''; if(!file) return;
     this._pendingCoverUrl=null;
@@ -1332,6 +1404,11 @@ class Component extends DCLogic {
     if(target==='newcover'){
       this._pendingCoverBlob=null; this._pendingCoverUrl=url;
       this.setState({sheet:'newlist', newCoverPhoto:url});
+      return;
+    }
+    if(target==='editdetails'){
+      this._edPhotoBlob=null; this._edPhotoUrl=url;
+      this.setState({sheet:'editdetails', edPhoto:url});
       return;
     }
     if(target==='manual'){
@@ -1700,16 +1777,16 @@ class Component extends DCLogic {
     if (!nm) { this.toast('Name is required'); return; }
     const brand=(s.manualBrand||'').trim()||'Added manually';
     const yi=parseInt((s.manualYear||'').replace(/[^\d]/g,''),10); const yr=isNaN(yi)?null:yi;
-    const note=(s.manualNote||'').trim();
+    const perfumer=(s.manualPerfumer||'').trim();
     const admin=!!this._isAdmin;
     const id=(admin?'cm_':'cp_')+((window.crypto&&crypto.randomUUID)?crypto.randomUUID():(Date.now()+Math.random().toString(16).slice(2)));
     const blob=this._pendingBottleBlob; this._pendingBottleBlob=null;
     const pendUrl=this._pendingBottleUrl; this._pendingBottleUrl=null;
     const targetListId=s.addTargetListId;
-    this.setState({sheet:null, manualName:'',manualBrand:'',manualYear:'',manualNote:'',manualPhoto:null});
+    this.setState({sheet:null, manualName:'',manualBrand:'',manualYear:'',manualPerfumer:'',manualPhoto:null});
     let imageUrl=pendUrl||'';
     if (!imageUrl && blob && this._sb && s.session) { try { imageUrl=await this._uploadImage('bottles/'+s.session.user.id+'/'+id+'.jpg', blob); } catch(err){ this.toast('Image upload failed'); } }
-    s.catById[id]={id,name:nm,brand,year:yr,rating:null,ratingCount:null,gender:'',thumb:imageUrl,url:'',notes:{top:[],mid:[],base:[]},reminds:[],manual:!admin,community:admin};
+    s.catById[id]={id,name:nm,brand,year:yr,perfumers:perfumer?[perfumer]:[],gender:'',thumb:imageUrl,url:'',notes:{top:[],mid:[],base:[]},reminds:[],manual:!admin,community:admin};
     if (s.catalogue && !s.catalogue.some(p=>p.id===id)) s.catalogue.push(s.catById[id]);
     const l=s.lists[targetListId];
     if (l) l.entries.push({perfumeId:id,tag:null});
@@ -1718,17 +1795,16 @@ class Component extends DCLogic {
       let err;
       if (admin) {
         // Admin → write to the SHARED catalogue everyone can search
-        const {error}=await this._sb.from('community_perfumes').insert({id,name:nm,brand:brand==='Added manually'?null:brand,year:yr,image_url:imageUrl||null,created_by:s.session.user.id});
+        const {error}=await this._sb.from('community_perfumes').insert({id,name:nm,brand:brand==='Added manually'?null:brand,year:yr,perfumer:perfumer||null,image_url:imageUrl||null,created_by:s.session.user.id});
         err=error;
       } else {
         // Regular user → private perfume
-        const {error}=await this._sb.from('custom_perfumes').insert({id,user_id:s.session.user.id,name:nm,brand,year:yr,image_url:imageUrl||null});
+        const {error}=await this._sb.from('custom_perfumes').insert({id,user_id:s.session.user.id,name:nm,brand,year:yr,perfumer:perfumer||null,image_url:imageUrl||null});
         err=error;
       }
       if (err) { this.toast('Save error: '+err.message); }
       else if (l) { await this._sb.from('list_entries').insert({list_id:l.id,user_id:s.session.user.id,perfume_id:id,position:l.entries.length}); }
     }
-    if (note) await this.saveUserMeta(id,{note});
     this.toast(admin ? ('“'+nm+'” added to the catalogue') : ('“'+nm+'” added'));
   }
 
@@ -1809,14 +1885,14 @@ class Component extends DCLogic {
     // drawer
     const p=s.drawerPerfumeId?cat[s.drawerPerfumeId]:null;
     const drawerOpen=!!p;
-    let d={img:'',imgEl:null,noImg:true,name:'',house:'',metaLine:'',inList:false,fromSearch:false,accords:[],hasAccords:false,top:['—'],heart:['—'],base:['—'],showToGet:false,showNotesEdit:false,showPriceEdit:false,simControls:false,showAddToList:false,showListFooter:false,showFooter:false,dirty:false,notDirty:true,togetBtnStyle:'',toggleToGet:()=>{},showSimilar:false,similarEmpty:false,similar:[],removeFromList:()=>{},canEditPhoto:false};
+    let d={img:'',imgEl:null,noImg:true,name:'',house:'',metaLine:'',inList:false,fromSearch:false,accords:[],hasAccords:false,top:['—'],heart:['—'],base:['—'],showBack:false,noBack:true,showHeart:true,noHeart:false,toggleHeart:()=>{},heartFill:'0',heartColor:'#C4C1CE',heartBg:'#F4F1FA',canEditDetails:false,notesOpen:false,notesCTA:false,showSimilar:false,simCTA:false,similar:[],similarEmpty:false,showAddToList:false,showListFooter:false,showFooter:false,dirty:false,notDirty:true,removeFromList:()=>{},canEditPhoto:false};
     if (drawerOpen) {
       const inList=!!s.drawerListId;
       let curTag=null;
       if (inList&&lists[s.drawerListId]){const en=lists[s.drawerListId].entries.find(e=>e.perfumeId===p.id);curTag=en?en.tag:null;}
       const meta=ud(p.id);
       const isOwned=Object.values(lists).some(l=>l.sectionId==='owned'&&l.entries.some(e=>e.perfumeId===p.id));
-      const metaLine=[(p.perfumers&&p.perfumers.length?p.perfumers.slice(0,2).join(', '):null),p.year||null,p.rating?('★ '+p.rating):null,p.ratingCount?(this.fmtInt(p.ratingCount)+' ratings'):null].filter(Boolean).join('  ·  ');
+      const metaLine=[p.year||null,(p.perfumers&&p.perfumers.length?p.perfumers.slice(0,2).join(', '):null)].filter(Boolean).join('  ·  ');
       const bs='display:flex;align-items:center;justify-content:center;gap:7px;flex:1;height:44px;border-radius:13px;font-size:13.5px;font-weight:600;cursor:pointer;font-family:inherit;';
       // merge dataset similar + user-added similar
       const userSimIds=this._userSimilarIds(p.id);
@@ -1824,11 +1900,27 @@ class Component extends DCLogic {
       const userSim=userSimIds.map(id=>{const cp=cat[id];return cp?{id,name:cp.name,house:cp.brand,img:cp.thumb}:null;}).filter(Boolean);
       const seen=new Set();const merged=[];
       for (const it of [...datasetSim,...userSim]){if(it.id&&seen.has(it.id))continue;if(it.id)seen.add(it.id);merged.push({...it,removable:!!(it.id&&userSimIds.includes(it.id))});}
-      const similar=merged.map(r=>({name:r.name,house:r.house,img:r.img,imgEl:mkImg(r.img,ST.sim),onOpen:r.id?(()=>this.openDrawer(r.id,s.drawerListId)):(()=>{}),showRemove:inList&&r.removable,onRemove:()=>this.removeSimilar(r.id)}));
+      const similar=merged.map(r=>({name:r.name,house:r.house,img:r.img,imgEl:mkImg(r.img,ST.sim),onOpen:r.id?(()=>this.openDrawer(r.id,s.drawerListId,false,true)):(()=>{}),showRemove:inList&&r.removable,onRemove:()=>this.removeSimilar(r.id)}));
       const fb=a=>(a&&a.length?a:['—']);
-      const noteDirty=(s.editNote||'')!==(meta.note||''); const priceDirty=isOwned&&((s.editPrice||'')!==(meta.pricePaid||'')); const isDirty=inList&&(noteDirty||priceDirty);
+      const noteDirty=(s.editNote||'')!==(meta.note||''); const isDirty=inList&&noteDirty;
       const isTG=this.isToGet(p.id);
-      d={name:p.name,house:p.brand||'—',metaLine,img:p.thumb,imgEl:mkImg(p.thumb,ST.drawer),noImg:!p.thumb,inList,fromSearch:s.drawerFromSearch,accords:p.accords||[],hasAccords:!!(p.accords&&p.accords.length),top:fb(p.notes.top),heart:fb(p.notes.mid),base:fb(p.notes.base),showToGet:true,showNotesEdit:inList,showPriceEdit:(inList&&isOwned),togetBtnStyle:bs+(isTG?'border:1.5px solid #E5484D;background:#FDECEC;color:#BE343A;':'border:1.5px solid #ECEAF2;background:#fff;color:#6A6775;'),toggleToGet:()=>this.toggleToGet(p.id),showSimilar:(similar.length>0||inList),simControls:inList,similarEmpty:(inList&&similar.length===0),similar,removeFromList:()=>this.removeFromList(),showAddToList:s.drawerFromSearch,showListFooter:isDirty,showFooter:(s.drawerFromSearch||isDirty),dirty:isDirty,notDirty:!isDirty,canEditPhoto:(inList&&(!!p.manual||(!!p.community&&!!this._isAdmin)))};
+      const editable=inList&&!s.drawerFromSearch;
+      const hasNote=!!(meta.note&&meta.note.trim());
+      const notesOpen=editable&&(hasNote||s.notesExpanded);
+      const notesCTA=editable&&!notesOpen;
+      const simOpen=editable&&(similar.length>0||s.similarExpanded);
+      const simCTA=editable&&!simOpen;
+      const canEditDetails=(!!p.manual)||(!!this._isAdmin&&!!p.community);
+      const heartActive=isTG;
+      const showBack=!!(this._drawerStack&&this._drawerStack.length);
+      const showHeart=!isOwned;
+      const canAddToList=s.drawerFromSearch||showBack;
+      d={name:p.name,house:p.brand||'—',metaLine,img:p.thumb,imgEl:mkImg(p.thumb,ST.drawer),noImg:!p.thumb,inList,fromSearch:s.drawerFromSearch,accords:p.accords||[],hasAccords:!!(p.accords&&p.accords.length),top:fb(p.notes.top),heart:fb(p.notes.mid),base:fb(p.notes.base),
+        showBack,noBack:!showBack,showHeart,noHeart:!showHeart,toggleHeart:()=>this.toggleToGet(p.id),heartFill:heartActive?'1':'0',heartColor:heartActive?'#E5484D':'#C4C1CE',heartBg:heartActive?'#FDECEC':'#F4F1FA',
+        canEditDetails,
+        notesOpen,notesCTA,
+        showSimilar:simOpen,simCTA,similar,similarEmpty:(simOpen&&similar.length===0),
+        removeFromList:()=>this.removeFromList(),showAddToList:canAddToList,showListFooter:isDirty,showFooter:(canAddToList||isDirty),dirty:isDirty,notDirty:!isDirty,canEditPhoto:(editable&&(!!p.manual||(!!p.community&&!!this._isAdmin)))};
     }
 
     // add sheet
@@ -1874,7 +1966,7 @@ class Component extends DCLogic {
       const noteHit=p=>p.notes&&(p.notes.top.concat(p.notes.mid,p.notes.base)).some(n=>n.toLowerCase().includes(lq));
       const matched=s.catalogue.filter(p=>p.name.toLowerCase().includes(lq)||(p.brand||'').toLowerCase().includes(lq)||noteHit(p));
       searchTotal=matched.length;
-      searchResults=matched.slice(0,60).map(p=>({name:p.name,sub:(p.brand||'—')+'  ·  '+(p.year||'—')+(p.rating?('  ·  ★ '+p.rating):''),img:p.thumb,imgEl:mkImg(p.thumb,ST.search),onOpen:()=>this.openDrawer(p.id,null,true)}));
+      searchResults=matched.slice(0,60).map(p=>({name:p.name,sub:(p.brand||'—')+'  ·  '+(p.year||'—'),img:p.thumb,imgEl:mkImg(p.thumb,ST.search),onOpen:()=>this.openDrawer(p.id,null,true)}));
     }
     const searchChips=[{label:'Iris',color:'#D89EC4',onPick:()=>this.pickChip('iris')},{label:'Woody',color:'#6E523A',onPick:()=>this.pickChip('woody')},{label:'Amber',color:'#BA763E',onPick:()=>this.pickChip('amber')},{label:'Vanilla',color:'#E0C9A6',onPick:()=>this.pickChip('vanilla')},{label:'Citrus',color:'#E2C53A',onPick:()=>this.pickChip('citrus')},{label:'Rose',color:'#D98AA0',onPick:()=>this.pickChip('rose')},{label:'Oud',color:'#7A5A3A',onPick:()=>this.pickChip('oud')},{label:'Musk',color:'#9B82C9',onPick:()=>this.pickChip('musk')},{label:'Vetiver',color:'#72A67C',onPick:()=>this.pickChip('vetiver')}];
 
@@ -1906,7 +1998,13 @@ class Component extends DCLogic {
       sheetGrabStart:(e)=>this.sheetGrabStart(e), sheetGrabMove:(e)=>this.sheetGrabMove(e), sheetGrabEnd:()=>this.sheetGrabEnd(),
       showRowMore:s.sheet==='rowmore', rowMoveStart:()=>this.rowMoveStart(), rowRemove:()=>this.rowRemove(), moreArchive:()=>this.moreArchive(),
       showPickList:s.sheet==='picklist', pickListOptions,
-      editNote:s.editNote, editPrice:s.editPrice, onEditNote:(e)=>this.onEditNote(e), onEditPrice:(e)=>this.onEditPrice(e),
+      editNote:s.editNote, onEditNote:(e)=>this.onEditNote(e), noteRef:(el)=>this.noteRef(el),
+      drawerBack:()=>this.drawerBack(), expandNotes:()=>this.expandNotes(), expandSimilar:()=>this.expandSimilar(),
+      openEditDetails:()=>this.openEditDetails(),
+      showEditDetails:s.sheet==='editdetails', edName:s.edName, edBrand:s.edBrand, edYear:s.edYear, edPerfumer:s.edPerfumer, edPhoto:s.edPhoto,
+      onEdName:(e)=>this.onEdName(e), onEdBrand:(e)=>this.onEdBrand(e), onEdYear:(e)=>this.onEdYear(e), onEdPerfumer:(e)=>this.onEdPerfumer(e),
+      onPickEdPhoto:(e)=>this.onPickEdPhoto(e), removeEdPhoto:()=>this.removeEdPhoto(), pasteEdPhotoUrl:()=>this.pasteEdPhotoUrl(), saveEditDetails:()=>this.saveEditDetails(),
+      edHasPhoto:!!s.edPhoto, edNoPhoto:!s.edPhoto, edPhotoBg:s.edPhoto?('url("'+s.edPhoto+'") center/cover no-repeat'):'#F4F1FA',
       openEdit:()=>this.openEdit(), cancelEdit:()=>this.cancelEdit(), saveEdit:()=>this.saveEdit(), openSimAdd:()=>this.openSimAdd(),
       showSimAdd:s.sheet==='simadd', simQuery:s.simQuery, onSimQuery:(e)=>this.onSimQuery(e), simResults, simNoResults, simPrompt,
       showAddSheet:s.sheet==='add', addTitle, addResults, addNoResults, addQuery:s.addQuery,
@@ -1938,8 +2036,9 @@ class Component extends DCLogic {
       openSort:()=>this.openSort(), openListMenu:()=>this.openListMenu(), shareCurrent:()=>this.shareCurrent(),
       openNewListTop:()=>this.openNewList(null), addSubList:()=>this.addSubList(), onNewName:(e)=>this.onNewName(e), createList:()=>this.createList(),
       onManualName:(e)=>this.onManualName(e), manualSave:()=>this.manualSave(),
-      onManualBrand:(e)=>this.onManualBrand(e), onManualYear:(e)=>this.onManualYear(e), onManualNote:(e)=>this.onManualNote(e),
-      manualBrand:s.manualBrand, manualYear:s.manualYear, manualNote:s.manualNote,
+      onManualBrand:(e)=>this.onManualBrand(e), onManualYear:(e)=>this.onManualYear(e), onManualPerfumer:(e)=>this.onManualPerfumer(e),
+      manualBrand:s.manualBrand, manualYear:s.manualYear, manualPerfumer:s.manualPerfumer,
+      edPhotoBorder:s.edPhoto?'2.5px solid var(--accent-deep)':'1.5px dashed #C9C4D8',
       onPickManualPhoto:(e)=>this.onPickManualPhoto(e), removeManualPhoto:()=>this.removeManualPhoto(),
       manualHasPhoto:!!s.manualPhoto, manualNoPhoto:!s.manualPhoto,
       manualPhotoBg:s.manualPhoto?('url("'+s.manualPhoto+'") center/cover no-repeat'):'#F7F6FB',
